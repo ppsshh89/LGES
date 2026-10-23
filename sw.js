@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lges-pay-calc-v4';
+const CACHE_NAME = 'lges-pay-calc-v4.1';
 const urlsToCache = [
   './',
   './index.html',
