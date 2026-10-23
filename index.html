@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="월급계산기">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
+  <title>LGES 월급계산기 v4.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
+      background-color: #cbd5e1;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      word-break: keep-all;
+    }
+    .mobile-app-shell {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background-color: #f1f5f9;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 500px) {
+      body { padding: 20px 0; }
+      .mobile-app-shell {
+        min-height: 880px;
+        border-radius: 40px;
+        border: 10px solid #0f172a;
+        overflow: hidden;
+      }
+    }
+
+    /* 초(아침색), 중(낮색), 야(야간색) 1글자 배지 */
+    .badge-EARLY { background-color: #0284c7; color: #ffffff; }
+    .badge-MID   { background-color: #f59e0b; color: #ffffff; }
+    .badge-NIGHT { background-color: #3b0764; color: #fde047; }
+
+    /* 평일 기본 고정근무 칸 배경색 */
+    .cell-shift-EARLY { background-color: #f0f9ff; border: 1px solid #bae6fd; }
+    .cell-shift-MID   { background-color: #fffbeb; border: 1px solid #fde68a; }
+    .cell-shift-NIGHT { background-color: #f3e8ff; border: 1px solid #d8b4fe; }
+
+    /* 주말/공휴일 기본 휴무 칸 */
+    .cell-off { background-color: #f8fafc; border: 1px solid #e2e8f0; }
+
+    /* 잔업 / 특근 / 휴가 체크 시 강조 */
+    .cell-checked-ot      { background-color: #dbeafe !important; border: 2px solid #2563eb !important; }
+    .cell-checked-holiday { background-color: #fee2e2 !important; border: 2px solid #dc2626 !important; }
+    .cell-checked-leave   { background-color: #d1fae5 !important; border: 2px solid #059669 !important; }
+
+    /* 매월 1일 상단 구분선 */
+    .month-start-bar { box-shadow: inset 0 3px 0 0 #334155; }
+
+    /* 오늘 날짜 실시간 자동 강조 테두리 */
+    .cell-today {
+      outline: 2.5px solid #f59e0b !important;
+      outline-offset: -2px;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3) !important;
+      z-index: 10;
+    }
+
+    .bottom-nav-active { color: #2563eb; font-weight: 900; }
+    .nowrap { white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-app-shell">
+
+    <!-- 상단 앱 헤더 (절대 두 줄로 안 넘어가게 한 줄 고정) -->
+    <header class="bg-slate-900 text-white px-3.5 pt-3 pb-3 sticky top-0 z-30">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 nowrap">
+            <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded">LGES</span>
+            <span id="today_header_info" class="text-[11px] font-bold text-amber-400">오늘 10.23</span>
+          </div>
+          <h1 id="header_month_title" class="text-base font-black mt-0.5 truncate nowrap">2026년 11월 예상월급</h1>
+        </div>
+
+        <!-- 연차 21일 실시간 차감 배지 -->
+        <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1.5 rounded-xl text-right active:scale-95 transition nowrap">
+          <span class="text-[9px] font-bold text-emerald-300 block">🌴 남은 연차</span>
+          <strong id="top_vacation_badge" class="text-xs font-black text-emerald-400">21.0 / 21일</strong>
+        </button>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="flex-1 overflow-y-auto px-3 pt-2.5 pb-24 space-y-2.5">
+
+      <!-- ==========================================
+           TAB 1: 달력 & 예상 월급 홈 화면
+           ========================================== -->
+      <div id="tab_home" class="space-y-2.5">
+
+        <!-- 월 이동 컨트롤 (한 줄 고정) -->
+        <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-200 flex items-center justify-between gap-1">
+          <button onclick="App.changeMonth(-1)" class="w-8 h-8 shrink-0 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">◀</button>
+          <div class="flex items-center justify-center gap-1.5 min-w-0 nowrap">
+            <span id="period_text" class="text-xs font-extrabold text-slate-800">10.21 - 11.20 근무</span>
+            <span id="even_odd_badge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">홀수달</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="App.goToTodayPayMonth()" class="px-2 h-8 bg-amber-100 text-amber-900 rounded-xl font-black text-[10px] nowrap">오늘달</button>
+            <button onclick="App.changeMonth(1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
+          </div>
+        </div>
+
+        <!-- 핵심 실수령액 카드 -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-4 shadow-md">
+          <div class="flex justify-between items-start gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 nowrap">
+                <span class="text-[11px] font-bold text-emerald-400">예상 세후 실수령액</span>
+                <span id="calibration_active_badge" class="hidden text-[9px] font-black bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded">자동보정중</span>
+              </div>
+              <div id="hero_net_pay" class="text-2xl sm:text-3xl font-black tracking-tight mt-0.5 nowrap">0원</div>
+            </div>
+            <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[10px] bg-slate-700/80 text-slate-300 px-2 py-1 rounded-lg font-bold nowrap">
+              이달 초기화
+            </button>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-slate-700/80 grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-800/80 p-2.5 rounded-2xl nowrap">
+              <span class="text-slate-400 text-[10px] block">세전 총액 (상여포함)</span>
+              <strong id="summary_gross" class="text-xs sm:text-sm font-black text-sky-300">0원</strong>
+            </div>
+            <div class="bg-slate-800/80 p-2.5 rounded-2xl nowrap">
+              <span class="text-slate-400 text-[10px] block">예상 공제총액</span>
+              <strong id="summary_ded" class="text-xs sm:text-sm font-black text-rose-300">-0원</strong>
+            </div>
+          </div>
+
+          <div class="mt-2 bg-slate-950/60 rounded-2xl p-2 grid grid-cols-4 gap-1 text-center text-[11px] nowrap">
+            <div>
+              <span class="text-slate-400 text-[9px] block">평일잔업</span>
+              <strong id="stat_ot" class="text-blue-400 font-black">0h</strong>
+            </div>
+            <div>
+              <span class="text-slate-400 text-[9px] block">휴일특근</span>
+              <strong id="stat_hol" class="text-red-400 font-black">0회(0h)</strong>
+            </div>
+            <div>
+              <span class="text-slate-400 text-[9px] block">야간자동</span>
+              <strong id="stat_night" class="text-purple-400 font-black">0h</strong>
+            </div>
+            <div>
+              <span class="text-slate-400 text-[9px] block">이달휴가</span>
+              <strong id="stat_leave" class="text-emerald-400 font-black">0일</strong>
+            </div>
+          </div>
+
+          <!-- 명세서 상세 내역 (모두 한 줄 정렬) -->
+          <details class="mt-2.5 text-xs">
+            <summary class="cursor-pointer text-slate-300 font-bold flex justify-between items-center py-1 nowrap">
+              <span>🧾 지급·공제 명세서 상세 내역</span>
+              <span class="text-[10px] text-emerald-400">펼치기 ▼</span>
+            </summary>
+            <div id="payslip_detail_box" class="mt-2 pt-2 border-t border-slate-700 space-y-1 text-[11px] text-slate-200"></div>
+          </details>
+        </div>
+
+        <!-- 원터치 도장 팔레트 (한 줄 고정 최적화) -->
+        <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-1.5 nowrap">
+            <span class="text-[11px] font-black text-slate-800">👆 원터치 도장 선택 후 날짜 터치</span>
+            <span class="text-[10px] text-slate-400">고정근무일은 터치 X</span>
+          </div>
+
+          <!-- 1열 4개 -->
+          <div class="grid grid-cols-4 gap-1 text-[11px] font-extrabold mb-1">
+            <button id="stamp_POPUP" onclick="App.setStamp('POPUP')" class="py-1.5 rounded-xl border-2 border-slate-900 bg-slate-900 text-white nowrap">
+              📋 선택창
+            </button>
+            <button id="stamp_HOL12" onclick="App.setStamp('HOL12')" class="py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-700 nowrap">
+              🔥 12h특근
+            </button>
+            <button id="stamp_HOL8" onclick="App.setStamp('HOL8')" class="py-1.5 rounded-xl border border-rose-300 bg-rose-50 text-rose-700 nowrap">
+              🔥 8h특근
+            </button>
+            <button id="stamp_LEAVE" onclick="App.setStamp('LEAVE')" class="py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 nowrap">
+              🌴 휴가
+            </button>
+          </div>
+
+          <!-- 2열 5개 (잔업 +1h ~ +5h 간결화) -->
+          <div class="grid grid-cols-5 gap-1 text-[11px] font-extrabold">
+            <button id="stamp_OT1" onclick="App.setStamp('OT1')" class="py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 text-blue-700 nowrap">⚡+1h</button>
+            <button id="stamp_OT2" onclick="App.setStamp('OT2')" class="py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 text-blue-700 nowrap">⚡+2h</button>
+            <button id="stamp_OT3" onclick="App.setStamp('OT3')" class="py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 text-blue-700 nowrap">⚡+3h</button>
+            <button id="stamp_OT4" onclick="App.setStamp('OT4')" class="py-1.5 rounded-xl border border-blue-300 bg-blue-100 text-blue-800 nowrap">⚡+4h</button>
+            <button id="stamp_OT5" onclick="App.setStamp('OT5')" class="py-1.5 rounded-xl border border-blue-300 bg-blue-100 text-blue-800 nowrap">⚡+5h</button>
+          </div>
+        </div>
+
+        <!-- 달력 섹션 -->
+        <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-100 text-[10px] font-bold nowrap">
+            <div class="flex items-center gap-1">
+              <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-800">
+                <b class="px-1 rounded badge-EARLY text-[9px]">초</b>아침
+              </span>
+              <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-900">
+                <b class="px-1 rounded badge-MID text-[9px]">중</b>낮
+              </span>
+              <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-50 border border-purple-200 text-purple-900">
+                <b class="px-1 rounded badge-NIGHT text-[9px]">야</b>밤
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-amber-600 font-black">🟨오늘</span>
+              <span class="text-red-600 font-extrabold">●특근·공휴일</span>
+            </div>
+          </div>
+
+          <!-- 요일 헤더 (1글자로 깔끔하게 통일, 토·일 빨간색) -->
+          <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-black text-slate-500 mb-1">
+            <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div>
+            <div class="text-red-600">토</div><div class="text-red-600">일</div>
+          </div>
+
+          <!-- 날짜 그리드 -->
+          <div id="calendar_grid" class="grid grid-cols-7 gap-1"></div>
+        </div>
+
+        <!-- 이번 달 특이사항 -->
+        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between nowrap">
+            <span class="text-xs font-black text-slate-800">🎁 이번 달 특이사항</span>
+            <span class="text-[10px] text-slate-400">이 달에만 반영됨</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
+            <button id="btn_hol_bonus" onclick="App.toggleExtraFlag('holidayBonus')" class="py-2 px-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 nowrap">
+              🌕 명절상여 (+100%)
+            </button>
+            <button id="btn_congrats" onclick="App.toggleExtraFlag('congrats')" class="py-2 px-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 nowrap">
+              ✉️ 경조금 (-5만)
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-0.5 text-xs">
+            <div class="bg-blue-50/60 p-2 rounded-xl border border-blue-200">
+              <span class="text-[10px] font-extrabold text-blue-900 block mb-1 nowrap">📚 추가 교육시간 (1.5배)</span>
+              <div class="flex items-center gap-1">
+                <input type="number" id="input_edu_hours" step="0.5" placeholder="0" oninput="App.onExtraInput()" class="w-full p-1.5 border border-blue-300 rounded-lg font-black text-center bg-white text-blue-800">
+                <span class="text-[10px] font-bold text-slate-600 shrink-0">h</span>
+              </div>
+            </div>
+            <div class="bg-rose-50/60 p-2 rounded-xl border border-rose-200">
+              <span class="text-[10px] font-extrabold text-rose-900 block mb-1 nowrap">🚚 푸드트럭·기타공제</span>
+              <div class="flex items-center gap-1">
+                <input type="number" id="input_food_ded" step="1000" placeholder="0" oninput="App.onExtraInput()" class="w-full p-1.5 border border-rose-300 rounded-lg font-black text-right bg-white text-rose-800">
+                <span class="text-[10px] font-bold text-slate-600 shrink-0">원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           TAB 2: 내 수당 단가표 (한 줄 정렬 교정)
+           ========================================== -->
+      <div id="tab_rates" class="hidden space-y-2.5">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between nowrap">
+            <span class="text-[10px] font-black text-blue-600 uppercase">Rate Table</span>
+            <span class="text-[10px] font-bold text-slate-400">소정근로 220h 기준</span>
+          </div>
+          <h2 class="text-base font-black text-slate-900 mt-0.5 nowrap">내 시간당·특근당 수당 단가표</h2>
+          <div class="mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center text-xs nowrap">
+            <span class="text-slate-600 font-bold">적용 기본급 / 통상시급</span>
+            <div>
+              <strong id="rate_tab_base" class="text-slate-900">3,005,500원</strong>
+              <span class="text-slate-300 mx-1">|</span>
+              <strong id="rate_tab_hourly" class="text-blue-700 font-black">23,898원/h</strong>
+            </div>
+          </div>
+
+          <h3 class="text-xs font-extrabold text-red-700 mt-4 mb-2 nowrap">🔥 주말·휴일 특근 1회당 가격</h3>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-3 rounded-2xl bg-red-50 border border-red-200 nowrap">
+              <span class="text-[11px] font-bold text-red-800 block">주간 12시간 특근</span>
+              <strong id="price_day_hol12" class="text-sm sm:text-base font-black text-red-600 block mt-0.5">477,952원</strong>
+              <span id="net_day_hol12" class="text-[10px] text-red-700 font-bold block mt-0.5">세후 약 37.5만</span>
+              <span class="text-[9px] text-slate-500 block mt-0.5">기본8h + 연장4h</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-purple-50 border border-purple-200 nowrap">
+              <span class="text-[11px] font-bold text-purple-900 block">야간 12시간 특근</span>
+              <strong id="price_night_hol12" class="text-sm sm:text-base font-black text-purple-700 block mt-0.5">573,543원</strong>
+              <span id="net_night_hol12" class="text-[10px] text-purple-800 font-bold block mt-0.5">세후 약 45.0만</span>
+              <span class="text-[9px] text-slate-500 block mt-0.5">주간12h + 야간8h</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-orange-50/70 border border-orange-200 nowrap">
+              <span class="text-[11px] font-bold text-orange-900 block">주간 8시간 특근</span>
+              <strong id="price_day_hol8" class="text-sm sm:text-base font-black text-orange-700 block mt-0.5">286,771원</strong>
+              <span id="net_day_hol8" class="text-[10px] text-orange-800 font-bold block mt-0.5">세후 약 22.5만</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-indigo-50/70 border border-indigo-200 nowrap">
+              <span class="text-[11px] font-bold text-indigo-900 block">야간 8시간 특근</span>
+              <strong id="price_night_hol8" class="text-sm sm:text-base font-black text-indigo-700 block mt-0.5">382,362원</strong>
+              <span id="net_night_hol8" class="text-[10px] text-indigo-800 font-bold block mt-0.5">세후 약 30.0만</span>
+            </div>
+          </div>
+
+          <h3 class="text-xs font-extrabold text-blue-800 mt-4 mb-2 nowrap">⚡ 평일 잔업 시간별 수당 (1.5배)</h3>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
+            <table class="w-full text-left border-collapse nowrap">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 text-[11px]">
+                  <th class="py-2 px-3">잔업 시간</th>
+                  <th class="py-2 px-3 text-right">세전 수당</th>
+                  <th class="py-2 px-3 text-right">세후 체감</th>
+                </tr>
+              </thead>
+              <tbody id="ot_rate_table_body" class="divide-y divide-slate-100 font-semibold">
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="text-xs font-extrabold text-purple-800 mt-4 mb-2 nowrap">🌙 야간근무 가산 수당 (0.5배)</h3>
+          <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-3 space-y-1.5 text-xs nowrap">
+            <div class="flex justify-between">
+              <span class="text-slate-600 font-semibold">야간 1시간당 (0.5배)</span>
+              <strong id="price_night_1h" class="text-purple-800 font-black">11,949원</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600 font-semibold">야간조 1일 출근 (8시간)</span>
+              <strong id="price_night_8h" class="text-purple-800 font-black">+95,590원</strong>
+            </div>
+            <div class="flex justify-between border-t border-purple-200 pt-1.5">
+              <span class="text-slate-600 font-semibold">야간조 평일 5일 만근 (40시간)</span>
+              <strong id="price_night_40h" class="text-purple-900 font-black">+477,952원</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           TAB 3: 자동보정 · 휴가 · 기본급 · 데이터 백업/복원
+           ========================================== -->
+      <div id="tab_settings" class="hidden space-y-2.5">
+
+        <!-- 1. 실제 월급 세전·세후 입력 기반 스마트 자동 보정 카드 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border-2 border-indigo-500">
+          <div class="flex items-center justify-between mb-1 nowrap">
+            <span class="text-[10px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full">SMART CALIBRATION</span>
+            <button onclick="App.resetCalibration()" class="text-[11px] text-slate-400 hover:text-red-600 font-bold">보정 초기화</button>
+          </div>
+          <h2 class="text-sm font-black text-slate-900 mt-1 nowrap">🎯 실급여 세전·세후 자동 보정</h2>
+
+          <!-- 안내 코멘트 -->
+          <div class="mt-2 mb-3 bg-indigo-50/90 border border-indigo-200 rounded-xl p-2.5 text-[11px] text-indigo-950 space-y-1.5 leading-snug">
+            <div class="font-black text-indigo-800">💡 짝수달·추석 상여달 입력 안내</div>
+            <p>
+              짝수달(정기상여)이나 설·추석(명절상여)이 포함된 달에도 상여금을 따로 뺄 필요 없이, 명세서 맨 위 <strong>[총지급액]</strong>과 <strong>[차감지급액]</strong> 합산 금액(예: <strong>1,000만 원대 숫자 그대로</strong>)을 적으시면 됩니다.
+            </p>
+            <div class="text-[10px] text-indigo-700 bg-white/90 p-2 rounded-lg border border-indigo-100 space-y-0.5">
+              <div>① 달력에서 보정할 달의 잔업·특근·명절상여 체크</div>
+              <div>② 아래에 명세서 총지급액(세전)·차감지급액(세후) 입력</div>
+              <div>③ [자동 보정 적용] 터치 시 다음 달부터 자동 반영!</div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 mb-3 text-xs space-y-1 nowrap">
+            <div class="flex justify-between text-slate-500">
+              <span>선택월(<strong id="calib_month_label" class="text-indigo-700">11월</strong>) 보정 전 세전</span>
+              <strong id="calib_raw_gross" class="text-slate-800">0원</strong>
+            </div>
+            <div class="flex justify-between text-slate-500">
+              <span>선택월 보정 전 세후</span>
+              <strong id="calib_raw_net" class="text-slate-800">0원</strong>
+            </div>
+            <div class="flex justify-between pt-1 border-t border-slate-200 font-bold text-indigo-700">
+              <span>현재 보정 상태</span>
+              <strong id="calib_current_status">보정 없음 (기본 공식)</strong>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div>
+              <label class="block font-extrabold text-slate-700 mb-1 nowrap">
+                1. 명세서 총지급액 (상여 포함 세전, 원)
+              </label>
+              <input type="number" id="input_actual_gross" placeholder="예: 10076258" step="10" class="w-full p-2.5 border border-slate-300 rounded-xl font-black text-right text-sm bg-white">
+            </div>
+            <div>
+              <label class="block font-extrabold text-slate-700 mb-1 nowrap">
+                2. 명세서 차감지급액 (실입금 세후, 원)
+              </label>
+              <input type="number" id="input_actual_net" placeholder="예: 6934558" step="10" class="w-full p-2.5 border border-slate-300 rounded-xl font-black text-right text-sm bg-white">
+            </div>
+            <button onclick="App.applyAutoCalibration()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white font-black rounded-xl shadow-sm transition nowrap">
+              ⚡ 세전·세후 금액으로 자동 보정 적용
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. 연차 21일 차감 관리 & 기본급 설정 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between nowrap">
+            <h2 class="text-sm font-black text-slate-900">🌴 연차 휴가 및 기본급 설정</h2>
+            <span class="text-[10px] font-bold text-emerald-700">자동 저장됨</span>
+          </div>
+
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex justify-between items-center nowrap">
+            <div>
+              <span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차</span>
+              <strong id="set_remain_vac" class="text-xl font-black text-emerald-700">21.0일</strong>
+            </div>
+            <div class="text-right text-[11px] text-emerald-900 space-y-0.5">
+              <div>총 부여: <strong id="set_total_vac_label">21일</strong></div>
+              <div>달력 차감: <strong id="set_calendar_used_vac">0일</strong></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label>
+              <input type="number" id="input_total_vac" value="21" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1 nowrap">이전 사용 연차 (일)</label>
+              <input type="number" id="input_prior_used_vac" value="0" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center">
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100">
+            <label class="block text-xs font-bold text-blue-800 mb-1 nowrap">✎ 월 기본급 (임금 인상 시에만 수정)</label>
+            <input type="number" id="input_base_pay" value="3005500" step="1000" onchange="App.saveSettings()" class="w-full p-2.5 border-2 border-blue-500 rounded-xl font-black text-right text-sm text-slate-900">
+          </div>
+        </div>
+
+        <!-- 3. [신설] 근무기록 백업 및 복원 카드 (클립보드 복사 + 파일 저장 모두 지원) -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5">
+          <div class="flex items-center justify-between nowrap">
+            <h2 class="text-sm font-black text-slate-900">💾 근무기록 백업 및 복원</h2>
+            <span class="text-[10px] font-bold text-slate-400">기기 변경 대비</span>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-snug">
+            폰을 바꾸거나 앱을 다시 깔아도 기록이 날아가지 않도록 <strong>백업코드를 복사</strong>해 카카오톡 '나에게 보내기'나 메모장에 보관해 두세요.
+          </p>
+
+          <!-- 방법 A: 백업코드 복사/붙여넣기 (APK 앱 내부에서 가장 확실한 방법) -->
+          <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+            <button onclick="App.copyBackupCode()" class="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-xl nowrap">
+              📋 백업코드 복사
+            </button>
+            <button onclick="App.toggleRestoreBox()" class="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl nowrap">
+              📥 코드 붙여넣어 복원
+            </button>
+          </div>
+
+          <!-- 복원 코드 입력 영역 (버튼 클릭 시 열림) -->
+          <div id="restore_code_box" class="hidden pt-2 space-y-2">
+            <textarea id="textarea_restore_code" rows="3" placeholder="여기에 복사해 둔 백업코드를 길게 눌러 붙여넣으세요..." class="w-full p-2.5 border border-blue-300 rounded-xl text-[11px] font-mono bg-slate-50"></textarea>
+            <button onclick="App.restoreFromCode()" class="w-full py-2.5 bg-emerald-600 text-white font-black rounded-xl text-xs nowrap">
+              ✔️ 이 백업코드로 데이터 즉시 복원하기
+            </button>
+          </div>
+
+          <!-- 방법 B: 파일로 저장 / 파일 불러오기 -->
+          <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[11px] font-bold">
+            <button onclick="App.downloadBackupFile()" class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl nowrap">
+              ⬇️ 백업파일 저장(.json)
+            </button>
+            <label class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-center cursor-pointer nowrap">
+              ⬆️ 백업파일 불러오기
+              <input type="file" id="input_backup_file" accept=".json,application/json" onchange="App.uploadBackupFile(event)" class="hidden">
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- 하단 앱 네비게이션 (한 줄 고정) -->
+    <nav class="bg-white border-t border-slate-200 px-2 py-2 grid grid-cols-3 text-center text-[11px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap">
+      <button id="nav_home" onclick="App.switchTab('home')" class="py-1 flex flex-col items-center gap-0.5 bottom-nav-active">
+        <span class="text-base">📅</span>
+        <span>달력·월급홈</span>
+      </button>
+      <button id="nav_rates" onclick="App.switchTab('rates')" class="py-1 flex flex-col items-center gap-0.5">
+        <span class="text-base">💰</span>
+        <span>수당 단가표</span>
+      </button>
+      <button id="nav_settings" onclick="App.switchTab('settings')" class="py-1 flex flex-col items-center gap-0.5">
+        <span class="text-base">🎯</span>
+        <span>보정·백업</span>
+      </button>
+    </nav>
+
+    <!-- 날짜 클릭 바텀시트 모달 -->
+    <div id="day_modal" class="fixed inset-0 bg-slate-900/60 hidden items-end justify-center z-50">
+      <div class="bg-white rounded-t-3xl max-w-[430px] w-full p-5 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
+          <div class="nowrap">
+            <div class="flex items-center gap-1.5">
+              <span id="modal_shift_badge" class="text-[10px] font-extrabold px-2 py-0.5 rounded">초반조</span>
+              <span id="modal_holiday_badge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded bg-red-100 text-red-600">공휴일</span>
+            </div>
+            <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1">10월 23일 (금)</h3>
+          </div>
+          <button onclick="App.closeDayModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">&times;</button>
+        </div>
+
+        <div class="space-y-3 text-xs nowrap">
+          <div>
+            <span class="font-extrabold text-blue-900 block mb-1.5">⚡ 잔업 체크 (1시간 - 5시간)</span>
+            <div class="grid grid-cols-5 gap-1.5">
+              <button onclick="App.applyDay('OT', 1)" class="py-2.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-800 font-extrabold">+1h</button>
+              <button onclick="App.applyDay('OT', 2)" class="py-2.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-800 font-extrabold">+2h</button>
+              <button onclick="App.applyDay('OT', 3)" class="py-2.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-800 font-extrabold">+3h</button>
+              <button onclick="App.applyDay('OT', 4)" class="py-2.5 rounded-xl bg-blue-600 text-white font-black shadow-sm">+4h</button>
+              <button onclick="App.applyDay('OT', 5)" class="py-2.5 rounded-xl border border-blue-300 bg-blue-100 text-blue-900 font-extrabold">+5h</button>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100">
+            <span class="font-extrabold text-red-900 block mb-1.5">🔥 특근 체크 (평일·주말 언제든 가능)</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="App.applyDay('HOLIDAY', 12)" class="py-3 rounded-xl bg-red-600 text-white font-black">🔥 12시간 특근</button>
+              <button onclick="App.applyDay('HOLIDAY', 8)" class="py-3 rounded-xl bg-rose-500 text-white font-black">🔥 8시간 특근</button>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 grid grid-cols-3 gap-1.5">
+            <button onclick="App.applyDay('LEAVE', 1)" class="py-2.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 font-extrabold">
+              🌴 휴가(-1일)
+            </button>
+            <button onclick="App.applyDay('LEAVE', 0.5)" class="py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 text-emerald-800 font-bold">
+              🌴 반차(-0.5)
+            </button>
+            <button onclick="App.applyDay('DEFAULT', 0)" class="py-2.5 rounded-xl border border-slate-300 bg-slate-100 text-slate-700 font-extrabold">
+              ↺ 초기화
+            </button>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-slate-500 font-semibold">당일 근무조 변경:</span>
+            <select id="modal_shift_select" onchange="App.changeShiftOnly(this.value)" class="border border-slate-300 rounded-lg px-2 py-1.5 font-bold bg-slate-50">
+              <option value="EARLY">초 (아침 06:00 - 14:00)</option>
+              <option value="MID">중 (낮 14:00 - 22:00)</option>
+              <option value="NIGHT">야 (밤 22:00 - 06:00, 야8h)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const KOREAN_HOLIDAYS = {
+      '2024-12-25': '성탄절',
+      '2025-01-01': '신정',
+      '2025-01-27': '임시공휴일',
+      '2025-01-28': '설연휴',
+      '2025-01-29': '설날',
+      '2025-01-30': '설연휴',
+      '2025-03-01': '삼일절',
+      '2025-03-03': '대체휴일',
+      '2025-05-01': '근로자의날',
+      '2025-05-05': '어린이날',
+      '2025-05-06': '대체휴일',
+      '2025-06-03': '대선일',
+      '2025-06-06': '현충일',
+      '2025-08-15': '광복절',
+      '2025-10-03': '개천절',
+      '2025-10-05': '추석연휴',
+      '2025-10-06': '추석',
+      '2025-10-07': '추석연휴',
+      '2025-10-08': '대체휴일',
+      '2025-10-09': '한글날',
+      '2025-12-25': '성탄절',
+      '2026-01-01': '신정',
+      '2026-02-16': '설연휴',
+      '2026-02-17': '설날',
+      '2026-02-18': '설연휴',
+      '2026-03-01': '삼일절',
+      '2026-03-02': '대체휴일',
+      '2026-05-01': '근로자의날',
+      '2026-05-05': '어린이날',
+      '2026-05-24': '부처님오신날',
+      '2026-05-25': '대체휴일',
+      '2026-06-03': '지방선거',
+      '2026-06-06': '현충일',
+      '2026-08-15': '광복절',
+      '2026-08-17': '대체휴일',
+      '2026-09-24': '추석연휴',
+      '2026-09-25': '추석',
+      '2026-09-26': '추석연휴',
+      '2026-10-03': '개천절',
+      '2026-10-05': '대체휴일',
+      '2026-10-09': '한글날',
+      '2026-12-25': '성탄절',
+      '2027-01-01': '신정',
+      '2027-02-06': '설연휴',
+      '2027-02-07': '설날',
+      '2027-02-08': '설연휴',
+      '2027-02-09': '대체휴일',
+      '2027-03-01': '삼일절',
+      '2027-05-01': '근로자의날',
+      '2027-05-05': '어린이날',
+      '2027-05-13': '부처님오신날',
+      '2027-06-06': '현충일',
+      '2027-08-15': '광복절',
+      '2027-08-16': '대체휴일',
+      '2027-09-14': '추석연휴',
+      '2027-09-15': '추석',
+      '2027-09-16': '추석연휴',
+      '2027-10-03': '개천절',
+      '2027-10-04': '대체휴일',
+      '2027-10-09': '한글날',
+      '2027-10-11': '대체휴일',
+      '2027-12-25': '성탄절'
+    };
+
+    const App = {
+      STORAGE_KEY: 'LGES_FINAL_APP_V4',
+      ANCHOR_MONDAY: new Date(2026, 9, 19, 12, 0, 0),
+      SHIFT_ORDER: ['EARLY', 'NIGHT', 'MID'],
+      SHIFT_CHAR: { EARLY: '초', NIGHT: '야', MID: '중' },
+      SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)' },
+      DAY_KOR: ['일', '월', '화', '수', '목', '금', '토'],
+
+      payYear: 2026,
+      payMonth: 11,
+      basePay: 3005500,
+      totalVacation: 21,
+      priorUsedVacation: 0,
+
+      calibGrossOffset: 0,
+      calibDedRatio: 1.0,
+
+      records: {},
+      monthExtras: {},
+      stampMode: 'POPUP',
+      selectedDateKey: null,
+      selectedDayInfo: null,
+      lastRawGross: 0,
+      lastRawDed: 0,
+
+      init() {
+        const saved = localStorage.getItem(this.STORAGE_KEY)
+                   || localStorage.getItem('LGES_BETA_APP_V3_1')
+                   || localStorage.getItem('LGES_BETA_APP_V3')
+                   || localStorage.getItem('LGES_BETA_APP_V2');
+        if (saved) {
+          try {
+            const p = JSON.parse(saved);
+            this.loadStateObject(p);
+          } catch (e) {}
+        }
+        this.goToTodayPayMonth(false);
+        this.syncSettingsInputs();
+        this.render();
+      },
+
+      loadStateObject(p) {
+        if (p.basePay) this.basePay = Number(p.basePay);
+        if (p.totalVacation !== undefined) this.totalVacation = Number(p.totalVacation);
+        if (p.priorUsedVacation !== undefined) this.priorUsedVacation = Number(p.priorUsedVacation);
+        if (p.calibGrossOffset !== undefined) this.calibGrossOffset = Number(p.calibGrossOffset);
+        if (p.calibDedRatio !== undefined) this.calibDedRatio = Number(p.calibDedRatio);
+        if (p.records && typeof p.records === 'object') this.records = p.records;
+        if (p.monthExtras && typeof p.monthExtras === 'object') this.monthExtras = p.monthExtras;
+      },
+
+      getExportPayload() {
+        return {
+          version: '4.0',
+          exportedAt: new Date().toISOString(),
+          basePay: this.basePay,
+          totalVacation: this.totalVacation,
+          priorUsedVacation: this.priorUsedVacation,
+          calibGrossOffset: this.calibGrossOffset,
+          calibDedRatio: this.calibDedRatio,
+          records: this.records,
+          monthExtras: this.monthExtras
+        };
+      },
+
+      save() {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.getExportPayload()));
+      },
+
+      // [백업 1] 클립보드로 백업코드 복사
+      copyBackupCode() {
+        const jsonStr = JSON.stringify(this.getExportPayload());
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(jsonStr).then(() => {
+            alert('백업코드가 복사되었습니다!\n카카오톡 [나에게 보내기]나 메모장에 붙여넣어 보관하세요.');
+          }).catch(() => {
+            this.fallbackCopyText(jsonStr);
+          });
+        } else {
+          this.fallbackCopyText(jsonStr);
+        }
+      },
+
+      fallbackCopyText(text) {
+        const box = document.getElementById('restore_code_box');
+        const area = document.getElementById('textarea_restore_code');
+        box.classList.remove('hidden');
+        area.value = text;
+        area.select();
+        document.execCommand('copy');
+        alert('백업코드가 복사되었습니다!\n카카오톡이나 메모장에 붙여넣어 보관하세요.');
+      },
+
+      toggleRestoreBox() {
+        const box = document.getElementById('restore_code_box');
+        box.classList.toggle('hidden');
+      },
+
+      // [복원 1] 붙여넣은 백업코드로 즉시 복원
+      restoreFromCode() {
+        const raw = document.getElementById('textarea_restore_code').value.trim();
+        if (!raw) {
+          alert('복원할 백업코드를 입력칸에 붙여넣어 주세요.');
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          this.loadStateObject(parsed);
+          this.save();
+          this.syncSettingsInputs();
+          this.render();
+          document.getElementById('restore_code_box').classList.add('hidden');
+          alert('근무기록 및 설정이 완벽하게 복원되었습니다!');
+          this.switchTab('home');
+        } catch (err) {
+          alert('올바른 백업코드 형식이 아닙니다. 복사한 전체 텍스트를 다시 확인해 주세요.');
+        }
+      },
+
+      // [백업 2] JSON 파일 다운로드
+      downloadBackupFile() {
+        const dataStr = JSON.stringify(this.getExportPayload(), null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const today = this.getTodayInfo();
+        a.href = url;
+        a.download = `LGES_월급기록백업_${today.y}${String(today.m).padStart(2, '0')}${String(today.d).padStart(2, '0')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+
+      // [복원 2] JSON 파일 불러오기
+      uploadBackupFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            this.loadStateObject(parsed);
+            this.save();
+            this.syncSettingsInputs();
+            this.render();
+            alert('백업 파일에서 모든 근무기록이 성공적으로 복원되었습니다!');
+            this.switchTab('home');
+          } catch (err) {
+            alert('파일을 읽는 중 오류가 발생했습니다. 올바른 백업 파일인지 확인해 주세요.');
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+      },
+
+      getTodayInfo() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = now.getMonth() + 1;
+        const d = now.getDate();
+        let targetPayY = y;
+        let targetPayM = (d >= 21) ? (m + 1) : m;
+        if (targetPayM > 12) { targetPayM = 1; targetPayY += 1; }
+        return {
+          y, m, d,
+          key: this.formatKey(y, m, d),
+          targetPayY,
+          targetPayM
+        };
+      },
+
+      goToTodayPayMonth(doRender = true) {
+        const t = this.getTodayInfo();
+        this.payYear = t.targetPayY;
+        this.payMonth = t.targetPayM;
+        if (doRender) this.render();
+      },
+
+      getLmsAllowance() {
+        return Math.round(this.basePay / 44);
+      },
+
+      getHourlyRate() {
+        const regBonusPart = Math.ceil(this.basePay * (8 / 12)) + 1;
+        const lms = this.getLmsAllowance();
+        const ordinaryTotal = this.basePay + regBonusPart + 50000 + 130000 + lms;
+        return ordinaryTotal / 220;
+      },
+
+      getCalendarUsedVacationDays() {
+        let used = 0;
+        Object.values(this.records).forEach(r => {
+          if (r && r.type === 'LEAVE') {
+            used += (r.vacDays !== undefined ? Number(r.vacDays) : 1);
+          }
+        });
+        return used;
+      },
+
+      switchTab(tab) {
+        ['home', 'rates', 'settings'].forEach(t => {
+          document.getElementById(`tab_${t}`).classList.toggle('hidden', t !== tab);
+          const nav = document.getElementById(`nav_${t}`);
+          if (t === tab) nav.classList.add('bottom-nav-active');
+          else nav.classList.remove('bottom-nav-active');
+        });
+        this.render();
+      },
+
+      syncSettingsInputs() {
+        document.getElementById('input_total_vac').value = this.totalVacation;
+        document.getElementById('input_prior_used_vac').value = this.priorUsedVacation;
+        document.getElementById('input_base_pay').value = this.basePay;
+      },
+
+      saveSettings() {
+        this.totalVacation = Number(document.getElementById('input_total_vac').value) || 21;
+        this.priorUsedVacation = Number(document.getElementById('input_prior_used_vac').value) || 0;
+        this.basePay = Number(document.getElementById('input_base_pay').value) || 3005500;
+        this.save();
+        this.render();
+      },
+
+      applyAutoCalibration() {
+        const actualGross = Number(document.getElementById('input_actual_gross').value) || 0;
+        const actualNet = Number(document.getElementById('input_actual_net').value) || 0;
+
+        if (actualGross <= 0 || actualNet <= 0) {
+          alert('실제 명세서의 총지급액(세전)과 차감지급액(세후)을 모두 입력해 주세요.');
+          return;
+        }
+        if (actualNet > actualGross) {
+          alert('세후 실수령액이 세전 금액보다 클 수 없습니다.');
+          return;
+        }
+
+        const actualDed = actualGross - actualNet;
+        this.calibGrossOffset = actualGross - this.lastRawGross;
+        this.calibDedRatio = (this.lastRawDed > 0) ? (actualDed / this.lastRawDed) : 1.0;
+
+        this.save();
+        this.render();
+        alert(`자동 보정이 완료되었습니다!\n• 입력 세전: ${actualGross.toLocaleString()}원\n• 입력 세후: ${actualNet.toLocaleString()}원\n앞으로 모든 예상월급에 보정 기준이 자동 적용됩니다.`);
+        this.switchTab('home');
+      },
+
+      resetCalibration() {
+        if (!confirm('적용된 세전·세후 자동 보정치를 초기화하시겠습니까?')) return;
+        this.calibGrossOffset = 0;
+        this.calibDedRatio = 1.0;
+        document.getElementById('input_actual_gross').value = '';
+        document.getElementById('input_actual_net').value = '';
+        this.save();
+        this.render();
+      },
+
+      getMonthKey() {
+        return `${this.payYear}-${String(this.payMonth).padStart(2, '0')}`;
+      },
+
+      getMonthExtra() {
+        const k = this.getMonthKey();
+        if (!this.monthExtras[k]) {
+          const isHolidayMonth = (this.payMonth === 2 || this.payMonth === 9 || (this.payYear === 2025 && (this.payMonth === 1 || this.payMonth === 10)));
+          this.monthExtras[k] = { holidayBonus: isHolidayMonth, congrats: false, eduHours: 0, foodDed: 0 };
+        }
+        return this.monthExtras[k];
+      },
+
+      toggleExtraFlag(flag) {
+        const ex = this.getMonthExtra();
+        ex[flag] = !ex[flag];
+        this.save();
+        this.render();
+      },
+
+      onExtraInput() {
+        const ex = this.getMonthExtra();
+        ex.eduHours = Number(document.getElementById('input_edu_hours').value) || 0;
+        ex.foodDed = Number(document.getElementById('input_food_ded').value) || 0;
+        this.save();
+        this.render(true);
+      },
+
+      getDefaultShift(y, m, d) {
+        const target = new Date(y, m - 1, d, 12, 0, 0);
+        const dow = target.getDay();
+        const diffToMon = (dow === 0) ? -6 : (1 - dow);
+        const mon = new Date(y, m - 1, d + diffToMon, 12, 0, 0);
+        const weeks = Math.round((mon.getTime() - this.ANCHOR_MONDAY.getTime()) / (7 * 86400000));
+        const idx = ((weeks % 3) + 3) % 3;
+        return this.SHIFT_ORDER[idx];
+      },
+
+      getCutoffDates(payY, payM) {
+        let prevY = payY;
+        let prevM = payM - 1;
+        if (prevM < 1) { prevM = 12; prevY -= 1; }
+        const daysInPrev = new Date(prevY, prevM, 0).getDate();
+        const list = [];
+        for (let d = 21; d <= daysInPrev; d++) list.push({ y: prevY, m: prevM, d });
+        for (let d = 1; d <= 20; d++) list.push({ y: payY, m: payM, d });
+        return list;
+      },
+
+      formatKey(y, m, d) {
+        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      },
+
+      evaluateDay(y, m, d) {
+        const key = this.formatKey(y, m, d);
+        const dow = new Date(y, m - 1, d, 12, 0, 0).getDay();
+        const isWeekend = (dow === 0 || dow === 6);
+        const holidayName = KOREAN_HOLIDAYS[key] || null;
+        const isRedDay = (dow === 0 || dow === 6 || Boolean(holidayName));
+        const defaultShift = this.getDefaultShift(y, m, d);
+        const rec = this.records[key] || {};
+
+        const shift = rec.shift || defaultShift;
+        let type = rec.type || (isWeekend ? 'OFF' : 'NORMAL');
+
+        let otHours = 0;
+        let holBaseHours = 0;
+        let holOverHours = 0;
+        let nightHours = 0;
+        let vacDays = 0;
+
+        if (type === 'NORMAL') {
+          nightHours = (shift === 'NIGHT') ? 8 : 0;
+        } else if (type === 'OT') {
+          otHours = Number(rec.hours) || 0;
+          nightHours = (shift === 'NIGHT') ? 8 : 0;
+        } else if (type === 'HOLIDAY') {
+          const totalH = (rec.hours !== undefined) ? Number(rec.hours) : 12;
+          holBaseHours = Math.min(8, totalH);
+          holOverHours = Math.max(0, totalH - 8);
+          nightHours = (shift === 'NIGHT') ? 8 : 0;
+        } else if (type === 'LEAVE') {
+          vacDays = (rec.vacDays !== undefined) ? Number(rec.vacDays) : 1;
+          nightHours = 0;
+        }
+
+        return {
+          y, m, d, key, dow, isWeekend, isRedDay, holidayName,
+          dayName: this.DAY_KOR[dow],
+          defaultShift, shift, type,
+          otHours, holBaseHours, holOverHours, nightHours, vacDays
+        };
+      },
+
+      setStamp(mode) {
+        this.stampMode = mode;
+        const modes = ['POPUP', 'HOL12', 'HOL8', 'LEAVE', 'OT1', 'OT2', 'OT3', 'OT4', 'OT5'];
+        modes.forEach(k => {
+          const btn = document.getElementById(`stamp_${k}`);
+          if (!btn) return;
+          if (k === mode) {
+            btn.className = 'py-1.5 rounded-xl border-2 border-slate-900 bg-slate-900 text-white font-black shadow-sm nowrap';
+          } else {
+            if (k === 'POPUP') btn.className = 'py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 font-extrabold nowrap';
+            else if (k === 'HOL12') btn.className = 'py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-700 font-extrabold nowrap';
+            else if (k === 'HOL8') btn.className = 'py-1.5 rounded-xl border border-rose-300 bg-rose-50 text-rose-700 font-extrabold nowrap';
+            else if (k === 'LEAVE') btn.className = 'py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 font-extrabold nowrap';
+            else btn.className = 'py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 text-blue-700 font-extrabold nowrap';
+          }
+        });
+      },
+
+      onCellTap(ev) {
+        const key = ev.key;
+
+        if (this.stampMode.startsWith('OT')) {
+          const h = Number(this.stampMode.replace('OT', ''));
+          if (ev.type === 'OT' && ev.otHours === h) delete this.records[key];
+          else this.records[key] = { type: 'OT', hours: h, shift: ev.shift };
+          this.save(); this.render(); return;
+        }
+
+        if (this.stampMode === 'HOL12' || this.stampMode === 'HOL8') {
+          const h = (this.stampMode === 'HOL12') ? 12 : 8;
+          if (ev.type === 'HOLIDAY' && (ev.holBaseHours + ev.holOverHours) === h) delete this.records[key];
+          else this.records[key] = { type: 'HOLIDAY', hours: h, shift: ev.shift };
+          this.save(); this.render(); return;
+        }
+
+        if (this.stampMode === 'LEAVE') {
+          if (ev.type === 'LEAVE') delete this.records[key];
+          else this.records[key] = { type: 'LEAVE', hours: 0, vacDays: 1, shift: ev.shift };
+          this.save(); this.render(); return;
+        }
+
+        if (ev.isWeekend && ev.type === 'OFF') {
+          this.records[key] = { type: 'HOLIDAY', hours: 12, shift: ev.shift };
+          this.save(); this.render(); return;
+        }
+
+        this.selectedDateKey = key;
+        this.selectedDayInfo = ev;
+        document.getElementById('modal_date_title').innerText = `${ev.y}년 ${ev.m}월 ${ev.d}일 (${ev.dayName}요일)`;
+
+        const badge = document.getElementById('modal_shift_badge');
+        badge.innerText = `${this.SHIFT_FULL[ev.shift]}`;
+        badge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded badge-${ev.shift}`;
+
+        const holBadge = document.getElementById('modal_holiday_badge');
+        if (ev.holidayName) {
+          holBadge.innerText = `공휴일: ${ev.holidayName}`;
+          holBadge.classList.remove('hidden');
+        } else {
+          holBadge.classList.add('hidden');
+        }
+
+        document.getElementById('modal_shift_select').value = ev.shift;
+
+        const modal = document.getElementById('day_modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      },
+
+      applyDay(type, val) {
+        if (!this.selectedDateKey) return;
+        const shift = document.getElementById('modal_shift_select').value;
+        if (type === 'DEFAULT') {
+          delete this.records[this.selectedDateKey];
+        } else if (type === 'LEAVE') {
+          this.records[this.selectedDateKey] = { type: 'LEAVE', hours: 0, vacDays: val, shift };
+        } else {
+          this.records[this.selectedDateKey] = { type, hours: val, shift };
+        }
+        this.closeDayModal();
+        this.save();
+        this.render();
+      },
+
+      changeShiftOnly(newShift) {
+        if (!this.selectedDateKey) return;
+        const curr = this.records[this.selectedDateKey] || {
+          type: this.selectedDayInfo.type,
+          hours: this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0,
+          vacDays: this.selectedDayInfo.vacDays || 1
+        };
+        curr.shift = newShift;
+        this.records[this.selectedDateKey] = curr;
+        this.closeDayModal();
+        this.save();
+        this.render();
+      },
+
+      closeDayModal() {
+        const modal = document.getElementById('day_modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        this.selectedDateKey = null;
+      },
+
+      changeMonth(delta) {
+        this.payMonth += delta;
+        if (this.payMonth > 12) { this.payMonth = 1; this.payYear++; }
+        else if (this.payMonth < 1) { this.payMonth = 12; this.payYear--; }
+        this.render();
+      },
+
+      resetCurrentMonth() {
+        if (!confirm(`${this.payMonth}월 체크 내역을 초기화하시겠습니까?`)) return;
+        const dates = this.getCutoffDates(this.payYear, this.payMonth);
+        dates.forEach(dt => delete this.records[this.formatKey(dt.y, dt.m, dt.d)]);
+        delete this.monthExtras[this.getMonthKey()];
+        this.save();
+        this.render();
+      },
+
+      render(skipInput = false) {
+        const todayInfo = this.getTodayInfo();
+        document.getElementById('today_header_info').innerText = `오늘 ${todayInfo.m}.${todayInfo.d}`;
+
+        const rate = this.getHourlyRate();
+        const lmsPay = this.getLmsAllowance();
+        const unionFee = Math.floor(this.basePay * 0.02);
+        const ex = this.getMonthExtra();
+
+        const calUsedVac = this.getCalendarUsedVacationDays();
+        const totalUsedVac = this.priorUsedVacation + calUsedVac;
+        const remainVac = Math.max(0, this.totalVacation - totalUsedVac);
+
+        document.getElementById('top_vacation_badge').innerText = `${remainVac.toFixed(1).replace('.0', '')} / ${this.totalVacation}일`;
+        document.getElementById('set_remain_vac').innerText = `${remainVac.toFixed(1).replace('.0', '')}일`;
+        document.getElementById('set_total_vac_label').innerText = `${this.totalVacation}일`;
+        document.getElementById('set_calendar_used_vac').innerText = `${calUsedVac}일 (이전 ${this.priorUsedVacation}일)`;
+
+        this.renderRateTable(rate);
+
+        const cutoffDates = this.getCutoffDates(this.payYear, this.payMonth);
+        const first = cutoffDates[0];
+        const last = cutoffDates[cutoffDates.length - 1];
+
+        document.getElementById('header_month_title').innerText = `${this.payYear}년 ${this.payMonth}월 예상월급`;
+        document.getElementById('period_text').innerText = `${first.m}.${first.d} - ${last.m}.${last.d} 근무`;
+
+        const isEven = (this.payMonth % 2 === 0);
+        const evenBadge = document.getElementById('even_odd_badge');
+        if (isEven) {
+          evenBadge.innerText = '짝수상여 100%';
+          evenBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 nowrap';
+        } else {
+          evenBadge.innerText = '홀수달';
+          evenBadge.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 nowrap';
+        }
+
+        document.getElementById('btn_hol_bonus').className = ex.holidayBonus
+          ? 'py-2 px-2 rounded-xl border-2 border-indigo-600 bg-indigo-600 text-white font-black shadow-sm nowrap'
+          : 'py-2 px-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold nowrap';
+        document.getElementById('btn_congrats').className = ex.congrats
+          ? 'py-2 px-2 rounded-xl border-2 border-rose-600 bg-rose-600 text-white font-black shadow-sm nowrap'
+          : 'py-2 px-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold nowrap';
+
+        if (!skipInput) {
+          document.getElementById('input_edu_hours').value = ex.eduHours > 0 ? ex.eduHours : '';
+          document.getElementById('input_food_ded').value = ex.foodDed > 0 ? ex.foodDed : '';
+        }
+
+        let sumOtH = 0, sumHolBaseH = 0, sumHolOverH = 0, sumNightH = 0, holCount = 0, monthVacDays = 0;
+
+        const evaluated = cutoffDates.map(dt => {
+          const ev = this.evaluateDay(dt.y, dt.m, dt.d);
+          sumOtH += ev.otHours;
+          sumHolBaseH += ev.holBaseHours;
+          sumHolOverH += ev.holOverHours;
+          sumNightH += ev.nightHours;
+          if (ev.type === 'HOLIDAY') holCount++;
+          if (ev.type === 'LEAVE') monthVacDays += ev.vacDays;
+          return ev;
+        });
+
+        const otPay      = Math.round(sumOtH * 1.5 * rate);
+        const holBasePay = Math.round(sumHolBaseH * 1.5 * rate);
+        const holOverPay = Math.round(sumHolOverH * 2.0 * rate);
+        const nightPay   = Math.round(sumNightH * 0.5 * rate);
+        const eduPay     = Math.round((Number(ex.eduHours) || 0) * 1.5 * rate);
+
+        const regBonusPay = isEven ? this.basePay : 0;
+        const holBonusPay = ex.holidayBonus ? this.basePay : 0;
+
+        const fixedBaseTotal = this.basePay + 50000 + 130000 + lmsPay;
+        const rawGross = fixedBaseTotal + regBonusPay + holBonusPay + otPay + holBasePay + holOverPay + nightPay + eduPay;
+
+        let incomeTax = 0;
+        const nonBonusGross = rawGross - regBonusPay - holBonusPay;
+        if (nonBonusGross <= 6800000) {
+          incomeTax = Math.max(0, Math.round((472010 + (nonBonusGross - 6721792) * 0.18) / 10) * 10);
+        } else {
+          incomeTax = Math.max(0, Math.round((472010 + (nonBonusGross - 6721792) * 0.212) / 10) * 10);
+        }
+        if (regBonusPay > 0) incomeTax += Math.round((regBonusPay * 0.217) / 10) * 10;
+        if (holBonusPay > 0) incomeTax += Math.round((holBonusPay * 0.10) / 10) * 10;
+
+        const localTax = Math.floor((incomeTax * 0.1) / 10) * 10;
+        const fixedInsurances = 313020 + 248190 + 150890 + 56000;
+        const congratsDed = ex.congrats ? 50000 : 0;
+        const foodDed = Number(ex.foodDed) || 0;
+
+        const rawDed = incomeTax + localTax + fixedInsurances + unionFee + congratsDed + foodDed;
+        this.lastRawGross = rawGross;
+        this.lastRawDed = rawDed;
+
+        const finalGross = rawGross + this.calibGrossOffset;
+        const finalDed = Math.max(0, Math.round(rawDed * this.calibDedRatio));
+        const finalNet = finalGross - finalDed;
+        const dedDiff = finalDed - rawDed;
+
+        document.getElementById('calib_month_label').innerText = `${this.payMonth}월`;
+        document.getElementById('calib_raw_gross').innerText = `${rawGross.toLocaleString()}원`;
+        document.getElementById('calib_raw_net').innerText = `${(rawGross - rawDed).toLocaleString()}원`;
+
+        const calibBadge = document.getElementById('calibration_active_badge');
+        const isCalibrated = (this.calibGrossOffset !== 0 || Math.abs(this.calibDedRatio - 1.0) > 0.0001);
+        if (isCalibrated) {
+          calibBadge.classList.remove('hidden');
+          document.getElementById('calib_current_status').innerText =
+            `세전 ${(this.calibGrossOffset >= 0 ? '+' : '') + this.calibGrossOffset.toLocaleString()} / 공제율 ${(this.calibDedRatio * 100).toFixed(1)}%`;
+        } else {
+          calibBadge.classList.add('hidden');
+          document.getElementById('calib_current_status').innerText = '보정 없음 (기본 공식)';
+        }
+
+        document.getElementById('hero_net_pay').innerText = finalNet.toLocaleString() + '원';
+        document.getElementById('summary_gross').innerText = finalGross.toLocaleString() + '원';
+        document.getElementById('summary_ded').innerText = '-' + finalDed.toLocaleString() + '원';
+
+        document.getElementById('stat_ot').innerText = `${sumOtH}h`;
+        document.getElementById('stat_hol').innerText = `${holCount}회(${sumHolBaseH + sumHolOverH}h)`;
+        document.getElementById('stat_night').innerText = `${sumNightH}h`;
+        document.getElementById('stat_leave').innerText = `${monthVacDays}일`;
+
+        // 명세서 상세 내역: 좌우 한 줄 정렬(nowrap)로 깔끔하게 표시
+        document.getElementById('payslip_detail_box').innerHTML = `
+          <div class="font-bold text-sky-300">[지급 내역]</div>
+          <div class="flex justify-between items-center nowrap"><span>• 기본급 및 고정수당(교대·장려·LMS)</span><strong class="shrink-0">${fixedBaseTotal.toLocaleString()}원</strong></div>
+          ${regBonusPay > 0 ? `<div class="flex justify-between items-center text-indigo-300 nowrap"><span>• 짝수달 정기상여 (100%)</span><strong class="shrink-0">+${regBonusPay.toLocaleString()}원</strong></div>` : ''}
+          ${holBonusPay > 0 ? `<div class="flex justify-between items-center text-amber-300 nowrap"><span>• 설·추석 명절상여 (100%)</span><strong class="shrink-0">+${holBonusPay.toLocaleString()}원</strong></div>` : ''}
+          <div class="flex justify-between items-center text-blue-300 nowrap"><span>• 평일연장수당 (${sumOtH}h)</span><strong class="shrink-0">+${otPay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between items-center text-red-300 nowrap"><span>• 휴일근로수당 (${sumHolBaseH}h)</span><strong class="shrink-0">+${holBasePay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between items-center text-rose-300 nowrap"><span>• 휴일연장수당 (${sumHolOverH}h)</span><strong class="shrink-0">+${holOverPay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between items-center text-purple-300 nowrap"><span>• 야간근무수당 (${sumNightH}h)</span><strong class="shrink-0">+${nightPay.toLocaleString()}원</strong></div>
+          ${eduPay > 0 ? `<div class="flex justify-between items-center text-emerald-300 nowrap"><span>• 교육수당 (${ex.eduHours}h)</span><strong class="shrink-0">+${eduPay.toLocaleString()}원</strong></div>` : ''}
+          ${this.calibGrossOffset !== 0 ? `<div class="flex justify-between items-center text-amber-300 nowrap"><span>• 세전 자동보정액</span><strong class="shrink-0">${(this.calibGrossOffset >= 0 ? '+' : '') + this.calibGrossOffset.toLocaleString()}원</strong></div>` : ''}
+          <div class="font-bold text-rose-300 pt-1.5 border-t border-slate-700">[공제 내역]</div>
+          <div class="flex justify-between items-center nowrap"><span>• 예상 소득세·주민세</span><strong class="shrink-0">-${(incomeTax + localTax).toLocaleString()}원</strong></div>
+          <div class="flex justify-between items-center nowrap"><span>• 4대보험·노조비 합계</span><strong class="shrink-0">-${(fixedInsurances + unionFee).toLocaleString()}원</strong></div>
+          ${(congratsDed + foodDed) > 0 ? `<div class="flex justify-between items-center nowrap"><span>• 경조금·푸드트럭 등</span><strong class="shrink-0">-${(congratsDed + foodDed).toLocaleString()}원</strong></div>` : ''}
+          ${dedDiff !== 0 ? `<div class="flex justify-between items-center text-amber-300 nowrap"><span>• 세후 실수령 맞춤 공제보정</span><strong class="shrink-0">${(dedDiff >= 0 ? '-' : '+') + Math.abs(dedDiff).toLocaleString()}원</strong></div>` : ''}
+        `;
+
+        // 달력 그리드 렌더링
+        const grid = document.getElementById('calendar_grid');
+        grid.innerHTML = '';
+        const firstDow = evaluated[0].dow;
+        const monOffset = (firstDow === 0) ? 6 : (firstDow - 1);
+        for (let i = 0; i < monOffset; i++) {
+          grid.innerHTML += `<div class="min-h-[72px] rounded-xl bg-slate-50/40"></div>`;
+        }
+
+        evaluated.forEach(ev => {
+          let cellStyle = ev.isWeekend ? 'cell-off' : `cell-shift-${ev.shift}`;
+          let statusHtml = `<span class="text-[9px] text-slate-500 font-semibold nowrap">고정8h</span>`;
+
+          if (ev.type === 'OT') {
+            cellStyle = 'cell-checked-ot';
+            statusHtml = `<span class="text-[10px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`;
+          } else if (ev.type === 'HOLIDAY') {
+            cellStyle = 'cell-checked-holiday';
+            statusHtml = `<span class="text-[10px] font-black text-red-600 nowrap">🔥${ev.holBaseHours + ev.holOverHours}h</span>`;
+          } else if (ev.type === 'LEAVE') {
+            cellStyle = 'cell-checked-leave';
+            statusHtml = `<span class="text-[10px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`;
+          } else if (ev.type === 'OFF') {
+            cellStyle = 'cell-off';
+            statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`;
+          }
+
+          if (ev.d === 1) {
+            cellStyle += ' month-start-bar';
+          }
+
+          const isToday = (ev.key === todayInfo.key);
+          if (isToday) {
+            cellStyle += ' cell-today';
+          }
+
+          const dateTextColor = ev.isRedDay ? 'text-red-600' : 'text-slate-900';
+
+          const isMonthMilestone = (ev.d === 21 || ev.d === 1);
+          const dateLabelHtml = isMonthMilestone
+            ? `<span class="text-[9px] font-black ${dateTextColor} nowrap underline decoration-2">${ev.m}.${ev.d}</span>`
+            : `<span class="text-[9px] font-black ${dateTextColor} nowrap"><span class="text-[8px] font-bold opacity-60">${ev.m}.</span>${ev.d}</span>`;
+
+          let middleSubHtml = `<div class="h-[11px]"></div>`;
+          if (isToday) {
+            middleSubHtml = `<div class="text-[8px] font-black bg-amber-500 text-slate-950 rounded px-1 leading-tight text-center mx-auto nowrap">오늘</div>`;
+          } else if (ev.holidayName) {
+            middleSubHtml = `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>`;
+          }
+
+          const div = document.createElement('div');
+          div.className = `p-1 rounded-xl cursor-pointer transition active:scale-95 flex flex-col justify-between min-h-[72px] overflow-hidden ${cellStyle}`;
+          div.onclick = () => this.onCellTap(ev);
+
+          div.innerHTML = `
+            <div class="flex items-center justify-between gap-0.5">
+              ${dateLabelHtml}
+              <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.shift}">${this.SHIFT_CHAR[ev.shift]}</span>
+            </div>
+            ${middleSubHtml}
+            <div class="text-center leading-none my-0.5">${statusHtml}</div>
+            <div class="text-right text-[8px] font-extrabold leading-none ${ev.nightHours > 0 ? 'text-purple-800' : 'text-transparent'} nowrap">야8h</div>
+          `;
+          grid.appendChild(div);
+        });
+      },
+
+      renderRateTable(rate) {
+        document.getElementById('rate_tab_base').innerText = `${this.basePay.toLocaleString()}원`;
+        document.getElementById('rate_tab_hourly').innerText = `${Math.round(rate).toLocaleString()}원/h`;
+
+        const dayHol12 = Math.round((8 * 1.5 + 4 * 2.0) * rate);
+        const night8   = Math.round(8 * 0.5 * rate);
+        const nightHol12 = dayHol12 + night8;
+        const dayHol8  = Math.round(8 * 1.5 * rate);
+        const nightHol8 = dayHol8 + night8;
+
+        document.getElementById('price_day_hol12').innerText = `${dayHol12.toLocaleString()}원`;
+        document.getElementById('net_day_hol12').innerText = `세후 약 ${Math.round(dayHol12 * 0.785 / 1000) * 1000 / 10000}만`;
+
+        document.getElementById('price_night_hol12').innerText = `${nightHol12.toLocaleString()}원`;
+        document.getElementById('net_night_hol12').innerText = `세후 약 ${Math.round(nightHol12 * 0.785 / 1000) * 1000 / 10000}만`;
+
+        document.getElementById('price_day_hol8').innerText = `${dayHol8.toLocaleString()}원`;
+        document.getElementById('net_day_hol8').innerText = `세후 약 ${Math.round(dayHol8 * 0.785 / 1000) * 1000 / 10000}만`;
+
+        document.getElementById('price_night_hol8').innerText = `${nightHol8.toLocaleString()}원`;
+        document.getElementById('net_night_hol8').innerText = `세후 약 ${Math.round(nightHol8 * 0.785 / 1000) * 1000 / 10000}만`;
+
+        const rows = [1, 2, 3, 4, 5].map(h => {
+          const gross = Math.round(h * 1.5 * rate);
+          const net = Math.round(gross * 0.785);
+          return `
+            <tr class="${h === 4 ? 'bg-blue-50/80 text-blue-900 font-black' : ''}">
+              <td class="py-2 px-3">평일 ${h}시간</td>
+              <td class="py-2 px-3 text-right text-blue-700">+${gross.toLocaleString()}원</td>
+              <td class="py-2 px-3 text-right text-slate-600">약 +${net.toLocaleString()}원</td>
+            </tr>
+          `;
+        }).join('');
+        document.getElementById('ot_rate_table_body').innerHTML = rows;
+
+        document.getElementById('price_night_1h').innerText = `${Math.round(0.5 * rate).toLocaleString()}원`;
+        document.getElementById('price_night_8h').innerText = `+${night8.toLocaleString()}원`;
+        document.getElementById('price_night_40h').innerText = `+${Math.round(40 * 0.5 * rate).toLocaleString()}원`;
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
