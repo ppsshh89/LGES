@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v4.6</title>
+  <title>LGES 월급계산기 v4.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -23,10 +23,11 @@
     .mobile-app-shell { max-width: 430px; min-height: 100vh; margin: 0 auto; background-color: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); display: flex; flex-direction: column; }
     @media (min-width: 500px) { body { padding: 20px 0; } .mobile-app-shell { min-height: 880px; border-radius: 40px; border: 10px solid #0f172a; overflow: hidden; } }
 
-    /* 초·중·야 통일 배지 */
+    /* 초·중·야·휴 통일 배지 */
     .badge-EARLY  { background-color: #0284c7; color: #ffffff; }
     .badge-MID    { background-color: #f59e0b; color: #ffffff; }
     .badge-NIGHT  { background-color: #3b0764; color: #fde047; }
+    .badge-OFF    { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
 
     /* 메모뷰·급여뷰 일체감 있는 근무조 배경색 */
     .cell-shift-EARLY { background-color: #f0f9ff; }
@@ -102,7 +103,7 @@
             <div class="flex items-center gap-1.5">
               <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700">◀</button>
               <h2 id="big_ym_title" class="text-xl font-black text-slate-900 tracking-tight px-0.5">2026. 10</h2>
-              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700">▶</button>
+              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
             <div class="flex items-center gap-1">
@@ -457,7 +458,7 @@
           </div>
 
           <div class="bg-red-50/60 p-2.5 rounded-2xl border border-red-200 nowrap">
-            <span class="font-extrabold text-red-900 block mb-1.5">☀️ 주간특근 (초·중반 / 야간수당 없음)</span>
+            <span class="font-extrabold text-red-900 block mb-1.5">☀️ 주간특근 (배지 '초' 표시 / 야간수당 없음)</span>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
               <button onclick="App.applyDay('HOLIDAY', 12, 'DAY')" class="py-2 rounded-xl bg-red-600 text-white font-black shadow-sm">☀️ 주간 12h 특근</button>
               <button onclick="App.applyDay('HOLIDAY', 8, 'DAY')" class="py-2 rounded-xl bg-rose-500 text-white font-black shadow-sm">☀️ 주간 8h 특근</button>
@@ -473,7 +474,7 @@
           </div>
 
           <div class="bg-purple-50/70 p-2.5 rounded-2xl border border-purple-200 nowrap">
-            <span class="font-extrabold text-purple-950 block mb-1.5">🌙 야간특근 (야간가산 최대 8h 자동포함)</span>
+            <span class="font-extrabold text-purple-950 block mb-1.5">🌙 야간특근 (배지 '야' 표시 / 야간가산 자동포함)</span>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
               <button onclick="App.applyDay('HOLIDAY', 12, 'NIGHT')" class="py-2 rounded-xl bg-purple-700 text-yellow-200 font-black shadow-sm">🌙 야간 12h 특근</button>
               <button onclick="App.applyDay('HOLIDAY', 8, 'NIGHT')" class="py-2 rounded-xl bg-purple-600 text-white font-black shadow-sm">🌙 야간 8h 특근</button>
@@ -687,8 +688,8 @@
       STORAGE_KEY: 'LGES_FINAL_APP_V4',
       ANCHOR_MONDAY: new Date(2026, 9, 19, 12, 0, 0),
       SHIFT_ORDER: ['EARLY', 'NIGHT', 'MID'],
-      SHIFT_CHAR: { EARLY: '초', NIGHT: '야', MID: '중' },
-      SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)' },
+      SHIFT_CHAR: { EARLY: '초', NIGHT: '야', MID: '중', OFF: '휴' },
+      SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)', OFF: '휴무일(주말)' },
       DAY_KOR: ['일', '월', '화', '수', '목', '금', '토'],
 
       calYear: 2026, calMonth: 10,
@@ -733,7 +734,7 @@
       },
 
       getExportPayload() {
-        return { version: '4.6', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
+        return { version: '4.7', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
       },
 
       save() {
@@ -952,12 +953,19 @@
           if ((holKind === 'NIGHT') || (!holKind && shift === 'NIGHT')) {
             holKind = 'NIGHT'; shift = 'NIGHT'; nightHours = Math.min(8, totalH);
           } else {
-            holKind = 'DAY'; if (shift === 'NIGHT') shift = 'EARLY'; nightHours = 0;
+            // 주간 특근 입력 시 배지가 항상 '초'로 바뀌도록 설정
+            holKind = 'DAY'; shift = 'EARLY'; nightHours = 0;
           }
         } else if (type === 'LEAVE') {
           vacDays = (rec.vacDays !== undefined) ? Number(rec.vacDays) : 1;
         }
-        return { y, m, d, key, dow, isWeekend, isSundayOrHol, isSaturday, holidayName, dayName: this.DAY_KOR[dow], defaultShift, shift, type, holKind, otHours, holBaseHours, holOverHours, nightHours, vacDays, memo, memoColor, isOtherMonth };
+
+        // 우측 상단 배지 결정: 주말 기본 휴무(OFF)는 '휴', 주간특근은 '초', 야간특근은 '야', 평일은 해당 근무조
+        let badgeKey = shift;
+        if (type === 'OFF') badgeKey = 'OFF';
+        else if (type === 'HOLIDAY') badgeKey = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY';
+
+        return { y, m, d, key, dow, isWeekend, isSundayOrHol, isSaturday, holidayName, dayName: this.DAY_KOR[dow], defaultShift, shift, badgeKey, type, holKind, otHours, holBaseHours, holOverHours, nightHours, vacDays, memo, memoColor, isOtherMonth };
       },
 
       calculateMonthSummary(payY, payM) {
@@ -1032,7 +1040,7 @@
           sub.innerHTML = `<div class="text-[11px] text-slate-500 bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-200 flex justify-between"><span>날짜를 누르면 📝메모·근무 설정창이 열립니다.</span><span class="font-bold text-slate-700">원터치 도장은 위 탭 👆</span></div>`;
         } else if (this.stampCategory === 'HOLDAY' || this.stampCategory === 'HOLNIGHT') {
           const isN = this.stampCategory === 'HOLNIGHT';
-          label.innerText = isN ? `🌙 야간특근 ${this.stampValue}h 도장` : `☀️ 주간특근 ${this.stampValue}h 도장`;
+          label.innerText = isN ? `🌙 야간특근 ${this.stampValue}h 도장 (야)` : `☀️ 주간특근 ${this.stampValue}h 도장 (초)`;
           label.className = `text-[10px] font-black px-2 py-0.5 rounded-full ${isN ? 'bg-purple-700 text-yellow-200' : 'bg-red-600 text-white'}`;
           const hrs = [12, 8, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11];
           sub.innerHTML = `<div class="grid grid-cols-6 gap-1 text-[11px] font-extrabold">${hrs.map(h => {
@@ -1074,7 +1082,7 @@
         const key = ev.key, h = Number(this.stampValue) || 12, totalH = ev.holBaseHours + ev.holOverHours;
         if (this.stampType === 'HOLDAY') {
           if (ev.type === 'HOLIDAY' && ev.holKind === 'DAY' && totalH === h) this.setWorkRecord(key, null);
-          else this.setWorkRecord(key, { type: 'HOLIDAY', hours: h, holKind: 'DAY', shift: ev.defaultShift === 'NIGHT' ? 'EARLY' : ev.defaultShift });
+          else this.setWorkRecord(key, { type: 'HOLIDAY', hours: h, holKind: 'DAY', shift: 'EARLY' });
           this.save(); this.render(); return;
         }
         if (this.stampType === 'HOLNIGHT') {
@@ -1097,7 +1105,7 @@
         this.selectedDateKey = key; this.selectedDayInfo = ev;
         document.getElementById('modal_date_title').innerText = `${ev.y}년 ${ev.m}월 ${ev.d}일 (${ev.dayName}요일)`;
         const badge = document.getElementById('modal_shift_badge');
-        badge.innerText = this.SHIFT_FULL[ev.shift]; badge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded badge-${ev.shift}`;
+        badge.innerText = this.SHIFT_FULL[ev.badgeKey]; badge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded badge-${ev.badgeKey}`;
         const hb = document.getElementById('modal_holiday_badge');
         if (ev.holidayName) { hb.innerText = `공휴일: ${ev.holidayName}`; hb.classList.remove('hidden'); } else hb.classList.add('hidden');
         document.getElementById('modal_shift_select').value = ev.shift;
@@ -1151,8 +1159,7 @@
         } else if (type === 'LEAVE') {
           this.setWorkRecord(this.selectedDateKey, { type: 'LEAVE', hours: 0, vacDays: val, shift });
         } else if (type === 'HOLIDAY') {
-          if (holKind === 'NIGHT') shift = 'NIGHT';
-          else if (holKind === 'DAY' && shift === 'NIGHT') shift = 'EARLY';
+          shift = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY';
           this.setWorkRecord(this.selectedDateKey, { type: 'HOLIDAY', hours: val, holKind: holKind || 'DAY', shift });
         } else {
           this.setWorkRecord(this.selectedDateKey, { type, hours: val, shift });
@@ -1166,9 +1173,11 @@
         if (!this.selectedDateKey) return;
         this.syncModalMemoToRecord(this.selectedDateKey);
         const prev = this.records[this.selectedDateKey] || {};
+        let targetType = prev.type || this.selectedDayInfo.type;
+        if (targetType === 'OFF') targetType = 'NORMAL';
         const curr = {
           ...prev,
-          type: prev.type || this.selectedDayInfo.type,
+          type: targetType,
           hours: prev.hours !== undefined ? prev.hours : (this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0),
           vacDays: prev.vacDays || this.selectedDayInfo.vacDays || 1,
           shift: newShift
@@ -1295,7 +1304,9 @@
         `;
 
         // ============================================================
-        // 달력 그리드 렌더링 (메모뷰 & 급여뷰 일체감 있는 통일 디자인)
+        // 달력 그리드 렌더링 (메모뷰 & 급여뷰 완벽 통일)
+        // - 토·일 기본 배지: '휴' (주간특근 시 '초', 야간특근 시 '야'로 변경)
+        // - '오늘' 배지: 두 뷰 모두 상단 날짜와 근무 배지 사이에 통일 배치
         // ============================================================
         const grid = document.getElementById('calendar_grid'); grid.innerHTML = '';
 
@@ -1305,7 +1316,6 @@
             const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth);
             const isToday = (ev.key === todayInfo.key);
 
-            // 급여뷰와 일체감 있는 배경색 적용
             let cellStyle = ev.isWeekend ? 'bg-white' : `cell-shift-${ev.shift}`;
             if (ev.type === 'OT') cellStyle = 'cell-checked-ot';
             else if (ev.type === 'NIGHT_OT') cellStyle = 'cell-checked-night-ot';
@@ -1319,16 +1329,14 @@
             if (ev.isSundayOrHol) dc = 'text-red-600';
             else if (ev.isSaturday) dc = 'text-blue-600';
 
-            // 상단 날짜 + 우측 초·중·야 정사각형 배지 (급여뷰와 동일한 헤더 구성, 날짜는 1, 2, 3...)
-            const dateNumHtml = isToday
-              ? `<span class="px-1 py-0.5 rounded bg-blue-600 text-white text-[10px] font-black leading-none">${ev.d}</span>`
-              : `<span class="text-[10.5px] font-black ${dc} leading-none">${ev.d}</span>`;
+            const todayPillHtml = isToday
+              ? `<span class="px-1 py-[1px] rounded bg-blue-600 text-white text-[7.5px] font-black leading-none shrink-0">오늘</span>`
+              : '';
 
             const holSubHtml = ev.holidayName
               ? `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>`
               : '';
 
-            // 칩 배열: [1순위 맨 위] 잔업/특근/휴가 칩 -> [2순위 바로 아래] 내 파스텔 메모들
             const chips = [];
             if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
@@ -1354,13 +1362,15 @@
             }
 
             const div = document.createElement('div');
-            // justify-start를 사용해 근무 칩과 메모가 항상 날짜 바로 아래(맨 위쪽)부터 차례대로 쌓이게 함
             div.className = `p-1 min-h-[96px] min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
             div.innerHTML = `
               <div class="flex items-center justify-between gap-0.5 mb-0.5">
-                ${dateNumHtml}
-                <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.shift}">${this.SHIFT_CHAR[ev.shift]}</span>
+                <div class="flex items-center gap-0.5 min-w-0">
+                  <span class="text-[10.5px] font-black ${dc} leading-none">${ev.d}</span>
+                  ${todayPillHtml}
+                </div>
+                <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.badgeKey}">${this.SHIFT_CHAR[ev.badgeKey]}</span>
               </div>
               ${holSubHtml}
               <div class="flex flex-col gap-[2px] w-full mt-0.5">
@@ -1370,7 +1380,7 @@
             grid.appendChild(div);
           });
         } else {
-          // [💰 급여뷰]: 21일~20일 산정 기간 (날짜에 월 포함: 10.21, 10.22...)
+          // [💰 급여뷰]: 21일~20일 산정 기간 (메모뷰와 동일한 상단 '오늘' 위치 & 주말 기본 '휴' 배지)
           const firstDow = calc.evaluated[0].dow;
           for (let i = 0; i < firstDow; i++) {
             grid.innerHTML += `<div class="min-h-[82px] bg-slate-50/70"></div>`;
@@ -1392,23 +1402,35 @@
             let dc = 'text-slate-900';
             if (ev.isSundayOrHol) dc = 'text-red-600'; else if (ev.isSaturday) dc = 'text-blue-600';
 
-            const dl = (ev.d === 21 || ev.d === 1) ? `<span class="text-[10px] font-black ${dc} nowrap underline decoration-2">${ev.m}.${ev.d}</span>` : `<span class="text-[10px] font-black ${dc} nowrap"><span class="text-[8px] font-bold opacity-55">${ev.m}.</span>${ev.d}</span>`;
-            const mid = isToday ? `<div class="text-[8px] font-black bg-blue-600 text-white rounded px-1 leading-tight text-center mx-auto nowrap">오늘</div>` : (ev.holidayName ? `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>` : `<div class="h-[11px]"></div>`);
+            const dl = (ev.d === 21 || ev.d === 1)
+              ? `<span class="text-[9.5px] font-black ${dc} nowrap underline decoration-2 leading-none">${ev.m}.${ev.d}</span>`
+              : `<span class="text-[9.5px] font-black ${dc} nowrap leading-none"><span class="text-[8px] font-bold opacity-55">${ev.m}.</span>${ev.d}</span>`;
+
+            const todayPillHtml = isToday
+              ? `<span class="px-1 py-[1px] rounded bg-blue-600 text-white text-[7.5px] font-black leading-none shrink-0">오늘</span>`
+              : '';
+
+            const mid = ev.holidayName
+              ? `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>`
+              : `<div class="h-[11px]"></div>`;
 
             const div = document.createElement('div');
             div.className = `p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between min-h-[82px] min-w-0 overflow-hidden ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
             div.innerHTML = `
               <div class="flex items-center justify-between gap-0.5">
-                ${dl}
-                <div class="flex items-center gap-0.5">
-                  ${ev.memo ? `<span class="text-[8px]">📌</span>` : ''}
-                  <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.shift}">${this.SHIFT_CHAR[ev.shift]}</span>
+                <div class="flex items-center gap-0.5 min-w-0">
+                  ${dl}
+                  ${todayPillHtml}
                 </div>
+                <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.badgeKey}">${this.SHIFT_CHAR[ev.badgeKey]}</span>
               </div>
               ${mid}
               <div class="text-center leading-none my-0.5">${statusHtml}</div>
-              <div class="text-right text-[8px] font-extrabold leading-none ${ev.nightHours>0?'text-purple-800':'text-transparent'} nowrap">야${ev.nightHours}h</div>
+              <div class="flex items-center justify-between text-[8px] font-extrabold leading-none nowrap">
+                <span>${ev.memo ? '📌' : ''}</span>
+                <span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span>
+              </div>
             `;
             grid.appendChild(div);
           });
