@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v5.5</title>
+  <title>LGES 월급계산기 v5.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -54,6 +54,7 @@
         <div class="min-w-0 flex items-center gap-1.5">
           <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded shrink-0">LGES</span>
           <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘 10.24 (토)</span>
+          <span id="top_cloud_Dot" onclick="App.switchTab('settings')" class="hidden text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-900/90 text-sky-300 border border-sky-500/40 cursor-pointer shrink-0">☁️연동중</span>
         </div>
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
@@ -275,8 +276,57 @@
         </div>
       </div>
 
-      <!-- TAB 4: 보정 · 설정 -->
+      <!-- TAB 4: 보정 · 설정 · 깃허브 클라우드 백업 -->
       <div id="tab_settings" class="hidden space-y-2.5 px-2.5 pt-2">
+
+        <!-- [신설] ☁️ 깃허브 비공개 금고(Gist) 원터치 백업·복원 카드 -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 shadow-md border border-sky-500/40 space-y-3">
+          <div class="flex items-center justify-between nowrap">
+            <div class="flex items-center gap-1.5">
+              <span class="text-base">☁️</span>
+              <h2 class="text-sm font-black text-white">깃허브 원터치 클라우드 백업</h2>
+            </div>
+            <span id="gh_sync_status_badge" class="text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">열쇠 미등록</span>
+          </div>
+
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            내 깃허브 비공개 금고(<strong class="text-sky-300">파일 1개 덮어쓰기·약 15KB</strong>)에 저장되어 용량을 차지하지 않으며, 폰이 바뀌어도 열쇠 번호만 넣으면 1초 만에 복원됩니다.
+          </p>
+
+          <!-- 열쇠(토큰) 입력 및 10초 발급 바로가기 -->
+          <div class="space-y-1.5 text-xs">
+            <div class="flex items-center justify-between nowrap">
+              <label class="text-[10.5px] font-extrabold text-sky-300">🔑 내 깃허브 열쇠 번호 (최초 1회만 입력)</label>
+              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Backup&scopes=gist" target="_blank" class="text-[10px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">
+                🔗 열쇠 10초 발급 바로가기 ↗
+              </a>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <input type="password" id="input_gh_token" placeholder="ghp_ 로 시작하는 토큰 붙여넣기" onchange="App.saveGithubToken()" class="w-full p-2 rounded-xl bg-slate-950/80 border border-slate-600 text-white font-mono text-xs focus:outline-none focus:border-sky-400">
+              <button onclick="App.toggleTokenVisibility()" class="shrink-0 px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300">보기</button>
+            </div>
+          </div>
+
+          <!-- 원터치 딸깍 백업 / 딸깍 복원 버튼 -->
+          <div class="grid grid-cols-2 gap-2 text-xs pt-0.5">
+            <button onclick="App.cloudBackupToGithub(false)" class="py-2.5 px-3 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
+              ☁️ 깃허브에 딸깍 백업
+            </button>
+            <button onclick="App.cloudRestoreFromGithub()" class="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
+              📥 깃허브에서 딸깍 복원
+            </button>
+          </div>
+
+          <!-- 자동 백업 스위치 & 마지막 백업 시각 -->
+          <div class="pt-2 border-t border-slate-700/80 flex items-center justify-between text-[11px] nowrap">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="chk_gh_auto_sync" onchange="App.toggleGithubAutoSync()" class="w-4 h-4 accent-sky-400 rounded">
+              <span class="font-bold text-slate-200">🔄 기록 수정 시마다 자동 서버 백업</span>
+            </label>
+            <span id="gh_last_sync_time" class="text-[10px] text-slate-400">백업 기록 없음</span>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5">
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔄 내 근무조 패턴 원터치 설정</h2><span class="text-[10px] font-bold text-blue-600">오늘이 속한 주 기준</span></div>
           <div class="grid grid-cols-3 gap-2 text-xs font-black pt-1">
@@ -324,19 +374,15 @@
         </div>
 
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 근무기록·메모 백업 및 복원</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드·파일 백업 (보조용)</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
           <button onclick="App.reseedAllHistory()" class="w-full py-2 bg-sky-100 text-sky-900 font-black rounded-xl text-xs border border-sky-300 nowrap">🔄 3월~10월 사진 원본 근무데이터 다시 불러오기</button>
           <div class="grid grid-cols-2 gap-2 text-xs pt-1">
-            <button onclick="App.copyBackupCode()" class="py-2.5 px-3 bg-slate-900 text-white font-black rounded-xl nowrap">📋 백업코드 복사</button>
-            <button onclick="App.toggleRestoreBox()" class="py-2.5 px-3 bg-blue-600 text-white font-black rounded-xl nowrap">📥 코드 붙여넣어 복원</button>
+            <button onclick="App.copyBackupCode()" class="py-2 px-3 bg-slate-800 text-white font-black rounded-xl nowrap">📋 백업코드 복사</button>
+            <button onclick="App.toggleRestoreBox()" class="py-2 px-3 bg-slate-200 text-slate-800 font-black rounded-xl nowrap">📥 코드 붙여넣어 복원</button>
           </div>
           <div id="restore_code_box" class="hidden pt-2 space-y-2">
             <textarea id="textarea_restore_code" rows="3" placeholder="백업코드를 붙여넣으세요..." class="w-full p-2.5 border border-blue-300 rounded-xl text-[11px] font-mono bg-slate-50"></textarea>
             <button onclick="App.restoreFromCode()" class="w-full py-2.5 bg-emerald-600 text-white font-black rounded-xl text-xs nowrap">✔️ 이 백업코드로 데이터 즉시 복원하기</button>
-          </div>
-          <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[11px] font-bold">
-            <button onclick="App.downloadBackupFile()" class="py-2 px-2 bg-slate-100 text-slate-700 rounded-xl nowrap">⬇️ 백업파일 저장(.json)</button>
-            <label class="py-2 px-2 bg-slate-100 text-slate-700 rounded-xl text-center cursor-pointer nowrap">⬆️ 백업파일 불러오기<input type="file" id="input_backup_file" accept=".json,application/json" onchange="App.uploadBackupFile(event)" class="hidden"></label>
           </div>
         </div>
       </div>
@@ -579,22 +625,24 @@
 
     const App = {
       STORAGE_KEY: 'LGES_FINAL_APP_V4',
+      GIST_FILENAME: 'lges_pay_backup.json',
       ANCHOR_MONDAY: new Date(2026, 9, 19, 12, 0, 0),
       SHIFT_ORDER: ['EARLY', 'NIGHT', 'MID'],
       SHIFT_CHAR: { EARLY: '초', NIGHT: '야', MID: '중', OFF: '휴' },
       SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)', OFF: '휴무일(유급/주말)' },
       DAY_KOR: ['일', '월', '화', '수', '목', '금', '토'],
 
-      // [개별 분리 상태]
-      // 1) 메모뷰 전용 상태: 10월 달력이면 기본 10월 급여(memoPayOffset = 0) 고정
       memoYear: 2026, memoMonth: 10, memoPayOffset: 0,
-      // 2) 급여뷰 전용 상태: 오늘 날짜(10.24) 기준 11월 급여(payViewYear = 2026, payViewMonth = 11) 고정
       payViewYear: 2026, payViewMonth: 11,
-
       reportYear: 2026,
       basePay: 3005500, totalVacation: 21, priorUsedVacation: 8, shiftOffset: 0,
       calibGrossOffset: 0, calibDedRatio: 1.0,
       records: {}, monthExtras: {}, seededHistoryV54: false,
+
+      // 깃허브 클라우드 백업 설정값
+      ghToken: '', ghGistId: '', ghAutoSync: true, ghLastSync: '',
+      autoSyncTimer: null,
+
       calendarView: 'MEMO', selectedDateKey: null, selectedDayInfo: null, lastRawGross: 0, lastRawDed: 0,
       swipeAnimClass: '',
 
@@ -611,14 +659,14 @@
         if (!this.seededHistoryV54) {
           this.seedAll2026History();
           this.seededHistoryV54 = true;
-          this.save();
+          this.save(true);
         }
         this.resetBothViewsToToday();
         this.syncSettingsInputs();
+        this.updateGithubUiStatus();
         this.render();
       },
 
-      // 달력 좌·우 손가락 슬라이딩(스와이프) 이벤트 등록
       initSwipeGesture() {
         const zone = document.getElementById('calendar_swipe_zone');
         if (!zone) return;
@@ -633,32 +681,167 @@
           if (!e.changedTouches || e.changedTouches.length !== 1) return;
           const dx = e.changedTouches[0].clientX - startX;
           const dy = e.changedTouches[0].clientY - startY;
-          // 가로 이동이 45px 이상이고 세로 스크롤보다 1.5배 이상 클 때만 월 이동 실행
           if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-            if (dx < 0) {
-              // 우 -> 좌 슬라이딩: 다음달
-              this.changeMonth(1);
-            } else {
-              // 좌 -> 우 슬라이딩: 이전달
-              this.changeMonth(-1);
-            }
+            if (dx < 0) this.changeMonth(1);
+            else this.changeMonth(-1);
           }
         }, { passive: true });
       },
 
       resetBothViewsToToday() {
         const t = this.getTodayInfo();
-        // 메모뷰 기본값: 오늘 달력 월 (예: 2026. 10 일정) + 월급날 25일까지는 당월 급여(0) 기본
         this.memoYear = t.y;
         this.memoMonth = t.m;
         this.memoPayOffset = (t.d <= 25) ? 0 : 1;
 
-        // 급여뷰 기본값: 21일 이후면 다음 달 급여(예: 10.24 -> 2026. 11 급여) 기본
         let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
         if (pm > 12) { pm = 1; py += 1; }
         this.payViewYear = py;
         this.payViewMonth = pm;
         this.reportYear = t.y;
+      },
+
+      // ============================================================
+      // ☁️ 깃허브 비공개 금고(Secret Gist) 원터치 백업·복원 엔진
+      // ============================================================
+      saveGithubToken() {
+        this.ghToken = (document.getElementById('input_gh_token').value || '').trim();
+        this.save(true);
+        this.updateGithubUiStatus();
+      },
+      toggleTokenVisibility() {
+        const inp = document.getElementById('input_gh_token');
+        inp.type = (inp.type === 'password') ? 'text' : 'password';
+      },
+      toggleGithubAutoSync() {
+        this.ghAutoSync = document.getElementById('chk_gh_auto_sync').checked;
+        this.save(true);
+        this.updateGithubUiStatus();
+      },
+      updateGithubUiStatus(customMsg = null) {
+        const badge = document.getElementById('gh_sync_status_badge');
+        const lastEl = document.getElementById('gh_last_sync_time');
+        const topDot = document.getElementById('top_cloud_Dot');
+        if (!badge || !lastEl) return;
+
+        if (!this.ghToken) {
+          badge.innerText = '열쇠 미등록';
+          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300';
+          if (topDot) topDot.classList.add('hidden');
+        } else if (customMsg) {
+          badge.innerText = customMsg;
+          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950';
+          if (topDot) topDot.classList.remove('hidden');
+        } else {
+          badge.innerText = this.ghAutoSync ? '✔ 자동백업 켜짐' : '✔ 열쇠 등록됨';
+          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950';
+          if (topDot) topDot.classList.remove('hidden');
+        }
+        lastEl.innerText = this.ghLastSync ? `최근 백업: ${this.ghLastSync}` : '아직 서버 백업 전';
+      },
+
+      // 사용자의 깃허브 계정에서 lges_pay_backup.json 비공개 금고(Gist) ID 자동 검색
+      async findExistingGistId(token) {
+        if (this.ghGistId) return this.ghGistId;
+        const res = await fetch('https://api.github.com/gists?per_page=100', {
+          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
+        });
+        if (!res.ok) throw new Error('토큰 인증 실패');
+        const list = await res.json();
+        const found = list.find(g => g.files && g.files[this.GIST_FILENAME]);
+        if (found) {
+          this.ghGistId = found.id;
+          return found.id;
+        }
+        return null;
+      },
+
+      async cloudBackupToGithub(silent = false) {
+        const token = (this.ghToken || document.getElementById('input_gh_token')?.value || '').trim();
+        if (!token) {
+          if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.\n우측의 [🔗 열쇠 10초 발급 바로가기]를 누르면 바로 만들 수 있습니다.');
+          return;
+        }
+        this.ghToken = token;
+        this.updateGithubUiStatus('⏳ 백업 중...');
+
+        try {
+          const gistId = await this.findExistingGistId(token);
+          const contentStr = JSON.stringify(this.getExportPayload(), null, 2);
+          const bodyObj = {
+            description: 'LGES 월급계산기·메모 자동 백업 금고',
+            public: false,
+            files: { [this.GIST_FILENAME]: { content: contentStr } }
+          };
+
+          let res;
+          if (gistId) {
+            res = await fetch(`https://api.github.com/gists/${gistId}`, {
+              method: 'PATCH',
+              headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+              body: JSON.stringify(bodyObj)
+            });
+          } else {
+            res = await fetch('https://api.github.com/gists', {
+              method: 'POST',
+              headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+              body: JSON.stringify(bodyObj)
+            });
+          }
+
+          if (!res.ok) throw new Error('저장 실패');
+          const data = await res.json();
+          this.ghGistId = data.id;
+          const now = new Date();
+          this.ghLastSync = `${now.getMonth()+1}.${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+          this.save(true);
+          this.updateGithubUiStatus('✔ 백업 완료');
+          if (!silent) alert('☁️ 깃허브 비공개 금고에 안전하게 덮어쓰기 백업되었습니다!');
+        } catch (err) {
+          this.updateGithubUiStatus('⚠️ 백업 오류');
+          if (!silent) alert('깃허브 백업에 실패했습니다.\n열쇠 번호(ghp_...)가 정확한지, 발급 시 [gist] 권한이 체크되었는지 확인해 주세요.');
+        }
+      },
+
+      async cloudRestoreFromGithub() {
+        const token = (this.ghToken || document.getElementById('input_gh_token')?.value || '').trim();
+        if (!token) {
+          alert('복원하려면 🔑 내 깃허브 열쇠 번호(ghp_...)를 먼저 입력해 주세요.');
+          return;
+        }
+        this.ghToken = token;
+        this.updateGithubUiStatus('⏳ 복원 중...');
+
+        try {
+          this.ghGistId = '';
+          const gistId = await this.findExistingGistId(token);
+          if (!gistId) {
+            this.updateGithubUiStatus();
+            alert('깃허브 금고에서 저장된 백업 데이터를 찾지 못했습니다.\n먼저 [☁️ 깃허브에 딸깍 백업]을 한 번 실행해 주세요.');
+            return;
+          }
+          const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+            headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
+          });
+          if (!res.ok) throw new Error('불러오기 실패');
+          const gistData = await res.json();
+          const rawContent = gistData.files?.[this.GIST_FILENAME]?.content;
+          if (!rawContent) throw new Error('파일 없음');
+
+          const parsed = JSON.parse(rawContent);
+          this.loadStateObject(parsed);
+          this.ghToken = token;
+          this.ghGistId = gistId;
+          this.save(true);
+          this.syncSettingsInputs();
+          this.updateGithubUiStatus('✔ 복원 완료');
+          this.render();
+          alert('📥 깃허브 금고에서 모든 근무기록과 메모를 완벽하게 복원했습니다!');
+          this.switchTab('home');
+        } catch (err) {
+          this.updateGithubUiStatus('⚠️ 복원 오류');
+          alert('깃허브 복원에 실패했습니다. 열쇠 번호를 확인해 주세요.');
+        }
       },
 
       reseedAllHistory() {
@@ -871,16 +1054,24 @@
         if (p.records && typeof p.records === 'object') this.records = p.records;
         if (p.monthExtras && typeof p.monthExtras === 'object') this.monthExtras = p.monthExtras;
         if (p.seededHistoryV54 !== undefined) this.seededHistoryV54 = Boolean(p.seededHistoryV54);
+        if (p.ghToken !== undefined) this.ghToken = p.ghToken;
+        if (p.ghGistId !== undefined) this.ghGistId = p.ghGistId;
+        if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
+        if (p.ghLastSync !== undefined) this.ghLastSync = p.ghLastSync;
       },
 
       getExportPayload() {
-        return { version: '5.5', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54 };
+        return { version: '5.6', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
       },
 
-      save() {
+      save(skipCloudAuto = false) {
         const payload = this.getExportPayload();
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
         DualVault.saveSnapshot(payload);
+        if (!skipCloudAuto && this.ghToken && this.ghAutoSync) {
+          clearTimeout(this.autoSyncTimer);
+          this.autoSyncTimer = setTimeout(() => this.cloudBackupToGithub(true), 1800);
+        }
       },
 
       setCalendarView(view) {
@@ -890,7 +1081,6 @@
         this.render(false);
       },
 
-      // 현재 뷰에 맞는 급여 대상 연·월 반환 (메모뷰와 급여뷰 개별 작동)
       getActivePayYM() {
         if (this.calendarView === 'MEMO') {
           let y = this.memoYear, m = this.memoMonth + this.memoPayOffset;
@@ -900,16 +1090,12 @@
         return { y: this.payViewYear, m: this.payViewMonth };
       },
 
-      // 하단 급여 스위치 버튼 클릭 처리 (메모뷰와 급여뷰 완전 분리)
       onPayTabClick(idx) {
         if (this.calendarView === 'MEMO') {
           this.memoPayOffset = idx;
           this.render(false);
         } else {
-          // 급여뷰에서는 좌측 버튼(0)이 이전달 급여, 우측 버튼(1)이 현재 급여뷰 달력
-          if (idx === 0) {
-            this.changeMonth(-1);
-          }
+          if (idx === 0) this.changeMonth(-1);
         }
       },
 
@@ -930,7 +1116,7 @@
       },
 
       copyBackupCode() {
-        this.save();
+        this.save(true);
         const s = JSON.stringify(this.getExportPayload());
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(s).then(() => alert('백업코드(근무기록+메모)가 복사되었습니다!')).catch(() => this.fallbackCopyText(s));
@@ -952,7 +1138,7 @@
         } catch (e) { alert('올바른 백업코드 형식이 아닙니다.'); }
       },
       downloadBackupFile() {
-        this.save();
+        this.save(true);
         const blob = new Blob([JSON.stringify(this.getExportPayload(), null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob), a = document.createElement('a'), t = this.getTodayInfo();
         a.href = url; a.download = `LGES_월급메모백업_${t.y}${String(t.m).padStart(2,'0')}${String(t.d).padStart(2,'0')}.json`;
@@ -972,13 +1158,12 @@
         return { y, m, d, dow, dayName: this.DAY_KOR[dow], key: this.formatKey(y, m, d) };
       },
 
-      // [오늘] 버튼 클릭 시 현재 보고 있는 뷰만 오늘 기준으로 이동 (개별 고정 유지)
       goToTodayMonth(doRender = true) {
         const t = this.getTodayInfo();
         if (this.calendarView === 'MEMO') {
           this.memoYear = t.y;
           this.memoMonth = t.m;
-          this.memoPayOffset = (t.d <= 25) ? 0 : 1; // 1일~25일 월급날까지는 당월 급여 기본 표시
+          this.memoPayOffset = (t.d <= 25) ? 0 : 1;
         } else {
           let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
           if (pm > 12) { pm = 1; py += 1; }
@@ -1014,6 +1199,8 @@
         document.getElementById('input_total_vac').value = this.totalVacation;
         document.getElementById('input_prior_used_vac').value = this.priorUsedVacation;
         document.getElementById('input_base_pay').value = this.basePay;
+        if (document.getElementById('input_gh_token')) document.getElementById('input_gh_token').value = this.ghToken || '';
+        if (document.getElementById('chk_gh_auto_sync')) document.getElementById('chk_gh_auto_sync').checked = this.ghAutoSync;
       },
       saveSettings() {
         this.totalVacation = Number(document.getElementById('input_total_vac').value) || 21;
@@ -1350,14 +1537,12 @@
       },
       closeDayModal() { const m = document.getElementById('day_modal'); m.classList.add('hidden'); m.classList.remove('flex'); this.selectedDateKey = null; },
 
-      // 월 이동: 현재 활성화된 뷰(메모뷰 vs 급여뷰)만 독립적으로 월 이동 + 슬라이딩 애니메이션
       changeMonth(delta) {
         this.swipeAnimClass = delta > 0 ? 'swipe-left-anim' : 'swipe-right-anim';
         if (this.calendarView === 'MEMO') {
           this.memoMonth += delta;
           if (this.memoMonth > 12) { this.memoMonth = 1; this.memoYear++; }
           else if (this.memoMonth < 1) { this.memoMonth = 12; this.memoYear--; }
-          // 메모뷰에서 달력을 넘기면 해당 달력의 당월 급여(예: 10월 달력이면 10월 급여)가 기본 선택됨
           this.memoPayOffset = 0;
         } else {
           this.payViewMonth += delta;
@@ -1394,6 +1579,7 @@
       render(skipInput = false) {
         const todayInfo = this.getTodayInfo();
         document.getElementById('today_header_info').innerText = `오늘 ${todayInfo.m}.${todayInfo.d} (${todayInfo.dayName})`;
+        this.updateGithubUiStatus();
 
         const activePay = this.getActivePayYM(), calc = this.calculateMonthSummary(activePay.y, activePay.m);
         const rate = calc.rate;
@@ -1420,7 +1606,6 @@
         this.renderRateTable(calc.appliedBase, rate);
         this.renderAnnualReport(unusedVacPay);
 
-        // [요구사항 1 & 2]: 메모뷰는 "2026. 10 일정", 급여뷰는 "2026. 11 급여"로 두 글자 깔맞춤 표시
         const titleEl = document.getElementById('big_ym_title');
         if (this.calendarView === 'MEMO') {
           titleEl.innerText = `${this.memoYear}. ${String(this.memoMonth).padStart(2, '0')} 일정`;
@@ -1428,7 +1613,6 @@
           titleEl.innerText = `${this.payViewYear}. ${String(this.payViewMonth).padStart(2, '0')} 급여`;
         }
 
-        // [요구사항 3 & 4]: 하단 급여 스위치 버튼도 메모뷰와 급여뷰 개별 표시
         const btnCurr = document.getElementById('pay_target_curr'), btnNext = document.getElementById('pay_target_next');
         if (this.calendarView === 'MEMO') {
           let prevM = this.memoMonth - 1; if (prevM < 1) prevM = 12;
