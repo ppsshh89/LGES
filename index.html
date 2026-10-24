@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v5.4</title>
+  <title>LGES 월급계산기 v5.5</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -40,6 +40,10 @@
     .nowrap { white-space: nowrap; }
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 1.5px; border-radius: 3px; word-break: break-all; white-space: normal; text-align: left; box-sizing: border-box; }
     .work-top-chip { width: 100%; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 2px; border-radius: 3px; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+    @keyframes slideLeftAnim { from { opacity: 0.55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideRightAnim { from { opacity: 0.55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+    .swipe-left-anim { animation: slideLeftAnim 0.18s ease-out; }
+    .swipe-right-anim { animation: slideRightAnim 0.18s ease-out; }
   </style>
 </head>
 <body>
@@ -54,9 +58,9 @@
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴 남은연차</span>
-            <strong id="top_vacation_badge" class="text-[11px] font-black text-emerald-400">11.0 / 21일</strong>
+            <strong id="top_vacation_badge" class="text-[11px] font-black text-emerald-400">10.5 / 21일</strong>
           </div>
-          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300">미사용시 +210.3만원</div>
+          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300">미사용시 +200.7만원</div>
         </button>
       </div>
     </header>
@@ -65,11 +69,11 @@
     <main class="flex-1 overflow-y-auto overflow-x-hidden pb-20 space-y-1.5 w-full">
       <!-- TAB 1: 달력(메모뷰/급여뷰) & 월급 홈 -->
       <div id="tab_home" class="space-y-1.5 w-full">
-        <div class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden">
+        <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden" style="touch-action: pan-y;">
           <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
             <div class="flex items-center gap-1 shrink-0">
               <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
-              <h2 id="big_ym_title" class="text-[17px] font-black text-slate-900 tracking-tight px-0.5">2026. 10</h2>
+              <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight px-0.5 min-w-[104px] text-center">2026. 10 일정</h2>
               <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
@@ -86,7 +90,7 @@
 
           <div id="calendar_subbar" class="px-2.5 h-6 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-2 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
             <span id="subbar_left_text" class="truncate">📅 오늘은 2026년 10월 24일 (토) 입니다</span>
-            <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold shrink-0">빨간날 기본=휴무</span>
+            <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold shrink-0">↔ 좌우 밀어서 월 이동</span>
           </div>
 
           <div class="grid grid-cols-7 text-center text-[10px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50/70 w-full">
@@ -101,8 +105,8 @@
           <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2.5 shadow-md w-full box-border overflow-hidden">
             <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1.5 w-full">
               <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 min-w-0">
-                <button id="pay_target_curr" onclick="App.setPayTargetOffset(0)" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 truncate">10월 급여</button>
-                <button id="pay_target_next" onclick="App.setPayTargetOffset(1)" class="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate">11월 급여</button>
+                <button id="pay_target_curr" onclick="App.onPayTabClick(0)" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 truncate">10월 급여</button>
+                <button id="pay_target_next" onclick="App.onPayTabClick(1)" class="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate">11월 급여</button>
               </div>
               <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[10px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-1 rounded-lg font-extrabold nowrap">↺ 초기화</button>
             </div>
@@ -131,7 +135,7 @@
               </div>
             </div>
 
-            <!-- 회사 근무표 4대 지표 (시간공수 / 주평균시간 / 실근로일수 / 유급일수) -->
+            <!-- 회사 근무표 4대 지표 -->
             <div class="mt-1.5 bg-indigo-950/70 border border-indigo-700/50 rounded-xl py-1.5 px-2 grid grid-cols-4 gap-1 text-center text-[10px] nowrap">
               <div><span class="text-indigo-300 text-[8.5px] block">공수(시간/금액)</span><strong id="stat_gongsu" class="text-amber-300 font-black">51.75</strong></div>
               <div><span class="text-indigo-300 text-[8.5px] block">주평균시간</span><strong id="stat_weekly_h" class="text-sky-300 font-black">49.94h</strong></div>
@@ -154,7 +158,7 @@
             </details>
           </div>
 
-          <!-- 3월~10월 명세서 바로가기 바 (원터치 확인용) -->
+          <!-- 3월~10월 명세서 바로가기 바 -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
             <div class="flex items-center justify-between nowrap">
               <span class="text-[11px] font-black text-slate-800">📂 3월~10월 실제 명세서·근무표 원터치 조회</span>
@@ -229,7 +233,7 @@
           </div>
         </div>
         <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200">
-          <div class="flex items-center justify-between mb-2 nowrap"><h3 class="text-xs font-black text-slate-800">📅 월별 급여·특근 상세 (터치 시 급여뷰 이동)</h3><span class="text-[10px] text-slate-400">단위: 만원</span></div>
+          <div class="flex items-center justify-between mb-2 nowrap"><h3 class="text-xs font-black text-slate-800">📅 월별 급여·특근 상세 (터치 시 급여뷰 이동)</h3><span class="text-[10px] text-slate-400">단위: 원</span></div>
           <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
             <table class="w-full text-left border-collapse nowrap">
               <thead><tr class="bg-slate-100 text-slate-600 text-[10px] font-black"><th class="py-2 px-2">급여월</th><th class="py-2 px-1 text-center">잔업/특근/야간</th><th class="py-2 px-2 text-right">세전총액</th><th class="py-2 px-2 text-right">세후실수령</th></tr></thead>
@@ -581,14 +585,22 @@
       SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)', OFF: '휴무일(유급/주말)' },
       DAY_KOR: ['일', '월', '화', '수', '목', '금', '토'],
 
-      calYear: 2026, calMonth: 10, payTargetOffset: 0, reportYear: 2026,
+      // [개별 분리 상태]
+      // 1) 메모뷰 전용 상태: 10월 달력이면 기본 10월 급여(memoPayOffset = 0) 고정
+      memoYear: 2026, memoMonth: 10, memoPayOffset: 0,
+      // 2) 급여뷰 전용 상태: 오늘 날짜(10.24) 기준 11월 급여(payViewYear = 2026, payViewMonth = 11) 고정
+      payViewYear: 2026, payViewMonth: 11,
+
+      reportYear: 2026,
       basePay: 3005500, totalVacation: 21, priorUsedVacation: 8, shiftOffset: 0,
       calibGrossOffset: 0, calibDedRatio: 1.0,
       records: {}, monthExtras: {}, seededHistoryV54: false,
       calendarView: 'MEMO', selectedDateKey: null, selectedDayInfo: null, lastRawGross: 0, lastRawDed: 0,
+      swipeAnimClass: '',
 
       async init() {
         this.initModalButtons();
+        this.initSwipeGesture();
         let saved = localStorage.getItem(this.STORAGE_KEY) || localStorage.getItem('LGES_BETA_APP_V3_1') || localStorage.getItem('LGES_BETA_APP_V3');
         if (saved) {
           try { this.loadStateObject(JSON.parse(saved)); } catch (e) {}
@@ -596,16 +608,57 @@
           const vaultData = await DualVault.loadSnapshot();
           if (vaultData) { this.loadStateObject(vaultData); localStorage.setItem(this.STORAGE_KEY, JSON.stringify(vaultData)); }
         }
-        // 3월~10월 사진 원본 근무데이터 및 명세서 완벽 세팅
         if (!this.seededHistoryV54) {
           this.seedAll2026History();
           this.seededHistoryV54 = true;
           this.save();
         }
-        this.goToTodayMonth(false);
-        this.reportYear = this.calYear;
+        this.resetBothViewsToToday();
         this.syncSettingsInputs();
         this.render();
+      },
+
+      // 달력 좌·우 손가락 슬라이딩(스와이프) 이벤트 등록
+      initSwipeGesture() {
+        const zone = document.getElementById('calendar_swipe_zone');
+        if (!zone) return;
+        let startX = 0, startY = 0;
+        zone.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        zone.addEventListener('touchend', (e) => {
+          if (!e.changedTouches || e.changedTouches.length !== 1) return;
+          const dx = e.changedTouches[0].clientX - startX;
+          const dy = e.changedTouches[0].clientY - startY;
+          // 가로 이동이 45px 이상이고 세로 스크롤보다 1.5배 이상 클 때만 월 이동 실행
+          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            if (dx < 0) {
+              // 우 -> 좌 슬라이딩: 다음달
+              this.changeMonth(1);
+            } else {
+              // 좌 -> 우 슬라이딩: 이전달
+              this.changeMonth(-1);
+            }
+          }
+        }, { passive: true });
+      },
+
+      resetBothViewsToToday() {
+        const t = this.getTodayInfo();
+        // 메모뷰 기본값: 오늘 달력 월 (예: 2026. 10 일정) + 월급날 25일까지는 당월 급여(0) 기본
+        this.memoYear = t.y;
+        this.memoMonth = t.m;
+        this.memoPayOffset = (t.d <= 25) ? 0 : 1;
+
+        // 급여뷰 기본값: 21일 이후면 다음 달 급여(예: 10.24 -> 2026. 11 급여) 기본
+        let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
+        if (pm > 12) { pm = 1; py += 1; }
+        this.payViewYear = py;
+        this.payViewMonth = pm;
+        this.reportYear = t.y;
       },
 
       reseedAllHistory() {
@@ -617,10 +670,8 @@
         alert('3월~10월 모든 근무시간과 명세서 데이터가 완벽히 세팅되었습니다!');
       },
 
-      // [3월~10월 실제 근태달력 & 급여명세서 100% 반영 데이터]
       seedAll2026History() {
         const histRecords = {
-          // === 3월 급여 (2.21 ~ 3.20): 연장 36h, 특근 5회(40h/20h), 야간 56h, 휴가 2일 ===
           '2026-02-21': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-02-25': { type:'OT', hours:5, shift:'MID' },
           '2026-02-26': { type:'OT', hours:4, shift:'MID' },
@@ -638,7 +689,6 @@
           '2026-03-19': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-03-20': { type:'OT', hours:4, shift:'NIGHT' },
 
-          // === 4월 급여 (3.21 ~ 4.20): 연장 45h, 특근 6회(48h/20h), 야간 80h ===
           '2026-03-23': { type:'OT', hours:4, shift:'EARLY' },
           '2026-03-25': { type:'OT', hours:4, shift:'EARLY' },
           '2026-03-26': { type:'OT', hours:4, shift:'EARLY' },
@@ -657,7 +707,6 @@
           '2026-04-19': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-04-20': { type:'OT', hours:4, shift:'NIGHT' },
 
-          // === 5월 급여 (4.21 ~ 5.20): 연장 13h, 특근 5회(40h/16h), 야간 88h ===
           '2026-04-22': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-04-23': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-04-25': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
@@ -668,7 +717,6 @@
           '2026-05-16': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-05-18': { type:'NORMAL', hours:0, shift:'NIGHT' },
 
-          // === 6월 급여 (5.21 ~ 6.20): 연장 35h, 특근 5회(40h/16h), 야간 64h, 교육 4h ===
           '2026-05-21': { type:'OT', hours:4, shift:'MID' },
           '2026-05-25': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
           '2026-05-27': { type:'OT', hours:4, shift:'EARLY' },
@@ -684,7 +732,6 @@
           '2026-06-16': { type:'OT', hours:3, shift:'EARLY' },
           '2026-06-20': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
 
-          // === 7월 급여 (6.21 ~ 7.20): 연장 36h, 특근 7회(56h/24h), 야간 136h(17일) ===
           '2026-06-21': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-06-22': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-06-23': { type:'OT', hours:4, shift:'NIGHT' },
@@ -703,7 +750,6 @@
           '2026-07-18': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-07-20': { type:'NORMAL', hours:0, shift:'NIGHT' },
 
-          // === 8월 급여 (7.21 ~ 8.20): 연장 17h, 특근 8회(64h/12h), 야간 48h(6일) ===
           '2026-07-22': { type:'OT', hours:4, shift:'MID' },
           '2026-07-25': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
           '2026-07-26': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
@@ -717,7 +763,6 @@
           '2026-08-15': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
           '2026-08-17': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
 
-          // === 9월 급여 (8.21 ~ 9.20): 연장 16h, 특근 6회(48h/24h), 야간 112h(14일), 교육 3.58h ===
           '2026-08-22': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-08-26': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-08-27': { type:'OT', hours:4, shift:'NIGHT' },
@@ -729,7 +774,6 @@
           '2026-09-16': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-09-19': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
 
-          // === 10월 급여 (9.21 ~ 10.20): 연장 13h, 특근 6회(48h/20h), 야간 56h(7일), 반차 0.5일 ===
           '2026-09-23': { type:'LEAVE', hours:0, vacDays:0.5, shift:'MID' },
           '2026-09-30': { type:'OT', hours:4, shift:'EARLY' },
           '2026-10-01': { type:'OT', hours:4, shift:'EARLY' },
@@ -742,7 +786,6 @@
           '2026-10-18': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' }
         };
 
-        // 3/21 ~ 10/20 기간의 기존 근무초기화 후 정확한 기록 주입 (메모 보존)
         for (let m = 2; m <= 10; m++) {
           const dim = new Date(2026, m, 0).getDate();
           for (let d = 1; d <= dim; d++) {
@@ -760,7 +803,6 @@
           }
         }
 
-        // 3월~10월 실제 명세서와 1원 단위까지 100% 일치시키는 월별 명세서 메타데이터
         this.monthExtras['2026-03'] = {
           eduHours: 0, foodDed: 76580, customBasePay: 2882000,
           housingAllow: 26168, housingDed: 365810, retroPay: 2640,
@@ -805,9 +847,8 @@
       },
 
       jumpToPayMonth(y, m) {
-        this.calYear = y;
-        this.calMonth = m;
-        this.payTargetOffset = 0;
+        this.payViewYear = y;
+        this.payViewMonth = m;
         this.setCalendarView('PAY');
       },
 
@@ -833,7 +874,7 @@
       },
 
       getExportPayload() {
-        return { version: '5.4', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54 };
+        return { version: '5.5', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54 };
       },
 
       save() {
@@ -846,14 +887,30 @@
         this.calendarView = view;
         document.getElementById('view_btn_MEMO').className = view === 'MEMO' ? 'px-2 py-1 rounded-lg text-[10px] font-black transition bg-slate-900 text-white shadow-sm' : 'px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500';
         document.getElementById('view_btn_PAY').className = view === 'PAY' ? 'px-2 py-1 rounded-lg text-[10px] font-black transition bg-blue-600 text-white shadow-sm' : 'px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500';
-        this.render(true);
+        this.render(false);
       },
 
-      setPayTargetOffset(offset) { this.payTargetOffset = offset; this.render(false); },
+      // 현재 뷰에 맞는 급여 대상 연·월 반환 (메모뷰와 급여뷰 개별 작동)
       getActivePayYM() {
-        let y = this.calYear, m = this.calMonth + this.payTargetOffset;
-        if (m > 12) { m = 1; y += 1; }
-        return { y, m };
+        if (this.calendarView === 'MEMO') {
+          let y = this.memoYear, m = this.memoMonth + this.memoPayOffset;
+          if (m > 12) { m = 1; y += 1; }
+          return { y, m };
+        }
+        return { y: this.payViewYear, m: this.payViewMonth };
+      },
+
+      // 하단 급여 스위치 버튼 클릭 처리 (메모뷰와 급여뷰 완전 분리)
+      onPayTabClick(idx) {
+        if (this.calendarView === 'MEMO') {
+          this.memoPayOffset = idx;
+          this.render(false);
+        } else {
+          // 급여뷰에서는 좌측 버튼(0)이 이전달 급여, 우측 버튼(1)이 현재 급여뷰 달력
+          if (idx === 0) {
+            this.changeMonth(-1);
+          }
+        }
       },
 
       getBaseWeekDiff(y, m, d) {
@@ -914,13 +971,24 @@
         const now = new Date(), y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate(), dow = now.getDay();
         return { y, m, d, dow, dayName: this.DAY_KOR[dow], key: this.formatKey(y, m, d) };
       },
+
+      // [오늘] 버튼 클릭 시 현재 보고 있는 뷰만 오늘 기준으로 이동 (개별 고정 유지)
       goToTodayMonth(doRender = true) {
         const t = this.getTodayInfo();
-        this.calYear = t.y; this.calMonth = t.m; this.payTargetOffset = (t.d >= 21) ? 1 : 0;
+        if (this.calendarView === 'MEMO') {
+          this.memoYear = t.y;
+          this.memoMonth = t.m;
+          this.memoPayOffset = (t.d <= 25) ? 0 : 1; // 1일~25일 월급날까지는 당월 급여 기본 표시
+        } else {
+          let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
+          if (pm > 12) { pm = 1; py += 1; }
+          this.payViewYear = py;
+          this.payViewMonth = pm;
+        }
         if (doRender) this.render();
       },
+
       getLmsAllowance(base = this.basePay) { return Math.round(base / 44); },
-      // 3~7월(2,882,000원) 및 8~10월(3,005,500원) 명세서 1원 단위 역산 정밀 시급
       getHourlyRate(base = this.basePay) {
         if (base === 2882000) return 22949.2559;
         if (base === 3005500) return 23897.616;
@@ -1049,7 +1117,6 @@
         return { y, m, d, key, dow, isWeekend, isRedOffDay, isSundayOrHol, isSaturday, holidayName, compHol, dayName: this.DAY_KOR[dow], defaultShift, shift, badgeKey, type, holKind, otHours, holBaseHours, holOverHours, nightHours, vacDays, memo, memoColor, isOtherMonth };
       },
 
-      // [부양가족 4인 간이세액표 실측 모델 + 짝수상여 + 명절상여 익월 세금정산 반영]
       estimateMonthlyIncomeTax(nonBonusGross, regBonusPay, prevMonthHadHolBonus, basePay) {
         let baseTax = 0;
         if (nonBonusGross <= 5000000) {
@@ -1068,7 +1135,6 @@
         if (regBonusPay > 0) {
           bonusTax += regBonusPay * (prevMonthHadHolBonus ? 0.2508 : 0.217);
         }
-        // 전월에 설·추석 명절상여가 있었던 경우(예: 9월 추석 -> 10월 급여), 유예된 명절상여 세금이 당월에 합산 정산됨
         if (prevMonthHadHolBonus) {
           bonusTax += basePay * 0.2508;
         }
@@ -1119,7 +1185,6 @@
         else if (ex.manualHolBonus === false) hasHolBonus = false;
         const autoHolName = hasHolBonus ? (festInfo ? festInfo.name : '명절') : null;
 
-        // 전월에 명절상여가 있었는지 확인 (전월 명절상여 세금 당월 정산용)
         let prevY = payY, prevM = payM - 1; if (prevM < 1) { prevM = 12; prevY -= 1; }
         const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM);
         const prevEx = this.getMonthExtra(prevY, prevM);
@@ -1161,7 +1226,6 @@
         };
       },
 
-      // 사용자가 달력에서 근무시간을 수정하면 해당 월의 고정 명세서 잠금을 해제하고 실시간 재계산
       invalidateExactSlipForDate(dateKey) {
         const [y, m, d] = dateKey.split('-').map(Number);
         let py = y, pm = (d >= 21) ? (m + 1) : m;
@@ -1285,13 +1349,31 @@
         this.closeDayModal(); this.save(); this.render();
       },
       closeDayModal() { const m = document.getElementById('day_modal'); m.classList.add('hidden'); m.classList.remove('flex'); this.selectedDateKey = null; },
+
+      // 월 이동: 현재 활성화된 뷰(메모뷰 vs 급여뷰)만 독립적으로 월 이동 + 슬라이딩 애니메이션
       changeMonth(delta) {
-        this.calMonth += delta;
-        if (this.calMonth > 12) { this.calMonth = 1; this.calYear++; } else if (this.calMonth < 1) { this.calMonth = 12; this.calYear--; }
+        this.swipeAnimClass = delta > 0 ? 'swipe-left-anim' : 'swipe-right-anim';
+        if (this.calendarView === 'MEMO') {
+          this.memoMonth += delta;
+          if (this.memoMonth > 12) { this.memoMonth = 1; this.memoYear++; }
+          else if (this.memoMonth < 1) { this.memoMonth = 12; this.memoYear--; }
+          // 메모뷰에서 달력을 넘기면 해당 달력의 당월 급여(예: 10월 달력이면 10월 급여)가 기본 선택됨
+          this.memoPayOffset = 0;
+        } else {
+          this.payViewMonth += delta;
+          if (this.payViewMonth > 12) { this.payViewMonth = 1; this.payViewYear++; }
+          else if (this.payViewMonth < 1) { this.payViewMonth = 12; this.payViewYear--; }
+        }
         this.render();
       },
+
       changeReportYear(delta) { this.reportYear += delta; this.renderAnnualReport(); },
-      jumpToMonthFromReport(y, m) { this.calYear = y; this.calMonth = m; this.payTargetOffset = 0; this.switchTab('home'); this.setCalendarView('PAY'); },
+      jumpToMonthFromReport(y, m) {
+        this.payViewYear = y;
+        this.payViewMonth = m;
+        this.switchTab('home');
+        this.setCalendarView('PAY');
+      },
       resetCurrentMonth() {
         const pm = this.getActivePayYM();
         if (!confirm(`${pm.m}월 급여 산정기간 근무 내역을 초기화하시겠습니까? (메모는 그대로 유지됩니다)`)) return;
@@ -1338,15 +1420,31 @@
         this.renderRateTable(calc.appliedBase, rate);
         this.renderAnnualReport(unusedVacPay);
 
-        document.getElementById('big_ym_title').innerText = `${this.calYear}. ${String(this.calMonth).padStart(2, '0')}`;
+        // [요구사항 1 & 2]: 메모뷰는 "2026. 10 일정", 급여뷰는 "2026. 11 급여"로 두 글자 깔맞춤 표시
+        const titleEl = document.getElementById('big_ym_title');
+        if (this.calendarView === 'MEMO') {
+          titleEl.innerText = `${this.memoYear}. ${String(this.memoMonth).padStart(2, '0')} 일정`;
+        } else {
+          titleEl.innerText = `${this.payViewYear}. ${String(this.payViewMonth).padStart(2, '0')} 급여`;
+        }
 
-        let nextM = this.calMonth + 1; if (nextM > 12) nextM = 1;
-        let prevM = this.calMonth - 1; if (prevM < 1) prevM = 12;
+        // [요구사항 3 & 4]: 하단 급여 스위치 버튼도 메모뷰와 급여뷰 개별 표시
         const btnCurr = document.getElementById('pay_target_curr'), btnNext = document.getElementById('pay_target_next');
-        btnCurr.innerText = `${this.calMonth}월 급여(${prevM}.21~${this.calMonth}.20)`;
-        btnNext.innerText = `${nextM}월 급여(${this.calMonth}.21~${nextM}.20)`;
-        btnCurr.className = this.payTargetOffset === 0 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
-        btnNext.className = this.payTargetOffset === 1 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
+        if (this.calendarView === 'MEMO') {
+          let prevM = this.memoMonth - 1; if (prevM < 1) prevM = 12;
+          let nextM = this.memoMonth + 1; if (nextM > 12) nextM = 1;
+          btnCurr.innerText = `${this.memoMonth}월 급여(${prevM}.21~${this.memoMonth}.20)`;
+          btnNext.innerText = `${nextM}월 급여(${this.memoMonth}.21~${nextM}.20)`;
+          btnCurr.className = this.memoPayOffset === 0 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
+          btnNext.className = this.memoPayOffset === 1 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
+        } else {
+          let prevM = this.payViewMonth - 1; if (prevM < 1) prevM = 12;
+          let prevPrevM = prevM - 1; if (prevPrevM < 1) prevPrevM = 12;
+          btnCurr.innerText = `${prevM}월 급여(${prevPrevM}.21~${prevM}.20)`;
+          btnNext.innerText = `${this.payViewMonth}월 급여(${prevM}.21~${this.payViewMonth}.20)`;
+          btnCurr.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
+          btnNext.className = 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate';
+        }
 
         const first = calc.cutoffDates[0], last = calc.cutoffDates[calc.cutoffDates.length - 1];
         document.getElementById('subbar_left_text').innerText = this.calendarView === 'MEMO'
@@ -1424,9 +1522,15 @@
 
         const grid = document.getElementById('calendar_grid');
         grid.innerHTML = '';
+        if (this.swipeAnimClass) {
+          grid.classList.remove('swipe-left-anim', 'swipe-right-anim');
+          void grid.offsetWidth;
+          grid.classList.add(this.swipeAnimClass);
+          this.swipeAnimClass = '';
+        }
 
         if (this.calendarView === 'MEMO') {
-          const stdDates = this.getStandardMonthGridDates(this.calYear, this.calMonth);
+          const stdDates = this.getStandardMonthGridDates(this.memoYear, this.memoMonth);
           const CELL_H = (Math.ceil(stdDates.length / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
 
           stdDates.forEach(dt => {
@@ -1522,6 +1626,7 @@
 
         let totalGross = 0, totalNet = 0, totalOt = 0, totalHolCnt = 0, totalHolH = 0, totalNight = 0, totalVac = 0;
         const rowsHtml = [];
+        const activePay = this.getActivePayYM();
         for (let m = 1; m <= 12; m++) {
           const c = this.calculateMonthSummary(y, m);
           totalGross += c.finalGross; totalNet += c.finalNet; totalOt += c.sumOtH;
@@ -1531,7 +1636,7 @@
           if (c.isEven) badges.push(`<span class="px-1 rounded bg-indigo-100 text-indigo-700 text-[9px] font-black">짝</span>`);
           if (c.autoHolName) badges.push(`<span class="px-1 rounded bg-amber-100 text-amber-800 text-[9px] font-black">${c.autoHolName[0]}</span>`);
           if (c.isVerifiedSlip) badges.push(`<span class="px-1 rounded bg-sky-100 text-sky-800 text-[8.5px] font-black">✔실제</span>`);
-          const isCurr = (y === this.calYear && m === this.calMonth);
+          const isCurr = (y === activePay.y && m === activePay.m);
           rowsHtml.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100 ${isCurr?'bg-blue-50/70 font-black':''}"><td class="py-2 px-2 flex items-center gap-1"><span>${m}월</span>${badges.join('')}</td><td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h·특${c.holCount}회·야${c.sumNightH}h</td><td class="py-2 px-2 text-right font-bold text-slate-700">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 px-2 text-right font-black text-emerald-700">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
         }
         const unusedNetApprox = Math.round(unusedVacPay * 0.85);
