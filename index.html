@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v4.9</title>
+  <title>LGES 월급계산기 v5.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -19,9 +19,33 @@
     }
   </script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background-color: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; }
-    .mobile-app-shell { max-width: 430px; min-height: 100vh; margin: 0 auto; background-color: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); display: flex; flex-direction: column; }
-    @media (min-width: 500px) { body { padding: 20px 0; } .mobile-app-shell { min-height: 880px; border-radius: 40px; border: 10px solid #0f172a; overflow: hidden; } }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif;
+      background-color: #cbd5e1;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      overflow-x: hidden;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .mobile-app-shell {
+      max-width: 430px;
+      width: 100%;
+      min-height: 100vh;
+      margin: 0 auto;
+      background-color: #f1f5f9;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    @media (min-width: 500px) {
+      body { padding: 20px 0; }
+      .mobile-app-shell { min-height: 880px; border-radius: 40px; border: 10px solid #0f172a; overflow: hidden; }
+    }
 
     /* 초·중·야·휴 통일 배지 */
     .badge-EARLY  { background-color: #0284c7; color: #ffffff; }
@@ -51,7 +75,7 @@
       font-size: clamp(7.4px, 2.0vw, 8.5px);
       font-weight: 800;
       letter-spacing: -0.05em;
-      line-height: 1.16;
+      line-height: 1.15;
       padding: 1.5px 1.5px;
       border-radius: 3px;
       word-break: break-all;
@@ -64,7 +88,7 @@
       font-size: clamp(7.4px, 2.0vw, 8.5px);
       font-weight: 900;
       letter-spacing: -0.05em;
-      line-height: 1.16;
+      line-height: 1.15;
       padding: 1.5px 2px;
       border-radius: 3px;
       text-align: center;
@@ -76,12 +100,12 @@
 </head>
 <body>
   <div class="mobile-app-shell">
-    <!-- 상단 헤더 (컴팩트화) -->
-    <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30">
+    <!-- 상단 헤더 -->
+    <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30 w-full box-border">
       <div class="flex items-center justify-between gap-2">
         <div class="min-w-0 flex items-center gap-1.5">
-          <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded">LGES</span>
-          <span id="today_header_info" class="text-xs font-extrabold text-amber-400 nowrap">오늘 10.24 (토)</span>
+          <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded shrink-0">LGES</span>
+          <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘 10.24 (토)</span>
         </div>
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
@@ -94,19 +118,19 @@
     </header>
 
     <!-- 메인 컨텐츠 -->
-    <main class="flex-1 overflow-y-auto pb-20 space-y-1.5">
+    <main class="flex-1 overflow-y-auto overflow-x-hidden pb-20 space-y-1.5 w-full">
       <!-- TAB 1: 달력(메모뷰/급여뷰) & 월급 홈 -->
-      <div id="tab_home" class="space-y-1.5">
-        <div class="bg-white shadow-sm border-b border-slate-200">
+      <div id="tab_home" class="space-y-1.5 w-full">
+        <div class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden">
           <!-- 달력 상단: 2026. 11 표시 + 뷰 스위치 + 조변경 -->
-          <div class="px-2.5 py-1 flex items-center justify-between gap-1 nowrap">
-            <div class="flex items-center gap-1.5">
-              <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700">◀</button>
-              <h2 id="big_ym_title" class="text-lg font-black text-slate-900 tracking-tight px-0.5">2026. 11</h2>
-              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
+          <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
+              <h2 id="big_ym_title" class="text-[17px] font-black text-slate-900 tracking-tight px-0.5">2026. 11</h2>
+              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1 shrink-0">
               <div class="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
                 <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="px-2 py-1 rounded-lg text-[10px] font-black transition bg-slate-900 text-white shadow-sm">📝메모뷰</button>
                 <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500">💰급여뷰</button>
@@ -118,47 +142,49 @@
           </div>
 
           <!-- 메모뷰·급여뷰 공통 높이 서브 안내바 -->
-          <div id="calendar_subbar" class="px-3 h-6 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between bg-blue-50/70 border-t border-blue-100 nowrap">
-            <span id="subbar_left_text">📅 오늘은 2026년 10월 24일 (토) 입니다</span>
-            <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold">날짜 터치 시 메모·근무 입력</span>
+          <div id="calendar_subbar" class="px-2.5 h-6 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-2 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
+            <span id="subbar_left_text" class="truncate">📅 오늘은 2026년 10월 24일 (토) 입니다</span>
+            <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold shrink-0">날짜 터치 시 입력</span>
           </div>
 
           <!-- 요일 헤더 (일 월 화 수 목 금 토 순) -->
-          <div class="grid grid-cols-7 text-center text-[10px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50/70">
+          <div class="grid grid-cols-7 text-center text-[10px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50/70 w-full">
             <div class="text-red-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-500">토</div>
           </div>
 
-          <!-- 달력 그리드 (메모 4개가 들어가는 큼직한 높이) -->
-          <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px]"></div>
+          <!-- 달력 그리드 (5주/6주 자동 높이 균일화) -->
+          <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px] w-full"></div>
         </div>
 
-        <div class="px-2 space-y-2">
-          <!-- 슬림 & 예쁜 급여표 카드 (세전총액·예상공제총액까지 첫 화면에 한눈에 노출) -->
-          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2.5 shadow-md">
-            <!-- 1단: 당월/익월 급여 전환 탭 + 홀짝/명절 배지 -->
-            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1 nowrap">
-              <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
-                <button id="pay_target_curr" onclick="App.setPayTargetOffset(0)" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950">11월 급여</button>
-                <button id="pay_target_next" onclick="App.setPayTargetOffset(1)" class="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300">12월 급여</button>
+        <div class="px-2 space-y-2 w-full box-border">
+          <!-- 슬림 & 절대 삐져나오지 않는 급여표 카드 -->
+          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2.5 shadow-md w-full box-border overflow-hidden">
+            <!-- 1단: 좌측 당월/익월 급여 스위치 + 우측 근무초기화 버튼 (절대 넘치지 않는 2요소 구성) -->
+            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1.5 w-full">
+              <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 min-w-0">
+                <button id="pay_target_curr" onclick="App.setPayTargetOffset(0)" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 truncate">11월 급여(10.21~11.20)</button>
+                <button id="pay_target_next" onclick="App.setPayTargetOffset(1)" class="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate">12월 급여(11.21~12.20)</button>
               </div>
-              <div class="flex items-center gap-1">
-                <span id="even_odd_badge" class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300">홀수달</span>
-                <span id="auto_hol_bonus_badge" class="hidden text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950">🌕명절상여</span>
-                <button onclick="App.resetCurrentMonth()" class="text-[9px] bg-slate-700/90 text-slate-300 px-1.5 py-0.5 rounded font-bold">초기화</button>
-              </div>
+              <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[10px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-1 rounded-lg font-extrabold nowrap">
+                ↺ 초기화
+              </button>
             </div>
 
-            <!-- 2단: 예상 세후 실수령액 (한 줄 슬림 배치) -->
-            <div class="flex items-baseline justify-between gap-2 nowrap">
-              <div class="flex items-center gap-1">
-                <span id="hero_pay_month_label" class="text-[11px] font-extrabold text-emerald-400">2026년 11월 예상 세후 실수령액</span>
-                <span id="calibration_active_badge" class="hidden text-[8px] font-black bg-amber-500 text-slate-950 px-1 py-0.5 rounded">보정중</span>
+            <!-- 2단: 예상 세후 실수령액 + 홀짝/명절상여 배지 (배지가 2개 다 떠도 넉넉한 공간) -->
+            <div class="flex items-center justify-between gap-1 w-full">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1 flex-wrap">
+                  <span id="hero_pay_month_label" class="text-[11px] font-extrabold text-emerald-400 nowrap">2026년 11월 실수령액</span>
+                  <span id="even_odd_badge" class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300 nowrap">홀수달</span>
+                  <span id="auto_hol_bonus_badge" class="hidden text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 nowrap">🌕명절상여</span>
+                  <span id="calibration_active_badge" class="hidden text-[8px] font-black bg-amber-500 text-slate-950 px-1 py-0.5 rounded nowrap">보정중</span>
+                </div>
               </div>
-              <div id="hero_net_pay" class="text-xl sm:text-2xl font-black tracking-tight text-white">0원</div>
+              <div id="hero_net_pay" class="text-xl sm:text-2xl font-black tracking-tight text-white shrink-0 nowrap">0원</div>
             </div>
 
-            <!-- 3단: 세전 총액 & 예상 공제총액 (컴팩트 2열 박스) -->
-            <div class="mt-1.5 grid grid-cols-2 gap-1.5 text-xs">
+            <!-- 3단: 세전 총액 & 예상 공제총액 (첫 화면에 항상 노출) -->
+            <div class="mt-1.5 grid grid-cols-2 gap-1.5 text-xs w-full">
               <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between nowrap">
                 <span class="text-slate-400 text-[10px] font-semibold">세전총액</span>
                 <strong id="summary_gross" class="text-xs font-black text-sky-300">0원</strong>
@@ -169,7 +195,7 @@
               </div>
             </div>
 
-            <!-- 4단: 잔업·특근·야간·휴가 요약 & 명세서 상세 (스크롤 시 확인) -->
+            <!-- 4단: 잔업·특근·야간·휴가 요약 & 명세서 상세 -->
             <div class="mt-1.5 bg-slate-950/60 rounded-xl py-1.5 px-2 grid grid-cols-4 gap-1 text-center text-[10px] nowrap">
               <div><span class="text-slate-400 text-[8.5px] mr-0.5">잔업</span><strong id="stat_ot" class="text-blue-400 font-black">0h</strong></div>
               <div><span class="text-slate-400 text-[8.5px] mr-0.5">특근</span><strong id="stat_hol" class="text-red-400 font-black">0회</strong></div>
@@ -192,8 +218,8 @@
               <span class="text-[10px] text-slate-400">설·추석 상여는 달력 기준 자동 반영</span>
             </div>
             <div id="auto_hol_bonus_notice" class="hidden bg-amber-50 border border-amber-300 text-amber-900 rounded-xl px-2.5 py-1.5 text-[10.5px] font-extrabold flex items-center justify-between nowrap">
-              <span id="auto_hol_bonus_text">🌕 명절상여(+100%) 자동 적용됨</span>
-              <span class="text-[9px] bg-amber-500 text-white font-black px-1.5 py-0.5 rounded">자동</span>
+              <span id="auto_hol_bonus_text" class="truncate">🌕 명절상여(+100%) 자동 적용됨</span>
+              <span class="text-[9px] bg-amber-500 text-white font-black px-1.5 py-0.5 rounded shrink-0 ml-1">자동</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="bg-blue-50/60 p-2 rounded-xl border border-blue-200">
@@ -400,20 +426,21 @@
     </main>
 
     <!-- 하단 4탭 네비게이션 -->
-    <nav class="bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-4 text-center text-[10px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap">
+    <nav class="bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-4 text-center text-[10px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·메모홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
       <button id="nav_rates" onclick="App.switchTab('rates')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">💰</span><span>수당단가표</span></button>
       <button id="nav_settings" onclick="App.switchTab('settings')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🎯</span><span>보정·설정</span></button>
     </nav>
 
-    <!-- 날짜 상세 모달 (메모뷰·급여뷰 공통 작동) -->
+    <!-- 날짜 상세 모달 (메모뷰·급여뷰 공통 작동 + 1h~12h 전 시간 지원 + 현재 선택 강조) -->
     <div id="day_modal" class="fixed inset-0 bg-slate-900/60 hidden items-end justify-center z-50">
       <div class="bg-white rounded-t-3xl max-w-[430px] w-full p-4 max-h-[92vh] overflow-y-auto shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-2.5">
           <div class="nowrap">
             <div class="flex items-center gap-1.5">
               <span id="modal_shift_badge" class="text-[10px] font-extrabold px-2 py-0.5 rounded">초반조</span>
+              <span id="modal_current_work_badge" class="hidden text-[10px] font-black px-2 py-0.5 rounded bg-blue-100 text-blue-800">현재 설정됨</span>
               <span id="modal_holiday_badge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded bg-red-100 text-red-600">공휴일</span>
             </div>
             <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1">10월 24일 (토)</h3>
@@ -437,35 +464,45 @@
             </button>
           </div>
 
+          <!-- 1. 주간특근 (1h ~ 12h 전 시간 지원) -->
           <div class="bg-red-50/60 p-2.5 rounded-2xl border border-red-200 nowrap">
             <span class="font-extrabold text-red-900 block mb-1.5">☀️ 주간특근 (배지 '초' 표시 / 야간수당 없음)</span>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
               <button onclick="App.applyDay('HOLIDAY', 12, 'DAY')" class="py-2 rounded-xl bg-red-600 text-white font-black shadow-sm">☀️ 주간 12h 특근</button>
               <button onclick="App.applyDay('HOLIDAY', 8, 'DAY')" class="py-2 rounded-xl bg-rose-500 text-white font-black shadow-sm">☀️ 주간 8h 특근</button>
             </div>
-            <div class="grid grid-cols-6 gap-1 text-[11px]">
-              <button onclick="App.applyDay('HOLIDAY', 1, 'DAY')" class="py-1.5 rounded-lg bg-white border border-red-200 text-red-700 font-bold">1h</button>
-              <button onclick="App.applyDay('HOLIDAY', 2, 'DAY')" class="py-1.5 rounded-lg bg-white border border-red-200 text-red-700 font-bold">2h</button>
-              <button onclick="App.applyDay('HOLIDAY', 3, 'DAY')" class="py-1.5 rounded-lg bg-white border border-red-200 text-red-700 font-bold">3h</button>
-              <button onclick="App.applyDay('HOLIDAY', 4, 'DAY')" class="py-1.5 rounded-lg bg-white border border-red-200 text-red-700 font-bold">4h</button>
-              <button onclick="App.applyDay('HOLIDAY', 6, 'DAY')" class="py-1.5 rounded-lg bg-white border border-red-200 text-red-700 font-bold">6h</button>
-              <button onclick="App.applyDay('HOLIDAY', 10, 'DAY')" class="py-1.5 rounded-lg bg-white border border-red-200 text-red-700 font-bold">10h</button>
+            <div class="grid grid-cols-5 gap-1 text-[11px]">
+              <button onclick="App.applyDay('HOLIDAY', 1, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">1h</button>
+              <button onclick="App.applyDay('HOLIDAY', 2, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">2h</button>
+              <button onclick="App.applyDay('HOLIDAY', 3, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">3h</button>
+              <button onclick="App.applyDay('HOLIDAY', 4, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">4h</button>
+              <button onclick="App.applyDay('HOLIDAY', 5, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">5h</button>
+              <button onclick="App.applyDay('HOLIDAY', 6, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">6h</button>
+              <button onclick="App.applyDay('HOLIDAY', 7, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">7h</button>
+              <button onclick="App.applyDay('HOLIDAY', 9, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">9h</button>
+              <button onclick="App.applyDay('HOLIDAY', 10, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">10h</button>
+              <button onclick="App.applyDay('HOLIDAY', 11, 'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">11h</button>
             </div>
           </div>
 
+          <!-- 2. 야간특근 (1h ~ 12h 전 시간 지원) -->
           <div class="bg-purple-50/70 p-2.5 rounded-2xl border border-purple-200 nowrap">
             <span class="font-extrabold text-purple-950 block mb-1.5">🌙 야간특근 (배지 '야' 표시 / 야간가산 자동포함)</span>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
               <button onclick="App.applyDay('HOLIDAY', 12, 'NIGHT')" class="py-2 rounded-xl bg-purple-700 text-yellow-200 font-black shadow-sm">🌙 야간 12h 특근</button>
               <button onclick="App.applyDay('HOLIDAY', 8, 'NIGHT')" class="py-2 rounded-xl bg-purple-600 text-white font-black shadow-sm">🌙 야간 8h 특근</button>
             </div>
-            <div class="grid grid-cols-6 gap-1 text-[11px]">
-              <button onclick="App.applyDay('HOLIDAY', 1, 'NIGHT')" class="py-1.5 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">1h</button>
-              <button onclick="App.applyDay('HOLIDAY', 2, 'NIGHT')" class="py-1.5 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">2h</button>
-              <button onclick="App.applyDay('HOLIDAY', 3, 'NIGHT')" class="py-1.5 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">3h</button>
-              <button onclick="App.applyDay('HOLIDAY', 4, 'NIGHT')" class="py-1.5 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">4h</button>
-              <button onclick="App.applyDay('HOLIDAY', 6, 'NIGHT')" class="py-1.5 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">6h</button>
-              <button onclick="App.applyDay('HOLIDAY', 10, 'NIGHT')" class="py-1.5 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">10h</button>
+            <div class="grid grid-cols-5 gap-1 text-[11px]">
+              <button onclick="App.applyDay('HOLIDAY', 1, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">1h</button>
+              <button onclick="App.applyDay('HOLIDAY', 2, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">2h</button>
+              <button onclick="App.applyDay('HOLIDAY', 3, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">3h</button>
+              <button onclick="App.applyDay('HOLIDAY', 4, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">4h</button>
+              <button onclick="App.applyDay('HOLIDAY', 5, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">5h</button>
+              <button onclick="App.applyDay('HOLIDAY', 6, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">6h</button>
+              <button onclick="App.applyDay('HOLIDAY', 7, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">7h</button>
+              <button onclick="App.applyDay('HOLIDAY', 9, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">9h</button>
+              <button onclick="App.applyDay('HOLIDAY', 10, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">10h</button>
+              <button onclick="App.applyDay('HOLIDAY', 11, 'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">11h</button>
             </div>
           </div>
 
@@ -712,7 +749,7 @@
       },
 
       getExportPayload() {
-        return { version: '4.9', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
+        return { version: '5.0', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
       },
 
       save() {
@@ -994,6 +1031,26 @@
         const badge = document.getElementById('modal_shift_badge');
         badge.innerText = this.SHIFT_FULL[ev.badgeKey];
         badge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded badge-${ev.badgeKey}`;
+
+        // 현재 설정된 근무 상태 배지 표시
+        const workBadge = document.getElementById('modal_current_work_badge');
+        if (ev.type === 'HOLIDAY') {
+          const th = ev.holBaseHours + ev.holOverHours;
+          workBadge.innerText = ev.holKind === 'NIGHT' ? `✔ 현재: 야간특근 ${th}h` : `✔ 현재: 주간특근 ${th}h`;
+          workBadge.classList.remove('hidden');
+        } else if (ev.type === 'OT') {
+          workBadge.innerText = `✔ 현재: 일반잔업 +${ev.otHours}h`;
+          workBadge.classList.remove('hidden');
+        } else if (ev.type === 'NIGHT_OT') {
+          workBadge.innerText = `✔ 현재: 야간잔업 +${ev.otHours}h`;
+          workBadge.classList.remove('hidden');
+        } else if (ev.type === 'LEAVE') {
+          workBadge.innerText = `✔ 현재: 휴가 -${ev.vacDays}일`;
+          workBadge.classList.remove('hidden');
+        } else {
+          workBadge.classList.add('hidden');
+        }
+
         const hb = document.getElementById('modal_holiday_badge');
         if (ev.holidayName) { hb.innerText = `공휴일: ${ev.holidayName}`; hb.classList.remove('hidden'); } else hb.classList.add('hidden');
         document.getElementById('modal_shift_select').value = ev.shift;
@@ -1148,8 +1205,8 @@
         const btnCurr = document.getElementById('pay_target_curr'), btnNext = document.getElementById('pay_target_next');
         btnCurr.innerText = `${this.calMonth}월 급여(${prevM}.21~${this.calMonth}.20)`;
         btnNext.innerText = `${nextM}월 급여(${this.calMonth}.21~${nextM}.20)`;
-        btnCurr.className = this.payTargetOffset === 0 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300';
-        btnNext.className = this.payTargetOffset === 1 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300';
+        btnCurr.className = this.payTargetOffset === 0 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
+        btnNext.className = this.payTargetOffset === 1 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
 
         const activePay = this.getActivePayYM();
         const calc = this.calculateMonthSummary(activePay.y, activePay.m);
@@ -1159,13 +1216,13 @@
         const subRight = document.getElementById('subbar_right_text');
         if (this.calendarView === 'MEMO') {
           subLeft.innerText = `📅 오늘은 ${todayInfo.y}년 ${todayInfo.m}월 ${todayInfo.d}일 (${todayInfo.dayName}) 입니다`;
-          subRight.innerText = `날짜 터치 시 메모·근무 입력`;
+          subRight.innerText = `날짜 터치 시 입력`;
         } else {
           subLeft.innerText = `💰 ${activePay.y}년 ${activePay.m}월 급여 (${first.m}.${first.d} ~ ${last.m}.${last.d} 근무)`;
-          subRight.innerText = `날짜 터치 시 메모·근무 입력`;
+          subRight.innerText = `날짜 터치 시 입력`;
         }
 
-        document.getElementById('hero_pay_month_label').innerText = `${activePay.y}년 ${activePay.m}월 예상 세후 실수령액`;
+        document.getElementById('hero_pay_month_label').innerText = `${activePay.y}년 ${activePay.m}월 실수령액`;
         document.getElementById('extra_section_title').innerText = `🎁 ${activePay.m}월 급여 특이사항`;
 
         const evenBadge = document.getElementById('even_odd_badge');
@@ -1219,14 +1276,16 @@
         `;
 
         // ============================================================
-        // 달력 그리드 렌더링 (메모뷰·급여뷰 모두 메모 4개가 들어가는 min-h-[88px] 적용)
+        // 달력 그리드 렌더링 (5주 달력=86px, 6주 달력=72px로 전체 달력 높이 430px 항상 동일 유지!)
         // ============================================================
         const grid = document.getElementById('calendar_grid');
         grid.innerHTML = '';
-        const CELL_H = 'min-h-[88px]';
 
         if (this.calendarView === 'MEMO') {
           const stdDates = this.getStandardMonthGridDates(this.calYear, this.calMonth);
+          const rowCount = Math.ceil(stdDates.length / 7);
+          const CELL_H = (rowCount >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
+
           stdDates.forEach(dt => {
             const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth);
             const isToday = (ev.key === todayInfo.key);
@@ -1244,7 +1303,8 @@
             if (ev.isSundayOrHol) dc = 'text-red-600';
             else if (ev.isSaturday) dc = 'text-blue-600';
 
-            const headerHtml = this.buildCellHeaderHtml(`${ev.d}`, dc, isToday, ev.badgeKey);
+            const dateLabel = (ev.isOtherMonth && ev.d === 1) ? `${ev.m}.${ev.d}` : `${ev.d}`;
+            const headerHtml = this.buildCellHeaderHtml(dateLabel, dc, isToday, ev.badgeKey);
             const holSubHtml = ev.holidayName
               ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>`
               : '';
@@ -1286,8 +1346,12 @@
             grid.appendChild(div);
           });
         } else {
-          // [💰 급여뷰]: 메모뷰와 똑같은 셀 높이(min-h-[88px]) + 클릭 시 상세 모달창 즉시 오픈
+          // [💰 급여뷰]: 5주/6주 자동 높이 동기화 + 클릭 시 상세 모달창 즉시 오픈
           const firstDow = calc.evaluated[0].dow;
+          const totalCells = firstDow + calc.evaluated.length;
+          const rowCount = Math.ceil(totalCells / 7);
+          const CELL_H = (rowCount >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
+
           for (let i = 0; i < firstDow; i++) {
             const emptyBefore = document.createElement('div');
             emptyBefore.className = `${CELL_H} bg-slate-50/80`;
@@ -1315,7 +1379,7 @@
 
             const mid = ev.holidayName
               ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>`
-              : `<div class="h-[10px]"></div>`;
+              : `<div class="h-[9px]"></div>`;
 
             const div = document.createElement('div');
             div.className = `p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${CELL_H} min-w-0 overflow-hidden ${cellStyle}`;
@@ -1331,7 +1395,6 @@
             `;
             grid.appendChild(div);
           });
-          const totalCells = firstDow + calc.evaluated.length;
           const trailing = (7 - (totalCells % 7)) % 7;
           for (let i = 0; i < trailing; i++) {
             const emptyAfter = document.createElement('div');
