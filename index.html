@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v4.5</title>
+  <title>LGES 월급계산기 v4.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -23,16 +23,15 @@
     .mobile-app-shell { max-width: 430px; min-height: 100vh; margin: 0 auto; background-color: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); display: flex; flex-direction: column; }
     @media (min-width: 500px) { body { padding: 20px 0; } .mobile-app-shell { min-height: 880px; border-radius: 40px; border: 10px solid #0f172a; overflow: hidden; } }
 
-    .circle-EARLY { background-color: #facc15; color: #0f172a; }
-    .circle-NIGHT { background-color: #334155; color: #ffffff; }
-    .circle-MID   { background-color: #64748b; color: #ffffff; }
+    /* 초·중·야 통일 배지 */
     .badge-EARLY  { background-color: #0284c7; color: #ffffff; }
     .badge-MID    { background-color: #f59e0b; color: #ffffff; }
     .badge-NIGHT  { background-color: #3b0764; color: #fde047; }
 
+    /* 메모뷰·급여뷰 일체감 있는 근무조 배경색 */
     .cell-shift-EARLY { background-color: #f0f9ff; }
     .cell-shift-MID   { background-color: #fffbeb; }
-    .cell-shift-NIGHT { background-color: #f3e8ff; }
+    .cell-shift-NIGHT { background-color: #faf5ff; }
     .cell-checked-ot        { background-color: #dbeafe !important; }
     .cell-checked-night-ot  { background-color: #ede9fe !important; }
     .cell-checked-hol-day   { background-color: #fee2e2 !important; }
@@ -44,14 +43,14 @@
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
 
-    /* 한 줄에 7글자가 들어가고 길면 자동 줄바꿈되는 파스텔 메모 칩 */
+    /* 한 줄에 7글자가 들어가고 길면 자동 줄바꿈되는 파스텔 메모/근무 칩 */
     .memo-chip {
       width: 100%;
       color: #0f172a;
       font-size: clamp(7.5px, 2.05vw, 8.8px);
       font-weight: 800;
       letter-spacing: -0.05em;
-      line-height: 1.25;
+      line-height: 1.24;
       padding: 2px 1.5px;
       border-radius: 3px;
       word-break: break-all;
@@ -59,12 +58,19 @@
       text-align: left;
       box-sizing: border-box;
     }
-
-    @keyframes floatPulse {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
+    .work-top-chip {
+      width: 100%;
+      font-size: clamp(7.5px, 2.05vw, 8.8px);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1.22;
+      padding: 2px 2px;
+      border-radius: 3px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
     }
-    .cloud-fab { animation: floatPulse 2.2s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -75,7 +81,6 @@
         <div class="min-w-0 flex items-center gap-1.5">
           <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded">LGES</span>
           <span id="today_header_info" class="text-xs font-extrabold text-amber-400 nowrap">오늘 10.24 (토)</span>
-          <span id="backup_status_pill" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 nowrap">✔ 안전저장됨</span>
         </div>
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
@@ -97,7 +102,7 @@
             <div class="flex items-center gap-1.5">
               <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700">◀</button>
               <h2 id="big_ym_title" class="text-xl font-black text-slate-900 tracking-tight px-0.5">2026. 10</h2>
-              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
+              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
             <div class="flex items-center gap-1">
@@ -413,38 +418,6 @@
       </div>
     </main>
 
-    <!-- 우측 하단 파란 구름 백업 플로팅 버튼 -->
-    <button id="floating_backup_btn" onclick="App.openQuickBackupModal()" title="변경사항 백업하기" class="hidden cloud-fab fixed bottom-20 right-4 z-40 w-14 h-14 rounded-full bg-blue-500 hover:bg-blue-600 active:scale-95 text-white shadow-xl flex flex-col items-center justify-center border-2 border-white">
-      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-      </svg>
-      <span class="text-[8px] font-black leading-none mt-0.5">백업</span>
-    </button>
-
-    <!-- 안심 백업 모달 -->
-    <div id="quick_backup_modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-3xl max-w-[360px] w-full p-5 shadow-2xl space-y-3 text-center">
-        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto">
-          <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-        </div>
-        <h3 class="text-base font-black text-slate-900">☁️ 새로 입력한 내용을 백업할까요?</h3>
-        <p class="text-xs text-slate-500 leading-relaxed">
-          휴대폰 내부 2중 금고에 자동 저장되었지만, 기기 변경이나 브라우저 초기화에 대비해 <strong>카톡 나에게 보내기</strong>나 <strong>파일</strong>로 보관하면 100% 안전합니다.
-        </p>
-        <div class="space-y-2 pt-1 text-xs font-black">
-          <button onclick="App.shareOrCopyBackup()" class="w-full py-3 rounded-2xl bg-blue-600 text-white shadow-sm active:scale-98">
-            📤 카카오톡 공유 / 백업코드 복사하기
-          </button>
-          <button onclick="App.downloadBackupFile(true)" class="w-full py-2.5 rounded-2xl bg-slate-100 text-slate-800 active:scale-98">
-            ⬇️ 휴대폰에 백업파일(.json) 내려받기
-          </button>
-          <button onclick="App.dismissBackupNotice()" class="w-full py-2 text-slate-400 font-bold text-[11px]">
-            이미 내부 저장됨 · 구름 아이콘 숨기기
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- 하단 4탭 네비게이션 -->
     <nav class="bg-white border-t border-slate-200 px-1 py-2 grid grid-cols-4 text-center text-[10px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-1 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base">📅</span><span>달력·메모홈</span></button>
@@ -715,7 +688,6 @@
       ANCHOR_MONDAY: new Date(2026, 9, 19, 12, 0, 0),
       SHIFT_ORDER: ['EARLY', 'NIGHT', 'MID'],
       SHIFT_CHAR: { EARLY: '초', NIGHT: '야', MID: '중' },
-      SHIFT_KOR2: { EARLY: '초반', NIGHT: '야간', MID: '중반' },
       SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)' },
       DAY_KOR: ['일', '월', '화', '수', '목', '금', '토'],
 
@@ -726,7 +698,6 @@
       shiftOffset: 0,
       calibGrossOffset: 0, calibDedRatio: 1.0,
       records: {}, monthExtras: {},
-      needsBackup: false,
 
       calendarView: 'MEMO',
       stampCategory: 'POPUP', stampType: 'POPUP', stampValue: 12,
@@ -747,7 +718,6 @@
         this.reportYear = this.calYear;
         this.syncSettingsInputs();
         this.renderStampPalette();
-        this.updateBackupIndicator();
         this.render();
       },
 
@@ -760,63 +730,16 @@
         if (p.calibDedRatio !== undefined) this.calibDedRatio = Number(p.calibDedRatio);
         if (p.records && typeof p.records === 'object') this.records = p.records;
         if (p.monthExtras && typeof p.monthExtras === 'object') this.monthExtras = p.monthExtras;
-        if (p.needsBackup !== undefined) this.needsBackup = Boolean(p.needsBackup);
       },
 
       getExportPayload() {
-        return { version: '4.5', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, needsBackup: this.needsBackup };
+        return { version: '4.6', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
       },
 
-      save(markDirty = true) {
-        if (markDirty) this.needsBackup = true;
+      save() {
         const payload = this.getExportPayload();
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
         DualVault.saveSnapshot(payload);
-        this.updateBackupIndicator();
-      },
-
-      updateBackupIndicator() {
-        const fab = document.getElementById('floating_backup_btn');
-        const pill = document.getElementById('backup_status_pill');
-        if (!fab || !pill) return;
-        if (this.needsBackup) {
-          fab.classList.remove('hidden');
-          pill.innerText = '☁️ 백업권장';
-          pill.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-900 text-sky-300 nowrap cursor-pointer';
-          pill.onclick = () => this.openQuickBackupModal();
-        } else {
-          fab.classList.add('hidden');
-          pill.innerText = '✔ 안전저장됨';
-          pill.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 nowrap';
-          pill.onclick = null;
-        }
-      },
-
-      openQuickBackupModal() {
-        const m = document.getElementById('quick_backup_modal');
-        m.classList.remove('hidden'); m.classList.add('flex');
-      },
-      closeQuickBackupModal() {
-        const m = document.getElementById('quick_backup_modal');
-        m.classList.add('hidden'); m.classList.remove('flex');
-      },
-      dismissBackupNotice() {
-        this.needsBackup = false;
-        this.save(false);
-        this.closeQuickBackupModal();
-      },
-      async shareOrCopyBackup() {
-        const jsonStr = JSON.stringify(this.getExportPayload());
-        this.needsBackup = false;
-        this.save(false);
-        this.closeQuickBackupModal();
-        if (navigator.share) {
-          try {
-            await navigator.share({ title: `LGES 월급·메모 백업 (${this.calYear}.${this.calMonth})`, text: jsonStr });
-            return;
-          } catch (e) {}
-        }
-        this.copyBackupCode();
       },
 
       setCalendarView(view) {
@@ -868,7 +791,7 @@
       },
 
       copyBackupCode() {
-        this.needsBackup = false; this.save(false);
+        this.save();
         const s = JSON.stringify(this.getExportPayload());
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(s).then(() => alert('백업코드(근무기록+메모)가 복사되었습니다!\n카카오톡 [나에게 보내기]나 메모장에 붙여넣어 보관하세요.')).catch(() => this.fallbackCopyText(s));
@@ -884,14 +807,13 @@
         const raw = document.getElementById('textarea_restore_code').value.trim();
         if (!raw) return alert('복원할 백업코드를 붙여넣어 주세요.');
         try {
-          this.loadStateObject(JSON.parse(raw)); this.needsBackup = false; this.save(false); this.syncSettingsInputs(); this.render();
+          this.loadStateObject(JSON.parse(raw)); this.save(); this.syncSettingsInputs(); this.render();
           document.getElementById('restore_code_box').classList.add('hidden');
           alert('근무기록 및 메모가 완벽하게 복원되었습니다!'); this.switchTab('home');
         } catch (e) { alert('올바른 백업코드 형식이 아닙니다.'); }
       },
-      downloadBackupFile(fromQuickModal = false) {
-        this.needsBackup = false; this.save(false);
-        if (fromQuickModal) this.closeQuickBackupModal();
+      downloadBackupFile() {
+        this.save();
         const blob = new Blob([JSON.stringify(this.getExportPayload(), null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob), a = document.createElement('a'), t = this.getTodayInfo();
         a.href = url; a.download = `LGES_월급메모백업_${t.y}${String(t.m).padStart(2,'0')}${String(t.d).padStart(2,'0')}.json`;
@@ -901,7 +823,7 @@
         const f = ev.target.files[0]; if (!f) return;
         const r = new FileReader();
         r.onload = (e) => {
-          try { this.loadStateObject(JSON.parse(e.target.result)); this.needsBackup = false; this.save(false); this.syncSettingsInputs(); this.render(); alert('복원 완료!'); this.switchTab('home'); }
+          try { this.loadStateObject(JSON.parse(e.target.result)); this.save(); this.syncSettingsInputs(); this.render(); alert('복원 완료!'); this.switchTab('home'); }
           catch (err) { alert('파일 오류'); }
         };
         r.readAsText(f); ev.target.value = '';
@@ -1372,6 +1294,9 @@
           ${calc.dedDiff !== 0 ? `<div class="flex justify-between text-amber-300 nowrap"><span>• 세후 실수령 맞춤 공제보정</span><strong>${(calc.dedDiff>=0?'-':'+')+Math.abs(calc.dedDiff).toLocaleString()}원</strong></div>` : ''}
         `;
 
+        // ============================================================
+        // 달력 그리드 렌더링 (메모뷰 & 급여뷰 일체감 있는 통일 디자인)
+        // ============================================================
         const grid = document.getElementById('calendar_grid'); grid.innerHTML = '';
 
         if (this.calendarView === 'MEMO') {
@@ -1379,79 +1304,73 @@
           stdDates.forEach(dt => {
             const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth);
             const isToday = (ev.key === todayInfo.key);
-            const opacityCls = ev.isOtherMonth ? 'opacity-35 bg-slate-50/80' : 'bg-white';
-            const todayCls = isToday ? 'cell-today' : '';
 
-            let numColor = 'text-slate-800';
-            if (ev.isSundayOrHol) numColor = 'text-red-500';
-            else if (ev.isSaturday) numColor = 'text-blue-600';
+            // 급여뷰와 일체감 있는 배경색 적용
+            let cellStyle = ev.isWeekend ? 'bg-white' : `cell-shift-${ev.shift}`;
+            if (ev.type === 'OT') cellStyle = 'cell-checked-ot';
+            else if (ev.type === 'NIGHT_OT') cellStyle = 'cell-checked-night-ot';
+            else if (ev.type === 'HOLIDAY') cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
+            else if (ev.type === 'LEAVE') cellStyle = 'cell-checked-leave';
 
-            let topHeaderHtml = '';
-            if (ev.holidayName) {
-              topHeaderHtml = `
-                <div class="mx-0.5 mt-0.5 px-1 py-0.5 rounded bg-red-100/90 text-red-600 flex items-center justify-between leading-none nowrap overflow-hidden">
-                  <span class="text-[10px] font-black">${ev.d}</span>
-                  <span class="text-[8px] font-extrabold tracking-tighter truncate ml-0.5">${ev.holidayName}</span>
-                </div>
-              `;
-            } else if (isToday) {
-              topHeaderHtml = `
-                <div class="px-1 pt-0.5 flex items-center justify-between leading-none">
-                  <span class="px-1 py-0.5 rounded bg-blue-600 text-white text-[10px] font-black">${ev.d}</span>
-                </div>
-              `;
-            } else {
-              topHeaderHtml = `
-                <div class="px-1 pt-1 flex items-center justify-between leading-none">
-                  <span class="text-[11px] font-bold ${numColor}">${ev.d}</span>
-                </div>
-              `;
-            }
+            if (ev.isOtherMonth) cellStyle += ' opacity-35';
+            if (isToday) cellStyle += ' cell-today';
 
-            let centerBadgeHtml = '';
-            if (ev.type === 'OFF') {
-              centerBadgeHtml = `<div class="my-1 flex items-center justify-center"><span class="text-xs font-black text-red-400">휴</span></div>`;
-            } else if (ev.type === 'LEAVE') {
-              centerBadgeHtml = `<div class="my-1 flex items-center justify-center"><span class="w-7 h-7 rounded-full bg-emerald-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm">휴가</span></div>`;
-            } else {
-              centerBadgeHtml = `<div class="my-1 flex items-center justify-center"><span class="w-7 h-7 rounded-full circle-${ev.shift} text-[9.5px] font-black flex items-center justify-center shadow-sm">${this.SHIFT_KOR2[ev.shift]}</span></div>`;
-            }
+            let dc = 'text-slate-900';
+            if (ev.isSundayOrHol) dc = 'text-red-600';
+            else if (ev.isSaturday) dc = 'text-blue-600';
 
-            const bottomChips = [];
+            // 상단 날짜 + 우측 초·중·야 정사각형 배지 (급여뷰와 동일한 헤더 구성, 날짜는 1, 2, 3...)
+            const dateNumHtml = isToday
+              ? `<span class="px-1 py-0.5 rounded bg-blue-600 text-white text-[10px] font-black leading-none">${ev.d}</span>`
+              : `<span class="text-[10.5px] font-black ${dc} leading-none">${ev.d}</span>`;
+
+            const holSubHtml = ev.holidayName
+              ? `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>`
+              : '';
+
+            // 칩 배열: [1순위 맨 위] 잔업/특근/휴가 칩 -> [2순위 바로 아래] 내 파스텔 메모들
+            const chips = [];
             if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
-              const txt = ev.holKind === 'NIGHT' ? `야간특근${th}h` : `주간특근${th}h`;
-              const bg = ev.holKind === 'NIGHT' ? '#f3e8ff' : '#fee2e2';
-              const bd = ev.holKind === 'NIGHT' ? '#a855f7' : '#f87171';
-              bottomChips.push(`<div class="memo-chip" style="background-color:${bg}; border:1px solid ${bd};">${txt}</div>`);
-            } else if (ev.type === 'OT' || ev.type === 'NIGHT_OT') {
-              const txt = ev.type === 'NIGHT_OT' ? `야간잔업+${ev.otHours}h` : `잔업+${ev.otHours}시간`;
-              bottomChips.push(`<div class="memo-chip" style="background-color:#dbeafe; border:1px solid #60a5fa;">${txt}</div>`);
+              if (ev.holKind === 'NIGHT') {
+                chips.push(`<div class="work-top-chip text-purple-900" style="background-color:#e9d5ff; border:1px solid #9333ea;">🌙야특${th}h</div>`);
+              } else {
+                chips.push(`<div class="work-top-chip text-red-700" style="background-color:#fecaca; border:1px solid #dc2626;">☀️주특${th}h</div>`);
+              }
+            } else if (ev.type === 'OT') {
+              chips.push(`<div class="work-top-chip text-blue-800" style="background-color:#bfdbfe; border:1px solid #2563eb;">⚡+${ev.otHours}h잔업</div>`);
+            } else if (ev.type === 'NIGHT_OT') {
+              chips.push(`<div class="work-top-chip text-indigo-900" style="background-color:#ddd6fe; border:1px solid #7c3aed;">🦉+${ev.otHours}h야잔</div>`);
+            } else if (ev.type === 'LEAVE') {
+              chips.push(`<div class="work-top-chip text-emerald-900" style="background-color:#a7f3d0; border:1px solid #059669;">🌴휴가-${ev.vacDays}일</div>`);
             }
 
             if (ev.memo) {
               const lines = ev.memo.split('\n').map(l => l.trim()).filter(Boolean);
               lines.forEach((line, idx) => {
                 const pal = PASTEL_PALETTE[(ev.memoColor + idx * 3) % PASTEL_PALETTE.length];
-                bottomChips.push(`<div class="memo-chip" style="background-color:${pal.bg}; border:1px solid ${pal.border};">${this.escapeHtml(line)}</div>`);
+                chips.push(`<div class="memo-chip" style="background-color:${pal.bg}; border:1px solid ${pal.border};">${this.escapeHtml(line)}</div>`);
               });
             }
 
             const div = document.createElement('div');
-            div.className = `min-h-[104px] min-w-0 overflow-hidden flex flex-col justify-between pb-1 cursor-pointer active:bg-slate-100 transition ${opacityCls} ${todayCls}`;
+            // justify-start를 사용해 근무 칩과 메모가 항상 날짜 바로 아래(맨 위쪽)부터 차례대로 쌓이게 함
+            div.className = `p-1 min-h-[96px] min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
             div.innerHTML = `
-              <div>
-                ${topHeaderHtml}
-                ${centerBadgeHtml}
+              <div class="flex items-center justify-between gap-0.5 mb-0.5">
+                ${dateNumHtml}
+                <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.shift}">${this.SHIFT_CHAR[ev.shift]}</span>
               </div>
-              <div class="px-[1px] flex flex-col gap-[2px] w-full">
-                ${bottomChips.join('')}
+              ${holSubHtml}
+              <div class="flex flex-col gap-[2px] w-full mt-0.5">
+                ${chips.join('')}
               </div>
             `;
             grid.appendChild(div);
           });
         } else {
+          // [💰 급여뷰]: 21일~20일 산정 기간 (날짜에 월 포함: 10.21, 10.22...)
           const firstDow = calc.evaluated[0].dow;
           for (let i = 0; i < firstDow; i++) {
             grid.innerHTML += `<div class="min-h-[82px] bg-slate-50/70"></div>`;
