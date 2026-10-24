@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v4.7</title>
+  <title>LGES 월급계산기 v4.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -29,7 +29,7 @@
     .badge-NIGHT  { background-color: #3b0764; color: #fde047; }
     .badge-OFF    { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
 
-    /* 메모뷰·급여뷰 일체감 있는 근무조 배경색 */
+    /* 메모뷰·급여뷰 통일 배경색 */
     .cell-shift-EARLY { background-color: #f0f9ff; }
     .cell-shift-MID   { background-color: #fffbeb; }
     .cell-shift-NIGHT { background-color: #faf5ff; }
@@ -39,20 +39,20 @@
     .cell-checked-hol-night { background-color: #f3e8ff !important; }
     .cell-checked-leave     { background-color: #d1fae5 !important; }
 
-    .month-start-bar { box-shadow: inset 0 3px 0 0 #334155; }
-    .cell-today { box-shadow: inset 0 0 0 2.2px #2563eb !important; z-index: 10; }
+    .month-start-bar { box-shadow: inset 0 2.5px 0 0 #334155; }
+    .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
 
-    /* 한 줄에 7글자가 들어가고 길면 자동 줄바꿈되는 파스텔 메모/근무 칩 */
+    /* 한 줄 7글자 기준 자동 줄바꿈 파스텔 메모/근무 칩 */
     .memo-chip {
       width: 100%;
       color: #0f172a;
-      font-size: clamp(7.5px, 2.05vw, 8.8px);
+      font-size: clamp(7.5px, 2.02vw, 8.6px);
       font-weight: 800;
       letter-spacing: -0.05em;
-      line-height: 1.24;
-      padding: 2px 1.5px;
+      line-height: 1.2;
+      padding: 1.5px 1.5px;
       border-radius: 3px;
       word-break: break-all;
       white-space: normal;
@@ -61,11 +61,11 @@
     }
     .work-top-chip {
       width: 100%;
-      font-size: clamp(7.5px, 2.05vw, 8.8px);
+      font-size: clamp(7.5px, 2.02vw, 8.6px);
       font-weight: 900;
       letter-spacing: -0.05em;
-      line-height: 1.22;
-      padding: 2px 2px;
+      line-height: 1.18;
+      padding: 1.5px 2px;
       border-radius: 3px;
       text-align: center;
       white-space: nowrap;
@@ -77,7 +77,7 @@
 <body>
   <div class="mobile-app-shell">
     <!-- 상단 헤더 -->
-    <header class="bg-slate-900 text-white px-3 pt-2.5 pb-2.5 sticky top-0 z-30">
+    <header class="bg-slate-900 text-white px-3 py-2 sticky top-0 z-30">
       <div class="flex items-center justify-between gap-2">
         <div class="min-w-0 flex items-center gap-1.5">
           <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded">LGES</span>
@@ -94,15 +94,15 @@
     </header>
 
     <!-- 메인 컨텐츠 -->
-    <main class="flex-1 overflow-y-auto pb-24 space-y-2.5">
+    <main class="flex-1 overflow-y-auto pb-20 space-y-2">
       <!-- TAB 1: 달력(메모뷰/급여뷰) & 월급 홈 -->
-      <div id="tab_home" class="space-y-2.5">
+      <div id="tab_home" class="space-y-2">
         <div class="bg-white shadow-sm border-b border-slate-200">
           <!-- 달력 상단: 2026. 10 표시 + 뷰 스위치 + 조변경 -->
-          <div class="px-2.5 pt-2.5 pb-2 flex items-center justify-between gap-1 nowrap">
+          <div class="px-2.5 py-1.5 flex items-center justify-between gap-1 nowrap">
             <div class="flex items-center gap-1.5">
               <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700">◀</button>
-              <h2 id="big_ym_title" class="text-xl font-black text-slate-900 tracking-tight px-0.5">2026. 10</h2>
+              <h2 id="big_ym_title" class="text-lg font-black text-slate-900 tracking-tight px-0.5">2026. 10</h2>
               <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
@@ -117,47 +117,25 @@
             </div>
           </div>
 
-          <div id="pay_view_subbar" class="hidden px-3 py-1 text-[11px] font-extrabold text-blue-700 flex items-center justify-between bg-blue-50/60 border-t border-blue-100">
-            <span id="pay_view_period_label">💰 급여 산정 기간: 9.21 ~ 10.20 근무</span>
-            <span class="text-[10px] text-slate-500">특근·잔업 상세</span>
+          <!-- 메모뷰·급여뷰 공통 높이 서브 안내바 (메모뷰: 오늘 날짜 안내 / 급여뷰: 급여 산정기간 안내) -->
+          <div id="calendar_subbar" class="px-3 h-7 text-[11px] font-extrabold text-blue-800 flex items-center justify-between bg-blue-50/70 border-t border-blue-100 nowrap">
+            <span id="subbar_left_text">📅 오늘은 2026년 10월 24일 (토) 입니다</span>
+            <span id="subbar_right_text" class="text-[10px] text-slate-500 font-bold">날짜 터치 시 메모·근무 입력</span>
           </div>
 
           <!-- 요일 헤더 (일 월 화 수 목 금 토 순) -->
-          <div class="grid grid-cols-7 text-center text-[11px] font-extrabold py-1.5 border-t border-b border-slate-200 bg-slate-50/70">
+          <div class="grid grid-cols-7 text-center text-[10.5px] font-extrabold py-1 border-t border-b border-slate-200 bg-slate-50/70">
             <div class="text-red-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-500">토</div>
           </div>
 
           <!-- 달력 그리드 -->
-          <div id="calendar_grid" class="grid grid-cols-7 border-b border-slate-200 bg-slate-200 gap-[1px]"></div>
-
-          <!-- 월별 메모 -->
-          <div class="px-3 py-2 bg-white flex items-center gap-2">
-            <span class="text-xs font-black text-slate-400 shrink-0">월별 메모</span>
-            <input type="text" id="input_month_memo" placeholder="이달의 월별 메모 입력 (자동 저장)" oninput="App.onMonthMemoInput()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none">
-          </div>
+          <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px]"></div>
         </div>
 
-        <div class="px-2.5 space-y-2.5">
-          <!-- 원터치 도장 팔레트 -->
-          <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-2">
-            <div class="flex items-center justify-between nowrap">
-              <span class="text-[11px] font-black text-slate-800">👆 원터치 도장 (선택 후 날짜 터치)</span>
-              <span id="active_stamp_label" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-900 text-white">📋 날짜별 메모·근무창</span>
-            </div>
-            <div class="grid grid-cols-6 gap-1 text-[10px] font-black">
-              <button id="cat_POPUP" onclick="App.selectStampCategory('POPUP')" class="py-1.5 rounded-xl border-2 border-slate-900 bg-slate-900 text-white nowrap">📋메모·창</button>
-              <button id="cat_HOLDAY" onclick="App.selectStampCategory('HOLDAY')" class="py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-700 nowrap">☀️주간특근</button>
-              <button id="cat_HOLNIGHT" onclick="App.selectStampCategory('HOLNIGHT')" class="py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-800 nowrap">🌙야간특근</button>
-              <button id="cat_OT" onclick="App.selectStampCategory('OT')" class="py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 nowrap">⚡주간잔업</button>
-              <button id="cat_NIGHT_OT" onclick="App.selectStampCategory('NIGHT_OT')" class="py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-800 nowrap">🦉야간잔업</button>
-              <button id="cat_ETC" onclick="App.selectStampCategory('ETC')" class="py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 nowrap">🌴휴가·지움</button>
-            </div>
-            <div id="stamp_sub_options" class="pt-0.5"></div>
-          </div>
-
-          <!-- 예상 실수령액 카드 -->
-          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-4 shadow-md">
-            <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-700/80 gap-1 nowrap">
+        <div class="px-2.5 space-y-2">
+          <!-- 예상 실수령액 카드 (앱 실행 시 달력 바로 아래에 한눈에 보이도록 배치) -->
+          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-3.5 shadow-md">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-700/80 gap-1 nowrap">
               <div class="inline-flex bg-slate-800 p-0.5 rounded-xl border border-slate-700">
                 <button id="pay_target_curr" onclick="App.setPayTargetOffset(0)" class="px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-400 text-slate-950">10월 급여</button>
                 <button id="pay_target_next" onclick="App.setPayTargetOffset(1)" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-300">11월 급여</button>
@@ -179,12 +157,12 @@
               <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[10px] bg-slate-700/80 text-slate-300 px-2 py-1 rounded-lg font-bold nowrap">근무초기화</button>
             </div>
 
-            <div class="mt-3 pt-2.5 border-t border-slate-700/80 grid grid-cols-2 gap-2 text-xs">
-              <div class="bg-slate-800/80 p-2.5 rounded-2xl nowrap">
+            <div class="mt-2.5 pt-2 border-t border-slate-700/80 grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-800/80 p-2 rounded-2xl nowrap">
                 <span class="text-slate-400 text-[10px] block">세전 총액 (상여포함)</span>
                 <strong id="summary_gross" class="text-xs sm:text-sm font-black text-sky-300">0원</strong>
               </div>
-              <div class="bg-slate-800/80 p-2.5 rounded-2xl nowrap">
+              <div class="bg-slate-800/80 p-2 rounded-2xl nowrap">
                 <span class="text-slate-400 text-[10px] block">예상 공제총액</span>
                 <strong id="summary_ded" class="text-xs sm:text-sm font-black text-rose-300">-0원</strong>
               </div>
@@ -197,7 +175,7 @@
               <div><span class="text-slate-400 text-[9px] block">이달휴가</span><strong id="stat_leave" class="text-emerald-400 font-black">0일</strong></div>
             </div>
 
-            <details class="mt-2.5 text-xs">
+            <details class="mt-2 text-xs">
               <summary class="cursor-pointer text-slate-300 font-bold flex justify-between items-center py-1 nowrap">
                 <span>🧾 지급·공제 명세서 상세 내역</span><span class="text-[10px] text-emerald-400">펼치기 ▼</span>
               </summary>
@@ -420,7 +398,7 @@
     </main>
 
     <!-- 하단 4탭 네비게이션 -->
-    <nav class="bg-white border-t border-slate-200 px-1 py-2 grid grid-cols-4 text-center text-[10px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap">
+    <nav class="bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-4 text-center text-[10px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-1 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base">📅</span><span>달력·메모홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-1 flex flex-col items-center gap-0.5"><span class="text-base">📊</span><span>연간리포트</span></button>
       <button id="nav_rates" onclick="App.switchTab('rates')" class="py-1 flex flex-col items-center gap-0.5"><span class="text-base">💰</span><span>수당단가표</span></button>
@@ -701,7 +679,6 @@
       records: {}, monthExtras: {},
 
       calendarView: 'MEMO',
-      stampCategory: 'POPUP', stampType: 'POPUP', stampValue: 12,
       selectedDateKey: null, selectedDayInfo: null, lastRawGross: 0, lastRawDed: 0,
 
       async init() {
@@ -718,7 +695,6 @@
         this.goToTodayMonth(false);
         this.reportYear = this.calYear;
         this.syncSettingsInputs();
-        this.renderStampPalette();
         this.render();
       },
 
@@ -734,7 +710,7 @@
       },
 
       getExportPayload() {
-        return { version: '4.7', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
+        return { version: '4.8', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras };
       },
 
       save() {
@@ -746,15 +722,12 @@
       setCalendarView(view) {
         this.calendarView = view;
         const mBtn = document.getElementById('view_btn_MEMO'), pBtn = document.getElementById('view_btn_PAY');
-        const subbar = document.getElementById('pay_view_subbar');
         if (view === 'MEMO') {
           mBtn.className = 'px-2 py-1 rounded-lg text-[10px] font-black transition bg-slate-900 text-white shadow-sm';
           pBtn.className = 'px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500';
-          subbar.classList.add('hidden');
         } else {
           pBtn.className = 'px-2 py-1 rounded-lg text-[10px] font-black transition bg-blue-600 text-white shadow-sm';
           mBtn.className = 'px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500';
-          subbar.classList.remove('hidden');
         }
         this.render(true);
       },
@@ -885,7 +858,7 @@
       getMonthKey(y, m) { return `${y}-${String(m).padStart(2,'0')}`; },
       getMonthExtra(y, m) {
         const k = this.getMonthKey(y, m);
-        if (!this.monthExtras[k]) this.monthExtras[k] = { eduHours: 0, foodDed: 0, monthMemo: '' };
+        if (!this.monthExtras[k]) this.monthExtras[k] = { eduHours: 0, foodDed: 0 };
         return this.monthExtras[k];
       },
       onExtraInput() {
@@ -894,11 +867,6 @@
         ex.eduHours = Number(document.getElementById('input_edu_hours').value) || 0;
         ex.foodDed = Number(document.getElementById('input_food_ded').value) || 0;
         this.save(); this.render(true);
-      },
-      onMonthMemoInput() {
-        const ex = this.getMonthExtra(this.calYear, this.calMonth);
-        ex.monthMemo = document.getElementById('input_month_memo').value || '';
-        this.save();
       },
 
       getStandardMonthGridDates(year, month) {
@@ -953,14 +921,12 @@
           if ((holKind === 'NIGHT') || (!holKind && shift === 'NIGHT')) {
             holKind = 'NIGHT'; shift = 'NIGHT'; nightHours = Math.min(8, totalH);
           } else {
-            // 주간 특근 입력 시 배지가 항상 '초'로 바뀌도록 설정
             holKind = 'DAY'; shift = 'EARLY'; nightHours = 0;
           }
         } else if (type === 'LEAVE') {
           vacDays = (rec.vacDays !== undefined) ? Number(rec.vacDays) : 1;
         }
 
-        // 우측 상단 배지 결정: 주말 기본 휴무(OFF)는 '휴', 주간특근은 '초', 야간특근은 '야', 평일은 해당 근무조
         let badgeKey = shift;
         if (type === 'OFF') badgeKey = 'OFF';
         else if (type === 'HOLIDAY') badgeKey = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY';
@@ -1009,65 +975,6 @@
         };
       },
 
-      selectStampCategory(cat) {
-        this.stampCategory = cat;
-        if (cat === 'POPUP') this.stampType = 'POPUP';
-        else if (cat === 'HOLDAY') { this.stampType = 'HOLDAY'; this.stampValue = 12; }
-        else if (cat === 'HOLNIGHT') { this.stampType = 'HOLNIGHT'; this.stampValue = 12; }
-        else if (cat === 'OT') { this.stampType = 'OT'; this.stampValue = 4; }
-        else if (cat === 'NIGHT_OT') { this.stampType = 'NIGHT_OT'; this.stampValue = 4; }
-        else if (cat === 'ETC') { this.stampType = 'LEAVE'; this.stampValue = 1; }
-        this.renderStampPalette();
-      },
-      selectStampOption(type, val) { this.stampType = type; this.stampValue = val; this.renderStampPalette(); },
-
-      renderStampPalette() {
-        const cats = [
-          { id:'POPUP', b:'border-slate-300 bg-slate-50 text-slate-700', a:'border-2 border-slate-900 bg-slate-900 text-white' },
-          { id:'HOLDAY', b:'border-red-200 bg-red-50 text-red-700', a:'border-2 border-red-600 bg-red-600 text-white' },
-          { id:'HOLNIGHT', b:'border-purple-200 bg-purple-50 text-purple-800', a:'border-2 border-purple-700 bg-purple-700 text-yellow-200' },
-          { id:'OT', b:'border-blue-200 bg-blue-50 text-blue-700', a:'border-2 border-blue-600 bg-blue-600 text-white' },
-          { id:'NIGHT_OT', b:'border-indigo-200 bg-indigo-50 text-indigo-800', a:'border-2 border-indigo-600 bg-indigo-600 text-white' },
-          { id:'ETC', b:'border-emerald-200 bg-emerald-50 text-emerald-800', a:'border-2 border-emerald-600 bg-emerald-600 text-white' }
-        ];
-        cats.forEach(c => {
-          const btn = document.getElementById(`cat_${c.id}`);
-          if (btn) btn.className = `py-1.5 rounded-xl font-black nowrap border ${this.stampCategory === c.id ? c.a : c.b}`;
-        });
-        const sub = document.getElementById('stamp_sub_options'), label = document.getElementById('active_stamp_label');
-        if (this.stampCategory === 'POPUP') {
-          label.innerText = '📋 날짜 터치 시 메모·상세창'; label.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-800 text-white';
-          sub.innerHTML = `<div class="text-[11px] text-slate-500 bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-200 flex justify-between"><span>날짜를 누르면 📝메모·근무 설정창이 열립니다.</span><span class="font-bold text-slate-700">원터치 도장은 위 탭 👆</span></div>`;
-        } else if (this.stampCategory === 'HOLDAY' || this.stampCategory === 'HOLNIGHT') {
-          const isN = this.stampCategory === 'HOLNIGHT';
-          label.innerText = isN ? `🌙 야간특근 ${this.stampValue}h 도장 (야)` : `☀️ 주간특근 ${this.stampValue}h 도장 (초)`;
-          label.className = `text-[10px] font-black px-2 py-0.5 rounded-full ${isN ? 'bg-purple-700 text-yellow-200' : 'bg-red-600 text-white'}`;
-          const hrs = [12, 8, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11];
-          sub.innerHTML = `<div class="grid grid-cols-6 gap-1 text-[11px] font-extrabold">${hrs.map(h => {
-            const sel = this.stampValue === h;
-            const cls = isN ? (sel ? 'bg-purple-700 text-yellow-200 border-2 border-purple-950 font-black' : 'bg-purple-50 text-purple-800 border border-purple-200') : (sel ? 'bg-red-600 text-white border-2 border-red-900 font-black' : 'bg-red-50 text-red-700 border border-red-200');
-            return `<button onclick="App.selectStampOption('${this.stampCategory}',${h})" class="py-1.5 rounded-xl ${cls} nowrap">${(h===12||h===8)?(isN?'🌙':'☀️'):''}${h}h</button>`;
-          }).join('')}</div>`;
-        } else if (this.stampCategory === 'OT' || this.stampCategory === 'NIGHT_OT') {
-          const isN = this.stampCategory === 'NIGHT_OT';
-          label.innerText = isN ? `🦉 야간잔업 +${this.stampValue}h 도장` : `⚡ 주간잔업 +${this.stampValue}h 도장`;
-          label.className = `text-[10px] font-black px-2 py-0.5 rounded-full ${isN ? 'bg-indigo-600 text-white' : 'bg-blue-600 text-white'}`;
-          sub.innerHTML = `<div class="grid grid-cols-6 gap-1 text-[11px] font-extrabold">${[1,2,3,4,5,6].map(h => {
-            const sel = this.stampValue === h;
-            const cls = isN ? (sel ? 'bg-indigo-600 text-white border-2 border-indigo-900 font-black' : 'bg-indigo-50 text-indigo-800 border border-indigo-200') : (sel ? 'bg-blue-600 text-white border-2 border-blue-900 font-black' : 'bg-blue-50 text-blue-700 border border-blue-200');
-            return `<button onclick="App.selectStampOption('${this.stampCategory}',${h})" class="py-1.5 rounded-xl ${cls} nowrap">${isN?'야':''}+${h}h</button>`;
-          }).join('')}</div>`;
-        } else if (this.stampCategory === 'ETC') {
-          label.innerText = this.stampType === 'ERASE' ? '🧹 근무초기화 도장' : `🌴 휴가(-${this.stampValue}일) 도장`;
-          label.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white';
-          sub.innerHTML = `<div class="grid grid-cols-3 gap-1.5 text-[11px] font-extrabold">
-            <button onclick="App.selectStampOption('LEAVE',1)" class="py-1.5 rounded-xl border ${this.stampType==='LEAVE'&&this.stampValue===1?'bg-emerald-600 text-white font-black':'bg-emerald-50 text-emerald-800 border-emerald-200'} nowrap">🌴 연차(-1일)</button>
-            <button onclick="App.selectStampOption('LEAVE',0.5)" class="py-1.5 rounded-xl border ${this.stampType==='LEAVE'&&this.stampValue===0.5?'bg-emerald-600 text-white font-black':'bg-emerald-50 text-emerald-800 border-emerald-200'} nowrap">🌴 반차(-0.5일)</button>
-            <button onclick="App.selectStampOption('ERASE',0)" class="py-1.5 rounded-xl border ${this.stampType==='ERASE'?'bg-slate-800 text-white font-black':'bg-slate-100 text-slate-700 border-slate-300'} nowrap">🧹 근무초기화</button>
-          </div>`;
-        }
-      },
-
       setWorkRecord(key, workObj) {
         const prev = this.records[key] || {};
         if (!workObj) {
@@ -1079,39 +986,20 @@
       },
 
       onCellTap(ev) {
-        const key = ev.key, h = Number(this.stampValue) || 12, totalH = ev.holBaseHours + ev.holOverHours;
-        if (this.stampType === 'HOLDAY') {
-          if (ev.type === 'HOLIDAY' && ev.holKind === 'DAY' && totalH === h) this.setWorkRecord(key, null);
-          else this.setWorkRecord(key, { type: 'HOLIDAY', hours: h, holKind: 'DAY', shift: 'EARLY' });
-          this.save(); this.render(); return;
-        }
-        if (this.stampType === 'HOLNIGHT') {
-          if (ev.type === 'HOLIDAY' && ev.holKind === 'NIGHT' && totalH === h) this.setWorkRecord(key, null);
-          else this.setWorkRecord(key, { type: 'HOLIDAY', hours: h, holKind: 'NIGHT', shift: 'NIGHT' });
-          this.save(); this.render(); return;
-        }
-        if (this.stampType === 'OT' || this.stampType === 'NIGHT_OT') {
-          if (ev.type === this.stampType && ev.otHours === h) this.setWorkRecord(key, null);
-          else this.setWorkRecord(key, { type: this.stampType, hours: h, shift: ev.defaultShift });
-          this.save(); this.render(); return;
-        }
-        if (this.stampType === 'LEAVE') {
-          if (ev.type === 'LEAVE' && ev.vacDays === h) this.setWorkRecord(key, null);
-          else this.setWorkRecord(key, { type: 'LEAVE', hours: 0, vacDays: h, shift: ev.defaultShift });
-          this.save(); this.render(); return;
-        }
-        if (this.stampType === 'ERASE') { this.setWorkRecord(key, null); this.save(); this.render(); return; }
-
-        this.selectedDateKey = key; this.selectedDayInfo = ev;
+        this.selectedDateKey = ev.key;
+        this.selectedDayInfo = ev;
         document.getElementById('modal_date_title').innerText = `${ev.y}년 ${ev.m}월 ${ev.d}일 (${ev.dayName}요일)`;
         const badge = document.getElementById('modal_shift_badge');
-        badge.innerText = this.SHIFT_FULL[ev.badgeKey]; badge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded badge-${ev.badgeKey}`;
+        badge.innerText = this.SHIFT_FULL[ev.badgeKey];
+        badge.className = `text-[10px] font-extrabold px-2 py-0.5 rounded badge-${ev.badgeKey}`;
         const hb = document.getElementById('modal_holiday_badge');
         if (ev.holidayName) { hb.innerText = `공휴일: ${ev.holidayName}`; hb.classList.remove('hidden'); } else hb.classList.add('hidden');
         document.getElementById('modal_shift_select').value = ev.shift;
         document.getElementById('modal_memo_input').value = ev.memo || '';
 
-        const modal = document.getElementById('day_modal'); modal.classList.remove('hidden'); modal.classList.add('flex');
+        const modal = document.getElementById('day_modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
       },
 
       syncModalMemoToRecord(key) {
@@ -1205,6 +1093,25 @@
         return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
       },
 
+      // 오늘 날짜 칸 상단바 & 일반 날짜 상단바 생성 (절대 글자가 잘리지 않는 일체형 헤더)
+      buildCellHeaderHtml(dateText, dc, isToday, badgeKey) {
+        if (isToday) {
+          return `
+            <div class="-mx-0.5 -mt-0.5 px-1 py-[1.5px] rounded-[3px] bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-0.5 leading-none">
+              <span class="text-[9.5px] font-black tracking-tighter nowrap">${dateText}</span>
+              <span class="text-[8px] font-black text-amber-300 tracking-tighter nowrap">오늘</span>
+              <span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span>
+            </div>
+          `;
+        }
+        return `
+          <div class="flex items-center justify-between gap-0.5 mb-0.5 leading-none">
+            <span class="text-[10px] font-black ${dc} tracking-tighter nowrap">${dateText}</span>
+            <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span>
+          </div>
+        `;
+      },
+
       render(skipInput = false) {
         const todayInfo = this.getTodayInfo();
         document.getElementById('today_header_info').innerText = `오늘 ${todayInfo.m}.${todayInfo.d} (${todayInfo.dayName})`;
@@ -1247,7 +1154,17 @@
         const calc = this.calculateMonthSummary(activePay.y, activePay.m);
         const first = calc.cutoffDates[0], last = calc.cutoffDates[calc.cutoffDates.length - 1];
 
-        document.getElementById('pay_view_period_label').innerText = `💰 ${activePay.y}년 ${activePay.m}월 급여 (${first.m}.${first.d} ~ ${last.m}.${last.d} 근무)`;
+        // 서브바 텍스트 업데이트 (메모뷰와 급여뷰 모두 동일한 높이 h-7 유지)
+        const subLeft = document.getElementById('subbar_left_text');
+        const subRight = document.getElementById('subbar_right_text');
+        if (this.calendarView === 'MEMO') {
+          subLeft.innerText = `📅 오늘은 ${todayInfo.y}년 ${todayInfo.m}월 ${todayInfo.d}일 (${todayInfo.dayName}) 입니다`;
+          subRight.innerText = `날짜 터치 시 메모·근무 입력`;
+        } else {
+          subLeft.innerText = `💰 ${activePay.y}년 ${activePay.m}월 급여 (${first.m}.${first.d} ~ ${last.m}.${last.d} 근무)`;
+          subRight.innerText = `특근·잔업 상세`;
+        }
+
         document.getElementById('hero_pay_month_label').innerText = `${activePay.y}년 ${activePay.m}월 예상 세후 실수령액`;
         document.getElementById('extra_section_title').innerText = `🎁 ${activePay.m}월 급여 특이사항`;
 
@@ -1258,8 +1175,6 @@
         if (!skipInput) {
           document.getElementById('input_edu_hours').value = calc.ex.eduHours > 0 ? calc.ex.eduHours : '';
           document.getElementById('input_food_ded').value = calc.ex.foodDed > 0 ? calc.ex.foodDed : '';
-          const calEx = this.getMonthExtra(this.calYear, this.calMonth);
-          document.getElementById('input_month_memo').value = calEx.monthMemo || '';
         }
 
         const autoHolBadge = document.getElementById('auto_hol_bonus_badge'), autoHolNotice = document.getElementById('auto_hol_bonus_notice');
@@ -1304,11 +1219,10 @@
         `;
 
         // ============================================================
-        // 달력 그리드 렌더링 (메모뷰 & 급여뷰 완벽 통일)
-        // - 토·일 기본 배지: '휴' (주간특근 시 '초', 야간특근 시 '야'로 변경)
-        // - '오늘' 배지: 두 뷰 모두 상단 날짜와 근무 배지 사이에 통일 배치
+        // 달력 그리드 렌더링 (메모뷰 & 급여뷰 모두 동일한 셀 높이 min-h-[76px] 적용)
         // ============================================================
         const grid = document.getElementById('calendar_grid'); grid.innerHTML = '';
+        const CELL_H = 'min-h-[76px]';
 
         if (this.calendarView === 'MEMO') {
           const stdDates = this.getStandardMonthGridDates(this.calYear, this.calMonth);
@@ -1329,12 +1243,9 @@
             if (ev.isSundayOrHol) dc = 'text-red-600';
             else if (ev.isSaturday) dc = 'text-blue-600';
 
-            const todayPillHtml = isToday
-              ? `<span class="px-1 py-[1px] rounded bg-blue-600 text-white text-[7.5px] font-black leading-none shrink-0">오늘</span>`
-              : '';
-
+            const headerHtml = this.buildCellHeaderHtml(`${ev.d}`, dc, isToday, ev.badgeKey);
             const holSubHtml = ev.holidayName
-              ? `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>`
+              ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>`
               : '';
 
             const chips = [];
@@ -1362,39 +1273,33 @@
             }
 
             const div = document.createElement('div');
-            div.className = `p-1 min-h-[96px] min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
+            div.className = `p-1 ${CELL_H} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
             div.innerHTML = `
-              <div class="flex items-center justify-between gap-0.5 mb-0.5">
-                <div class="flex items-center gap-0.5 min-w-0">
-                  <span class="text-[10.5px] font-black ${dc} leading-none">${ev.d}</span>
-                  ${todayPillHtml}
-                </div>
-                <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.badgeKey}">${this.SHIFT_CHAR[ev.badgeKey]}</span>
-              </div>
+              ${headerHtml}
               ${holSubHtml}
-              <div class="flex flex-col gap-[2px] w-full mt-0.5">
+              <div class="flex flex-col gap-[1.5px] w-full">
                 ${chips.join('')}
               </div>
             `;
             grid.appendChild(div);
           });
         } else {
-          // [💰 급여뷰]: 21일~20일 산정 기간 (메모뷰와 동일한 상단 '오늘' 위치 & 주말 기본 '휴' 배지)
+          // [💰 급여뷰]: 메모뷰와 똑같은 셀 높이(min-h-[76px])와 상단 오늘 헤더바 적용
           const firstDow = calc.evaluated[0].dow;
           for (let i = 0; i < firstDow; i++) {
-            grid.innerHTML += `<div class="min-h-[82px] bg-slate-50/70"></div>`;
+            grid.innerHTML += `<div class="${CELL_H} bg-slate-50/80"></div>`;
           }
           calc.evaluated.forEach(ev => {
             let cellStyle = ev.isWeekend ? 'bg-white' : `cell-shift-${ev.shift}`;
             let statusHtml = `<span class="text-[9px] text-slate-500 font-semibold nowrap">고정8h</span>`;
-            if (ev.type === 'OT') { cellStyle = 'cell-checked-ot'; statusHtml = `<span class="text-[10px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`; }
-            else if (ev.type === 'NIGHT_OT') { cellStyle = 'cell-checked-night-ot'; statusHtml = `<span class="text-[10px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`; }
+            if (ev.type === 'OT') { cellStyle = 'cell-checked-ot'; statusHtml = `<span class="text-[9.5px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`; }
+            else if (ev.type === 'NIGHT_OT') { cellStyle = 'cell-checked-night-ot'; statusHtml = `<span class="text-[9.5px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`; }
             else if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
               cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
-              statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[10px] font-black text-purple-800 nowrap">🌙야특${th}h</span>` : `<span class="text-[10px] font-black text-red-600 nowrap">☀️주특${th}h</span>`;
-            } else if (ev.type === 'LEAVE') { cellStyle = 'cell-checked-leave'; statusHtml = `<span class="text-[10px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`; }
+              statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[9.5px] font-black text-purple-800 nowrap">🌙야특${th}h</span>` : `<span class="text-[9.5px] font-black text-red-600 nowrap">☀️주특${th}h</span>`;
+            } else if (ev.type === 'LEAVE') { cellStyle = 'cell-checked-leave'; statusHtml = `<span class="text-[9.5px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`; }
             else if (ev.type === 'OFF') { cellStyle = 'bg-white'; statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`; }
 
             if (ev.d === 1) cellStyle += ' month-start-bar';
@@ -1402,38 +1307,32 @@
             let dc = 'text-slate-900';
             if (ev.isSundayOrHol) dc = 'text-red-600'; else if (ev.isSaturday) dc = 'text-blue-600';
 
-            const dl = (ev.d === 21 || ev.d === 1)
-              ? `<span class="text-[9.5px] font-black ${dc} nowrap underline decoration-2 leading-none">${ev.m}.${ev.d}</span>`
-              : `<span class="text-[9.5px] font-black ${dc} nowrap leading-none"><span class="text-[8px] font-bold opacity-55">${ev.m}.</span>${ev.d}</span>`;
-
-            const todayPillHtml = isToday
-              ? `<span class="px-1 py-[1px] rounded bg-blue-600 text-white text-[7.5px] font-black leading-none shrink-0">오늘</span>`
-              : '';
+            const dateStr = `${ev.m}.${ev.d}`;
+            const headerHtml = this.buildCellHeaderHtml(dateStr, dc, isToday, ev.badgeKey);
 
             const mid = ev.holidayName
-              ? `<div class="text-[8px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>`
-              : `<div class="h-[11px]"></div>`;
+              ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>`
+              : `<div class="h-[10px]"></div>`;
 
             const div = document.createElement('div');
-            div.className = `p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between min-h-[82px] min-w-0 overflow-hidden ${cellStyle}`;
+            div.className = `p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${CELL_H} min-w-0 overflow-hidden ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
             div.innerHTML = `
-              <div class="flex items-center justify-between gap-0.5">
-                <div class="flex items-center gap-0.5 min-w-0">
-                  ${dl}
-                  ${todayPillHtml}
-                </div>
-                <span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${ev.badgeKey}">${this.SHIFT_CHAR[ev.badgeKey]}</span>
-              </div>
+              ${headerHtml}
               ${mid}
               <div class="text-center leading-none my-0.5">${statusHtml}</div>
-              <div class="flex items-center justify-between text-[8px] font-extrabold leading-none nowrap">
+              <div class="flex items-center justify-between text-[7.5px] font-extrabold leading-none nowrap">
                 <span>${ev.memo ? '📌' : ''}</span>
                 <span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span>
               </div>
             `;
             grid.appendChild(div);
           });
+          const totalCells = firstDow + calc.evaluated.length;
+          const trailing = (7 - (totalCells % 7)) % 7;
+          for (let i = 0; i < trailing; i++) {
+            grid.innerHTML += `<div class="${CELL_H} bg-slate-50/80"></div>`;
+          }
         }
       },
 
