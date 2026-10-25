@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v5.6</title>
+  <title>LGES 월급계산기 v5.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -26,14 +26,11 @@
     .badge-MID    { background-color: #f59e0b; color: #ffffff; }
     .badge-NIGHT  { background-color: #3b0764; color: #fde047; }
     .badge-OFF    { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-    .cell-shift-EARLY { background-color: #f0f9ff; }
-    .cell-shift-MID   { background-color: #fffbeb; }
-    .cell-shift-NIGHT { background-color: #faf5ff; }
-    .cell-checked-ot        { background-color: #dbeafe !important; }
-    .cell-checked-night-ot  { background-color: #ede9fe !important; }
-    .cell-checked-hol-day   { background-color: #fee2e2 !important; }
-    .cell-checked-hol-night { background-color: #f3e8ff !important; }
-    .cell-checked-leave     { background-color: #d1fae5 !important; }
+    /* 모든 날짜 칸 배경색을 순백색(#ffffff)으로 통일하여 메모 가독성 극대화 */
+    .cell-shift-EARLY, .cell-shift-MID, .cell-shift-NIGHT,
+    .cell-checked-ot, .cell-checked-night-ot, .cell-checked-hol-day, .cell-checked-hol-night, .cell-checked-leave {
+      background-color: #ffffff !important;
+    }
     .month-start-bar { box-shadow: inset 0 2.5px 0 0 #334155; }
     .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
@@ -53,7 +50,7 @@
       <div class="flex items-center justify-between gap-2">
         <div class="min-w-0 flex items-center gap-1.5">
           <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded shrink-0">LGES</span>
-          <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘 10.24 (토)</span>
+          <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘 10.25 (일)</span>
           <span id="top_cloud_Dot" onclick="App.switchTab('settings')" class="hidden text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-900/90 text-sky-300 border border-sky-500/40 cursor-pointer shrink-0">☁️연동중</span>
         </div>
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
@@ -90,7 +87,7 @@
           </div>
 
           <div id="calendar_subbar" class="px-2.5 h-6 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-2 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
-            <span id="subbar_left_text" class="truncate">📅 오늘은 2026년 10월 24일 (토) 입니다</span>
+            <span id="subbar_left_text" class="truncate">📅 오늘은 2026년 10월 25일 (일) 입니다</span>
             <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold shrink-0">↔ 좌우 밀어서 월 이동</span>
           </div>
 
@@ -278,8 +275,6 @@
 
       <!-- TAB 4: 보정 · 설정 · 깃허브 클라우드 백업 -->
       <div id="tab_settings" class="hidden space-y-2.5 px-2.5 pt-2">
-
-        <!-- [신설] ☁️ 깃허브 비공개 금고(Gist) 원터치 백업·복원 카드 -->
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 shadow-md border border-sky-500/40 space-y-3">
           <div class="flex items-center justify-between nowrap">
             <div class="flex items-center gap-1.5">
@@ -293,7 +288,6 @@
             내 깃허브 비공개 금고(<strong class="text-sky-300">파일 1개 덮어쓰기·약 15KB</strong>)에 저장되어 용량을 차지하지 않으며, 폰이 바뀌어도 열쇠 번호만 넣으면 1초 만에 복원됩니다.
           </p>
 
-          <!-- 열쇠(토큰) 입력 및 10초 발급 바로가기 -->
           <div class="space-y-1.5 text-xs">
             <div class="flex items-center justify-between nowrap">
               <label class="text-[10.5px] font-extrabold text-sky-300">🔑 내 깃허브 열쇠 번호 (최초 1회만 입력)</label>
@@ -307,7 +301,6 @@
             </div>
           </div>
 
-          <!-- 원터치 딸깍 백업 / 딸깍 복원 버튼 -->
           <div class="grid grid-cols-2 gap-2 text-xs pt-0.5">
             <button onclick="App.cloudBackupToGithub(false)" class="py-2.5 px-3 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
               ☁️ 깃허브에 딸깍 백업
@@ -317,7 +310,6 @@
             </button>
           </div>
 
-          <!-- 자동 백업 스위치 & 마지막 백업 시각 -->
           <div class="pt-2 border-t border-slate-700/80 flex items-center justify-between text-[11px] nowrap">
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="checkbox" id="chk_gh_auto_sync" onchange="App.toggleGithubAutoSync()" class="w-4 h-4 accent-sky-400 rounded">
@@ -406,7 +398,7 @@
               <span id="modal_current_work_badge" class="hidden text-[10px] font-black px-2 py-0.5 rounded bg-blue-100 text-blue-800">현재 설정됨</span>
               <span id="modal_holiday_badge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded bg-red-100 text-red-600">공휴일</span>
             </div>
-            <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1">10월 24일 (토)</h3>
+            <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1">10월 25일 (일)</h3>
           </div>
           <button onclick="App.closeDayModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none px-1">&times;</button>
         </div>
@@ -639,7 +631,6 @@
       calibGrossOffset: 0, calibDedRatio: 1.0,
       records: {}, monthExtras: {}, seededHistoryV54: false,
 
-      // 깃허브 클라우드 백업 설정값
       ghToken: '', ghGistId: '', ghAutoSync: true, ghLastSync: '',
       autoSyncTimer: null,
 
@@ -701,9 +692,6 @@
         this.reportYear = t.y;
       },
 
-      // ============================================================
-      // ☁️ 깃허브 비공개 금고(Secret Gist) 원터치 백업·복원 엔진
-      // ============================================================
       saveGithubToken() {
         this.ghToken = (document.getElementById('input_gh_token').value || '').trim();
         this.save(true);
@@ -740,7 +728,6 @@
         lastEl.innerText = this.ghLastSync ? `최근 백업: ${this.ghLastSync}` : '아직 서버 백업 전';
       },
 
-      // 사용자의 깃허브 계정에서 lges_pay_backup.json 비공개 금고(Gist) ID 자동 검색
       async findExistingGistId(token) {
         if (this.ghGistId) return this.ghGistId;
         const res = await fetch('https://api.github.com/gists?per_page=100', {
@@ -1061,7 +1048,7 @@
       },
 
       getExportPayload() {
-        return { version: '5.6', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
+        return { version: '5.7', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
       },
 
       save(skipCloudAuto = false) {
@@ -1719,11 +1706,7 @@
 
           stdDates.forEach(dt => {
             const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth), isToday = (ev.key === todayInfo.key);
-            let cellStyle = ev.isRedOffDay ? 'bg-white' : `cell-shift-${ev.shift}`;
-            if (ev.type === 'OT') cellStyle = 'cell-checked-ot';
-            else if (ev.type === 'NIGHT_OT') cellStyle = 'cell-checked-night-ot';
-            else if (ev.type === 'HOLIDAY') cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
-            else if (ev.type === 'LEAVE') cellStyle = 'cell-checked-leave';
+            let cellStyle = 'bg-white';
             if (ev.isOtherMonth) cellStyle += ' opacity-35';
             if (isToday) cellStyle += ' cell-today';
 
@@ -1767,16 +1750,15 @@
             grid.appendChild(emptyBefore);
           }
           calc.evaluated.forEach(ev => {
-            let cellStyle = ev.isRedOffDay ? 'bg-white' : `cell-shift-${ev.shift}`;
+            let cellStyle = 'bg-white';
             let statusHtml = `<span class="text-[9px] text-slate-500 font-semibold nowrap">고정8h</span>`;
-            if (ev.type === 'OT') { cellStyle = 'cell-checked-ot'; statusHtml = `<span class="text-[9.5px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`; }
-            else if (ev.type === 'NIGHT_OT') { cellStyle = 'cell-checked-night-ot'; statusHtml = `<span class="text-[9.5px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`; }
+            if (ev.type === 'OT') { statusHtml = `<span class="text-[9.5px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`; }
+            else if (ev.type === 'NIGHT_OT') { statusHtml = `<span class="text-[9.5px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`; }
             else if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
-              cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
               statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[9.5px] font-black text-purple-800 nowrap">🌙야특${th}h</span>` : `<span class="text-[9.5px] font-black text-red-600 nowrap">☀️주특${th}h</span>`;
-            } else if (ev.type === 'LEAVE') { cellStyle = 'cell-checked-leave'; statusHtml = `<span class="text-[9.5px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`; }
-            else if (ev.type === 'OFF') { cellStyle = 'bg-white'; statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`; }
+            } else if (ev.type === 'LEAVE') { statusHtml = `<span class="text-[9.5px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`; }
+            else if (ev.type === 'OFF') { statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`; }
 
             if (ev.d === 1) cellStyle += ' month-start-bar';
             const isToday = (ev.key === todayInfo.key); if (isToday) cellStyle += ' cell-today';
