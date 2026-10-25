@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v5.7</title>
+  <title>LGES 월급계산기 v5.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -26,17 +26,20 @@
     .badge-MID    { background-color: #f59e0b; color: #ffffff; }
     .badge-NIGHT  { background-color: #3b0764; color: #fde047; }
     .badge-OFF    { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-    /* 모든 날짜 칸 배경색을 순백색(#ffffff)으로 통일하여 메모 가독성 극대화 */
-    .cell-shift-EARLY, .cell-shift-MID, .cell-shift-NIGHT,
-    .cell-checked-ot, .cell-checked-night-ot, .cell-checked-hol-day, .cell-checked-hol-night, .cell-checked-leave {
-      background-color: #ffffff !important;
-    }
+    /* 기본 평일·휴일은 흰색 유지, 급여뷰에서 추가된 잔업·특근·휴가 칸만 배경색 강조 */
+    .cell-shift-EARLY, .cell-shift-MID, .cell-shift-NIGHT { background-color: #ffffff !important; }
+    .cell-checked-ot        { background-color: #dbeafe !important; }
+    .cell-checked-night-ot  { background-color: #ede9fe !important; }
+    .cell-checked-hol-day   { background-color: #fee2e2 !important; }
+    .cell-checked-hol-night { background-color: #f3e8ff !important; }
+    .cell-checked-leave     { background-color: #d1fae5 !important; }
     .month-start-bar { box-shadow: inset 0 2.5px 0 0 #334155; }
     .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 1.5px; border-radius: 3px; word-break: break-all; white-space: normal; text-align: left; box-sizing: border-box; }
-    .work-top-chip { width: 100%; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 2px; border-radius: 3px; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+    /* 메모뷰 상단 근무 표시: 배경색·테두리 없이 글자만 깔끔하게 표시 */
+    .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
     @keyframes slideLeftAnim { from { opacity: 0.55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes slideRightAnim { from { opacity: 0.55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
     .swipe-left-anim { animation: slideLeftAnim 0.18s ease-out; }
@@ -50,7 +53,7 @@
       <div class="flex items-center justify-between gap-2">
         <div class="min-w-0 flex items-center gap-1.5">
           <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded shrink-0">LGES</span>
-          <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘 10.25 (일)</span>
+          <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘 10.26 (월)</span>
           <span id="top_cloud_Dot" onclick="App.switchTab('settings')" class="hidden text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-900/90 text-sky-300 border border-sky-500/40 cursor-pointer shrink-0">☁️연동중</span>
         </div>
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
@@ -75,19 +78,16 @@
               <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
-            <div class="flex items-center gap-1 shrink-0">
+            <div class="flex items-center shrink-0">
               <div class="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
-                <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="px-2 py-1 rounded-lg text-[10px] font-black transition bg-slate-900 text-white shadow-sm">📝메모뷰</button>
-                <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500">💰급여뷰</button>
+                <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm">📝메모뷰</button>
+                <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500">💰급여뷰</button>
               </div>
-              <button onclick="App.cycleShiftPattern()" class="px-1.5 py-1 rounded-lg bg-slate-800 text-white font-black text-[10px] active:scale-95">
-                🔄<span id="current_shift_group_label" class="text-amber-300">초</span>
-              </button>
             </div>
           </div>
 
           <div id="calendar_subbar" class="px-2.5 h-6 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-2 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
-            <span id="subbar_left_text" class="truncate">📅 오늘은 2026년 10월 25일 (일) 입니다</span>
+            <span id="subbar_left_text" class="truncate">📅 오늘은 2026년 10월 26일 (월) 입니다</span>
             <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold shrink-0">↔ 좌우 밀어서 월 이동</span>
           </div>
 
@@ -398,7 +398,7 @@
               <span id="modal_current_work_badge" class="hidden text-[10px] font-black px-2 py-0.5 rounded bg-blue-100 text-blue-800">현재 설정됨</span>
               <span id="modal_holiday_badge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded bg-red-100 text-red-600">공휴일</span>
             </div>
-            <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1">10월 25일 (일)</h3>
+            <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1">10월 26일 (월)</h3>
           </div>
           <button onclick="App.closeDayModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none px-1">&times;</button>
         </div>
@@ -463,12 +463,7 @@
               <option value="NIGHT">야 (밤 22:00 - 06:00, 야8h)</option>
             </select>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<!-- 여기 바로 아래 줄에 [코드 2/2]를 이어서 붙여넣으세요 -->
-  <script>
+        </div><script>
     const KoreanHolidayEngine = {
       cache: {},
       LUNAR_TABLE: {
@@ -1048,7 +1043,7 @@
       },
 
       getExportPayload() {
-        return { version: '5.7', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
+        return { version: '5.8', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV54: this.seededHistoryV54, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
       },
 
       save(skipCloudAuto = false) {
@@ -1063,8 +1058,8 @@
 
       setCalendarView(view) {
         this.calendarView = view;
-        document.getElementById('view_btn_MEMO').className = view === 'MEMO' ? 'px-2 py-1 rounded-lg text-[10px] font-black transition bg-slate-900 text-white shadow-sm' : 'px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500';
-        document.getElementById('view_btn_PAY').className = view === 'PAY' ? 'px-2 py-1 rounded-lg text-[10px] font-black transition bg-blue-600 text-white shadow-sm' : 'px-2 py-1 rounded-lg text-[10px] font-bold transition text-slate-500';
+        document.getElementById('view_btn_MEMO').className = view === 'MEMO' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
+        document.getElementById('view_btn_PAY').className = view === 'PAY' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-blue-600 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
         this.render(false);
       },
 
@@ -1584,7 +1579,8 @@
         document.getElementById('set_oneday_vac_pay').innerText = `(연차 1일당 ${oneDayVacPay.toLocaleString()}원)`;
 
         const thisWeekShift = this.getDefaultShift(todayInfo.y, todayInfo.m, todayInfo.d);
-        document.getElementById('current_shift_group_label').innerText = `${this.SHIFT_CHAR[thisWeekShift]}`;
+        const shiftLbl = document.getElementById('current_shift_group_label');
+        if (shiftLbl) shiftLbl.innerText = `${this.SHIFT_CHAR[thisWeekShift]}`;
         ['EARLY', 'MID', 'NIGHT'].forEach(s => {
           const btn = document.getElementById(`btn_set_shift_${s}`);
           if (btn) btn.className = s === thisWeekShift ? 'py-2.5 rounded-xl border-2 border-slate-900 bg-slate-900 text-white font-black shadow-sm nowrap' : 'py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold nowrap';
@@ -1717,15 +1713,16 @@
             const headerHtml = this.buildCellHeaderHtml(dateLabel, dc, isToday, ev.badgeKey);
             const holSubHtml = ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>` : '';
 
+            // 메모뷰에서는 특근·잔업·휴가 표시에 배경색을 넣지 않고 글자만 선명하게 표시
             const chips = [];
             if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
               chips.push(ev.holKind === 'NIGHT'
-                ? `<div class="work-top-chip text-purple-900" style="background-color:#e9d5ff; border:1px solid #9333ea;">🌙야특${th}h</div>`
-                : `<div class="work-top-chip text-red-700" style="background-color:#fecaca; border:1px solid #dc2626;">☀️주특${th}h</div>`);
-            } else if (ev.type === 'OT') chips.push(`<div class="work-top-chip text-blue-800" style="background-color:#bfdbfe; border:1px solid #2563eb;">⚡+${ev.otHours}h잔업</div>`);
-            else if (ev.type === 'NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-900" style="background-color:#ddd6fe; border:1px solid #7c3aed;">🦉+${ev.otHours}h야잔</div>`);
-            else if (ev.type === 'LEAVE') chips.push(`<div class="work-top-chip text-emerald-900" style="background-color:#a7f3d0; border:1px solid #059669;">🌴휴가-${ev.vacDays}일</div>`);
+                ? `<div class="work-top-chip text-purple-800">🌙야특${th}h</div>`
+                : `<div class="work-top-chip text-red-600">☀️주특${th}h</div>`);
+            } else if (ev.type === 'OT') chips.push(`<div class="work-top-chip text-blue-700">⚡+${ev.otHours}h잔업</div>`);
+            else if (ev.type === 'NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
+            else if (ev.type === 'LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">🌴휴가-${ev.vacDays}일</div>`);
 
             if (ev.memo) {
               ev.memo.split('\n').map(l => l.trim()).filter(Boolean).forEach((line, idx) => {
@@ -1741,6 +1738,7 @@
             grid.appendChild(div);
           });
         } else {
+          // 급여뷰에서는 기본(고정8h/휴일)은 흰색, 잔업·특근·휴가 추가된 날은 칸 배경색 강조
           const firstDow = calc.evaluated[0].dow, totalCells = firstDow + calc.evaluated.length;
           const CELL_H = (Math.ceil(totalCells / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
 
@@ -1752,13 +1750,23 @@
           calc.evaluated.forEach(ev => {
             let cellStyle = 'bg-white';
             let statusHtml = `<span class="text-[9px] text-slate-500 font-semibold nowrap">고정8h</span>`;
-            if (ev.type === 'OT') { statusHtml = `<span class="text-[9.5px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`; }
-            else if (ev.type === 'NIGHT_OT') { statusHtml = `<span class="text-[9.5px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`; }
-            else if (ev.type === 'HOLIDAY') {
+            if (ev.type === 'OT') {
+              cellStyle = 'cell-checked-ot';
+              statusHtml = `<span class="text-[9.5px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`;
+            } else if (ev.type === 'NIGHT_OT') {
+              cellStyle = 'cell-checked-night-ot';
+              statusHtml = `<span class="text-[9.5px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`;
+            } else if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
+              cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
               statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[9.5px] font-black text-purple-800 nowrap">🌙야특${th}h</span>` : `<span class="text-[9.5px] font-black text-red-600 nowrap">☀️주특${th}h</span>`;
-            } else if (ev.type === 'LEAVE') { statusHtml = `<span class="text-[9.5px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`; }
-            else if (ev.type === 'OFF') { statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`; }
+            } else if (ev.type === 'LEAVE') {
+              cellStyle = 'cell-checked-leave';
+              statusHtml = `<span class="text-[9.5px] font-black text-emerald-800 nowrap">🌴-${ev.vacDays}일</span>`;
+            } else if (ev.type === 'OFF') {
+              cellStyle = 'bg-white';
+              statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`;
+            }
 
             if (ev.d === 1) cellStyle += ' month-start-bar';
             const isToday = (ev.key === todayInfo.key); if (isToday) cellStyle += ' cell-today';
@@ -1835,3 +1843,8 @@
   </script>
 </body>
 </html>
+      </div>
+    </div>
+  </div>
+<!-- 여기 바로 아래 줄에 [코드 2/2]를 이어서 붙여넣으세요 -->
+  
