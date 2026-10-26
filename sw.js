@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lges-pay-calc-v6.7';
+const CACHE_NAME = 'lges-pay-calc-v6.8';
 
 self.addEventListener('install', event => {
   self.skipWaiting();
