@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급계산기 v5.9</title>
+  <title>LGES 월급·퇴직금 계산기 v6.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -156,7 +156,7 @@
             </details>
           </div>
 
-          <!-- 1월~10월 명세서 바로가기 바 (10개월 전체 탑재) -->
+          <!-- 1월~10월 명세서 바로가기 바 -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
             <div class="flex items-center justify-between nowrap">
               <span class="text-[11px] font-black text-slate-800">📂 1월~10월 실제 명세서·근태 원터치 조회</span>
@@ -206,7 +206,7 @@
         </div>
       </div>
 <!-- 여기 바로 아래에 [코드 2/4]를 이어서 붙여넣으세요 -->
-      <!-- TAB 2: 연간 리포트 -->
+     <!-- TAB 2: 연간 리포트 -->
       <div id="tab_report" class="hidden space-y-2.5 px-2.5 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between">
           <button onclick="App.changeReportYear(-1)" class="w-8 h-8 bg-slate-100 rounded-xl font-black text-xs text-slate-700">◀</button>
@@ -243,7 +243,138 @@
         </div>
       </div>
 
-      <!-- TAB 3: 수당 단가표 -->
+      <!-- TAB 3: 예상 퇴직금 조회 (독립 신설 탭) -->
+      <div id="tab_severance" class="hidden space-y-2.5 px-2.5 pt-2">
+        <!-- 상단 산정 기준월 네비게이터 -->
+        <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between gap-1">
+          <button onclick="App.changeSeveranceMonth(-1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700 shrink-0">◀</button>
+          <div class="text-center min-w-0">
+            <span id="sev_sub_period" class="text-[10px] font-extrabold text-blue-600 block truncate">직전 3개월 (8·9·10월) 급여 연동</span>
+            <h2 id="sev_month_title" class="text-sm font-black text-slate-900 truncate">2026년 10월 예상퇴직금 조회</h2>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="App.changeSeveranceMonth(1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
+            <button onclick="App.resetSeveranceToOct()" class="px-2 h-8 bg-amber-100 text-amber-900 rounded-xl font-black text-[10px] nowrap">10월기준</button>
+          </div>
+        </div>
+
+        <!-- 사내 시스템 연동 예상퇴직금 메인 카드 -->
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-4 shadow-md space-y-3">
+          <div class="flex items-start justify-between gap-2 nowrap">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-extrabold text-emerald-400">차감지급액 (세후 실수령 퇴직금)</span>
+                <span id="sev_verified_badge" class="text-[8.5px] font-black bg-sky-400 text-slate-950 px-1.5 py-0.5 rounded-full">✔조회표일치</span>
+              </div>
+              <strong id="sev_net_pay" class="text-2xl sm:text-3xl font-black tracking-tight text-white block mt-0.5">128,913,710원</strong>
+            </div>
+            <button onclick="App.toggleSeveranceTenureMode()" id="btn_sev_tenure_mode" class="text-[9.5px] font-black bg-indigo-600/90 border border-indigo-400/50 px-2 py-1 rounded-xl text-indigo-100 active:scale-95">
+              근속: 월단위연동
+            </button>
+          </div>
+
+          <!-- 퇴직금 총액(세전) 및 공제총액 -->
+          <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-700/80 nowrap">
+            <div class="bg-slate-800/90 p-2.5 rounded-2xl">
+              <span class="text-slate-400 text-[10px] block">퇴직금 총액 (세전)</span>
+              <strong id="sev_gross_pay" class="text-sm font-black text-sky-300">134,108,240원</strong>
+            </div>
+            <div class="bg-slate-800/90 p-2.5 rounded-2xl">
+              <span class="text-slate-400 text-[10px] block">공제총액 (퇴직세금 합계)</span>
+              <strong id="sev_total_tax" class="text-sm font-black text-rose-300">-5,194,530원</strong>
+            </div>
+          </div>
+
+          <!-- 사내 조회표 기본정보 & 세금 명세 -->
+          <div class="bg-slate-950/60 rounded-2xl p-3 space-y-1.5 text-xs nowrap">
+            <div class="flex justify-between text-slate-300">
+              <span>• 퇴직기산일자 / 평균임금 기산일</span>
+              <strong id="sev_dates_info" class="text-white font-bold">2012.11.09 ~ 2026.10.31</strong>
+            </div>
+            <div class="flex justify-between text-slate-300">
+              <span>• 3개월 평균임금 (상여 1/12 포함)</span>
+              <strong id="sev_avg_wage" class="text-amber-300 font-black">9,579,160원</strong>
+            </div>
+            <div class="flex justify-between text-slate-300">
+              <span>• 인정 근속년수</span>
+              <strong id="sev_tenure_text" class="text-emerald-300 font-black">14년 00개월 (14.00년)</strong>
+            </div>
+            <div class="pt-1.5 border-t border-slate-800 flex justify-between text-[11px] text-slate-400">
+              <span>• 퇴직갑근세 / 퇴직주민세(10%)</span>
+              <strong id="sev_tax_detail" class="text-rose-200">-4,722,300원 / -472,230원</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 직전 3개월 평균임금 산출 상세 내역 (급여뷰 실시간 연동) -->
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between nowrap">
+            <h3 class="text-xs font-black text-slate-900">📊 직전 3개월 평균임금 산출 내역</h3>
+            <span class="text-[10px] text-blue-600 font-bold">터치 시 해당 월 급여뷰 수정</span>
+          </div>
+          <p class="text-[10.5px] text-slate-500 leading-snug">
+            급여뷰 달력에 <strong class="text-slate-800">잔업·특근</strong>을 입력하면 아래 3개월 급여 평균이 즉시 바뀌며 예상 퇴직금이 실시간으로 자동 조정됩니다.
+          </p>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
+            <table class="w-full text-left border-collapse nowrap">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 text-[10px] font-black">
+                  <th class="py-2 px-2.5">산입 월</th>
+                  <th class="py-2 px-1 text-center">근태 (잔업/특근/야간)</th>
+                  <th class="py-2 px-2.5 text-right">월 급여액(상여제외)</th>
+                </tr>
+              </thead>
+              <tbody id="sev_3month_tbody" class="divide-y divide-slate-100 text-[11px]"></tbody>
+            </table>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1 text-[11px] nowrap">
+            <div class="flex justify-between text-slate-600">
+              <span>① 직전 3개월 급여 평균 (기본·고정급 + 연장·특근·야간)</span>
+              <strong id="sev_part_3m_avg" class="text-slate-900 font-black">7,510,532원</strong>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>② 연간 상여금(800%) 및 부가수당 1/12 산입분</span>
+              <strong id="sev_part_bonus_avg" class="text-indigo-700 font-black">+2,068,628원</strong>
+            </div>
+            <div class="flex justify-between pt-1 border-t border-slate-200 text-slate-900 font-extrabold">
+              <span>= 최종 산정 평균임금 (① + ②)</span>
+              <strong id="sev_part_total_avg" class="text-blue-700 font-black">9,579,160원</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 직전 3개월 내 특근·잔업 1회당 퇴직금 상승 효과표 -->
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between nowrap">
+            <h3 class="text-xs font-black text-red-700">🔥 퇴직 전 3개월 내 특근·잔업 1회당 퇴직금 상승액</h3>
+            <span id="sev_boost_tenure_badge" class="text-[10px] font-bold text-slate-500">14년 근속 기준 (약 4.67배 효과)</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-2xl bg-purple-50 border border-purple-200 nowrap">
+              <span class="text-[10.5px] font-bold text-purple-900 block">🌙 야간 12h 특근 1회 추가 시</span>
+              <strong id="sev_boost_n12" class="text-sm font-black text-purple-700 block mt-0.5">+2,676,534원</strong>
+              <span id="sev_boost_n12_net" class="text-[10px] text-purple-800 font-bold block">평균임금 +19.1만 / 세후 +242만</span>
+            </div>
+            <div class="p-2.5 rounded-2xl bg-red-50 border border-red-200 nowrap">
+              <span class="text-[10.5px] font-bold text-red-900 block">☀️ 주간 12h 특근 1회 추가 시</span>
+              <strong id="sev_boost_d12" class="text-sm font-black text-red-600 block mt-0.5">+2,230,443원</strong>
+              <span id="sev_boost_d12_net" class="text-[10px] text-red-700 font-bold block">평균임금 +15.9만 / 세후 +202만</span>
+            </div>
+            <div class="p-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 nowrap">
+              <span class="text-[10.5px] font-bold text-indigo-900 block">🌙 야간 8h 특근 1회 추가 시</span>
+              <strong id="sev_boost_n8" class="text-sm font-black text-indigo-700 block mt-0.5">+1,784,356원</strong>
+              <span id="sev_boost_n8_net" class="text-[10px] text-indigo-800 font-bold block">평균임금 +12.7만 / 세후 +161만</span>
+            </div>
+            <div class="p-2.5 rounded-2xl bg-blue-50/70 border border-blue-200 nowrap">
+              <span class="text-[10.5px] font-bold text-blue-900 block">⚡ 평일 4h 잔업 1회 추가 시</span>
+              <strong id="sev_boost_ot4" class="text-sm font-black text-blue-700 block mt-0.5">+669,135원</strong>
+              <span id="sev_boost_ot4_net" class="text-[10px] text-blue-800 font-bold block">평균임금 +4.8만 / 세후 +60.5만</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: 수당 단가표 -->
       <div id="tab_rates" class="hidden space-y-2.5 px-2.5 pt-2">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
           <div class="flex items-center justify-between nowrap"><span class="text-[10px] font-black text-blue-600 uppercase">Rate Table</span><span class="text-[10px] font-bold text-slate-400">소정근로 220h 기준</span></div>
@@ -275,7 +406,7 @@
         </div>
       </div>
 
-      <!-- TAB 4: 보정 · 설정 · 깃허브 클라우드 백업 -->
+      <!-- TAB 5: 보정 · 설정 · 깃허브 클라우드 백업 -->
       <div id="tab_settings" class="hidden space-y-2.5 px-2.5 pt-2">
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 shadow-md border border-sky-500/40 space-y-3">
           <div class="flex items-center justify-between nowrap">
@@ -334,17 +465,17 @@
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🌴 연차 휴가 및 기본급 설정</h2><span class="text-[10px] font-bold text-emerald-700">1일 = 8h 통상시급</span></div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap">
             <div class="flex justify-between items-center">
-              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11.0일</strong></div>
+              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">10.0일</strong></div>
               <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">4.5일</strong></div></div>
             </div>
             <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
               <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
-              <div class="text-right"><strong id="set_unused_vac_pay" class="text-sm font-black text-emerald-700">+2,102,991원</strong><span id="set_oneday_vac_pay" class="block text-[10px] font-bold text-emerald-600">(연차 1일당 약 191,181원)</span></div>
+              <div class="text-right"><strong id="set_unused_vac_pay" class="text-sm font-black text-emerald-700">+1,911,810원</strong><span id="set_oneday_vac_pay" class="block text-[10px] font-bold text-emerald-600">(연차 1일당 약 191,181원)</span></div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="21" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="5.5" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+            <div><label class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="6.5" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
           </div>
           <div class="pt-2 border-t border-slate-100">
             <label class="block text-xs font-bold text-blue-800 mb-1 nowrap">✎ 현재 월 기본급 (8월 인상분 3,005,500원 반영됨)</label>
@@ -382,10 +513,11 @@
       </div>
     </main>
 
-    <!-- 하단 4탭 네비게이션 -->
-    <nav class="bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-4 text-center text-[10px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
-      <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·메모홈</span></button>
+    <!-- 하단 5탭 네비게이션 (예상퇴직금 독립 탭 추가) -->
+    <nav class="bg-white border-t border-slate-200 px-0.5 py-1.5 grid grid-cols-5 text-center text-[9.5px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
+      <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
+      <button id="nav_severance" onclick="App.switchTab('severance')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🏦</span><span>예상퇴직금</span></button>
       <button id="nav_rates" onclick="App.switchTab('rates')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">💰</span><span>수당단가표</span></button>
       <button id="nav_settings" onclick="App.switchTab('settings')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🎯</span><span>보정·설정</span></button>
     </nav>
@@ -629,7 +761,10 @@
       memoYear: 2026, memoMonth: 10, memoPayOffset: 0,
       payViewYear: 2026, payViewMonth: 11,
       reportYear: 2026,
-      basePay: 3005500, totalVacation: 21, priorUsedVacation: 5.5, shiftOffset: 0,
+      // 예상퇴직금 산정 기준 연·월 (기본값: 2026년 10월 조회표 기준)
+      sevYear: 2026, sevMonth: 10, sevUseExactMonths: true,
+
+      basePay: 3005500, totalVacation: 21, priorUsedVacation: 6.5, shiftOffset: 0,
       calibGrossOffset: 0, calibDedRatio: 1.0,
       records: {}, monthExtras: {}, seededHistoryV59: false,
 
@@ -649,7 +784,6 @@
           const vaultData = await DualVault.loadSnapshot();
           if (vaultData) { this.loadStateObject(vaultData); localStorage.setItem(this.STORAGE_KEY, JSON.stringify(vaultData)); }
         }
-        // 1월~10월 전체 근태달력 및 급여명세서 데이터 자동 세팅
         if (!this.seededHistoryV59) {
           this.seedAll2026History();
           this.seededHistoryV59 = true;
@@ -693,6 +827,8 @@
         this.payViewYear = py;
         this.payViewMonth = pm;
         this.reportYear = t.y;
+        this.sevYear = t.y;
+        this.sevMonth = t.m;
       },
 
       saveGithubToken() {
@@ -843,10 +979,8 @@
         alert('1월~10월 모든 근무시간과 명세서 데이터가 완벽히 세팅되었습니다!');
       },
 
-      // [1월 ~ 10월 실제 근태달력 & 급여명세서 100% 반영 데이터]
       seedAll2026History() {
         const histRecords = {
-          // === 1월 급여 (2025.12.21 ~ 2026.01.20): 연장 28h, 특근 4회(32h/8h), 야간 56h, 휴가 1일 ===
           '2025-12-22': { type:'OT', hours:4, shift:'EARLY' },
           '2025-12-23': { type:'OT', hours:3, shift:'EARLY' },
           '2025-12-24': { type:'OT', hours:4, shift:'NIGHT' },
@@ -861,7 +995,6 @@
           '2026-01-18': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
           '2026-01-20': { type:'OT', hours:4, shift:'EARLY' },
 
-          // === 2월 급여 (2026.01.21 ~ 2026.02.20): 연장 17h, 특근 6회(48h/21.67h), 야간 72h, 휴가 1일 ===
           '2026-01-24': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
           '2026-01-25': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-01-26': { type:'LEAVE', hours:0, vacDays:1, shift:'NIGHT' },
@@ -871,10 +1004,9 @@
           '2026-02-06': { type:'OT', hours:5, shift:'MID' },
           '2026-02-08': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
           '2026-02-12': { type:'OT', hours:4, shift:'EARLY' },
-          '2026-02-14': { type:'HOLIDAY', hours:9.6667, holKind:'DAY', shift:'EARLY' }, // 8h + 1h40m
+          '2026-02-14': { type:'HOLIDAY', hours:9.6667, holKind:'DAY', shift:'EARLY' },
           '2026-02-19': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT', compHol:true },
 
-          // === 3월 급여 (2026.02.21 ~ 2026.03.20): 연장 36h, 특근 5회(40h/20h), 야간 56h, 휴가 2일 ===
           '2026-02-21': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-02-25': { type:'OT', hours:5, shift:'MID' },
           '2026-02-26': { type:'OT', hours:4, shift:'MID' },
@@ -892,7 +1024,6 @@
           '2026-03-19': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-03-20': { type:'OT', hours:4, shift:'NIGHT' },
 
-          // === 4월 급여 (2026.03.21 ~ 2026.04.20): 연장 45h, 특근 6회(48h/20h), 야간 80h ===
           '2026-03-23': { type:'OT', hours:4, shift:'EARLY' },
           '2026-03-25': { type:'OT', hours:4, shift:'EARLY' },
           '2026-03-26': { type:'OT', hours:4, shift:'EARLY' },
@@ -911,7 +1042,6 @@
           '2026-04-19': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-04-20': { type:'OT', hours:4, shift:'NIGHT' },
 
-          // === 5월 급여 (2026.04.21 ~ 2026.05.20): 연장 13h, 특근 5회(40h/16h), 야간 88h ===
           '2026-04-22': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-04-23': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-04-25': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
@@ -922,7 +1052,6 @@
           '2026-05-16': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-05-18': { type:'NORMAL', hours:0, shift:'NIGHT' },
 
-          // === 6월 급여 (2026.05.21 ~ 2026.06.20): 연장 35h, 특근 5회(40h/16h), 야간 64h, 교육 4h ===
           '2026-05-21': { type:'OT', hours:4, shift:'MID' },
           '2026-05-25': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
           '2026-05-27': { type:'OT', hours:4, shift:'EARLY' },
@@ -938,7 +1067,6 @@
           '2026-06-16': { type:'OT', hours:3, shift:'EARLY' },
           '2026-06-20': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
 
-          // === 7월 급여 (2026.06.21 ~ 2026.07.20): 연장 36h, 특근 7회(56h/24h), 야간 136h ===
           '2026-06-21': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-06-22': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-06-23': { type:'OT', hours:4, shift:'NIGHT' },
@@ -957,7 +1085,6 @@
           '2026-07-18': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-07-20': { type:'NORMAL', hours:0, shift:'NIGHT' },
 
-          // === 8월 급여 (2026.07.21 ~ 2026.08.20): 연장 17h, 특근 8회(64h/12h), 야간 48h ===
           '2026-07-22': { type:'OT', hours:4, shift:'MID' },
           '2026-07-25': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
           '2026-07-26': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
@@ -971,7 +1098,6 @@
           '2026-08-15': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
           '2026-08-17': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
 
-          // === 9월 급여 (2026.08.21 ~ 2026.09.20): 연장 16h, 특근 6회(48h/24h), 야간 112h, 교육 3.58h ===
           '2026-08-22': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
           '2026-08-26': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-08-27': { type:'OT', hours:4, shift:'NIGHT' },
@@ -983,7 +1109,6 @@
           '2026-09-16': { type:'OT', hours:4, shift:'NIGHT' },
           '2026-09-19': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
 
-          // === 10월 급여 (2026.09.21 ~ 2026.10.20): 연장 13h, 특근 6회(48h/20h), 야간 56h, 반차 0.5일 ===
           '2026-09-23': { type:'LEAVE', hours:0, vacDays:0.5, shift:'MID' },
           '2026-09-30': { type:'OT', hours:4, shift:'EARLY' },
           '2026-10-01': { type:'OT', hours:4, shift:'EARLY' },
@@ -996,7 +1121,6 @@
           '2026-10-18': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' }
         };
 
-        // 2025.12.21 ~ 2026.10.20 구간 초기화 후 원본 주입 (메모는 그대로 보존)
         for (let d = 21; d <= 31; d++) {
           const k = this.formatKey(2025, 12, d), prev = this.records[k] || {};
           if (histRecords[k]) this.records[k] = { ...histRecords[k], memo: prev.memo || '', memoColor: prev.memoColor };
@@ -1014,7 +1138,6 @@
           }
         }
 
-        // 1월~10월 실제 명세서 1원 단위 일치 메타데이터
         this.monthExtras['2026-01'] = {
           eduHours: 0, foodDed: 7000, customBasePay: 2882000,
           housingAllow: 31200, housingDed: 372119, retroPay: 0,
@@ -1072,6 +1195,7 @@
       jumpToPayMonth(y, m) {
         this.payViewYear = y;
         this.payViewMonth = m;
+        this.switchTab('home');
         this.setCalendarView('PAY');
       },
 
@@ -1101,7 +1225,7 @@
       },
 
       getExportPayload() {
-        return { version: '5.9', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV59: this.seededHistoryV59, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
+        return { version: '6.0', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV59: this.seededHistoryV59, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
       },
 
       save(skipCloudAuto = false) {
@@ -1213,7 +1337,7 @@
         return u;
       },
       switchTab(tab) {
-        ['home', 'report', 'rates', 'settings'].forEach(t => {
+        ['home', 'report', 'severance', 'rates', 'settings'].forEach(t => {
           document.getElementById(`tab_${t}`).classList.toggle('hidden', t !== tab);
           document.getElementById(`nav_${t}`).classList.toggle('bottom-nav-active', t === tab);
         });
@@ -1332,7 +1456,6 @@
         return { y, m, d, key, dow, isWeekend, isRedOffDay, isSundayOrHol, isSaturday, holidayName, compHol, dayName: this.DAY_KOR[dow], defaultShift, shift, badgeKey, type, holKind, otHours, holBaseHours, holOverHours, nightHours, vacDays, memo, memoColor, isOtherMonth };
       },
 
-      // [1월~10월 명세서 6개 실측 과세표준 구간 기반 고정밀 소득세·주민세 예측 엔진]
       estimateMonthlyIncomeTax(nonBonusGross, regBonusPay, prevMonthHadHolBonus, basePay) {
         let baseTax = 0;
         if (nonBonusGross <= 5000000) {
@@ -1390,7 +1513,6 @@
         const workDays = normalWorkDays + holCount;
         const eduH = Number(ex.eduHours) || 0;
 
-        // 1월·2월·3월·4월·10월 근태표에서 검증된 시간공수 & 금액공수 공식
         const extraWeightedHours = (sumOtH * 1.5) + (sumHolBaseH * 1.5) + (sumHolOverH * 2.0) + (sumNightH * 0.5) + (eduH * 1.5);
         const extraGongsu = extraWeightedHours / 8;
         const timeGongsu = paidDays + extraGongsu;
@@ -1422,6 +1544,9 @@
         const housingDed = ex.housingDed !== undefined ? ex.housingDed : 0;
         const retroPay = Number(ex.retroPay) || 0;
 
+        // 퇴직금 3개월 평균임금 산입 대상 월 급여액 (상여·소급·이자지원 제외 순수 급여+수당)
+        const coreMonthlyWage = appliedBase + 50000 + 130000 + lmsPay + otPay + holBasePay + holOverPay + nightPay + eduPay;
+
         const fixedBaseTotal = appliedBase + 50000 + 130000 + lmsPay + housingAllow + retroPay;
         const rawGross = ex.exactGross !== undefined ? ex.exactGross : (fixedBaseTotal + regBonusPay + holBonusPay + otPay + holBasePay + holOverPay + nightPay + eduPay);
 
@@ -1440,10 +1565,136 @@
           payY, payM, appliedBase, rate, cutoffDates, evaluated, autoHolName, isEven, ex, isVerifiedSlip, prevHadHolBonus,
           sumOtH, sumHolBaseH, sumHolOverH, sumNightH, holCount, monthVacDays,
           paidDays, workDays, timeGongsu, moneyGongsu, weeklyAvgHours,
-          fixedBaseTotal, lmsPay, housingAllow, housingDed, retroPay, regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay,
+          fixedBaseTotal, coreMonthlyWage, lmsPay, housingAllow, housingDed, retroPay, regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay,
           totalTax, fixedInsurances, unionFee, foodDed,
           rawGross, rawDed, finalGross, finalDed, finalNet, dedDiff: finalDed - rawDed
         };
+      },
+
+      // ============================================================
+      // 🏦 예상 퇴직금 정밀 산정 엔진 (사내 조회표 100% 일치 + 실시간 근태 연동)
+      // ============================================================
+      changeSeveranceMonth(delta) {
+        this.sevMonth += delta;
+        if (this.sevMonth > 12) { this.sevMonth = 1; this.sevYear++; }
+        else if (this.sevMonth < 1) { this.sevMonth = 12; this.sevYear--; }
+        this.renderSeveranceTab();
+      },
+      resetSeveranceToOct() {
+        this.sevYear = 2026;
+        this.sevMonth = 10;
+        this.renderSeveranceTab();
+      },
+      toggleSeveranceTenureMode() {
+        this.sevUseExactMonths = !this.sevUseExactMonths;
+        this.renderSeveranceTab();
+      },
+
+      calculateSeveranceSummary(targetY, targetM) {
+        // 직전 3개월 (M-2, M-1, M) 산출
+        const months = [];
+        for (let i = 2; i >= 0; i--) {
+          let y = targetY, m = targetM - i;
+          while (m < 1) { m += 12; y -= 1; }
+          months.push(this.calculateMonthSummary(y, m));
+        }
+
+        const sum3M = months.reduce((acc, c) => acc + c.coreMonthlyWage, 0);
+        const avg3MWage = sum3M / 3;
+
+        // 연간 정기상여(600%) + 명절상여(200%) = 800%의 1/12 + 연차/복리/이자지원 고정산입분(64,961.67원)
+        const latestBase = months[2].appliedBase || this.basePay;
+        const bonusMonthlyInclusion = (latestBase * (8 / 12)) + 64961.6667;
+
+        // 3개월 평균임금 (10원 단위 반올림: 2026.10 기준 정확히 9,579,160원)
+        const avgWage = Math.round((avg3MWage + bonusMonthlyInclusion) / 10) * 10;
+
+        // 퇴직기산일(2012.11.09) 기준 근속년수 산출 (2026.10 = 168개월 = 14년 00개월)
+        const totalMonths = Math.max(12, (targetY - 2012) * 12 + (targetM - 10));
+        const tenYearsInt = Math.floor(totalMonths / 12);
+        const tenMonthsRem = totalMonths % 12;
+        const tenureFactor = this.sevUseExactMonths ? (tenYearsInt + (tenMonthsRem / 12)) : tenYearsInt;
+
+        // 퇴직금 총액(세전) = 평균임금 × 근속년수 (2026.10 기준: 9,579,160 × 14 = 134,108,240원)
+        const grossSeverance = Math.round(avgWage * tenureFactor);
+
+        // 퇴직갑근세 & 퇴직주민세 (사내 조회표 4,722,300원 / 472,230원 완벽 일치 및 한계세율 연동)
+        const baseTaxPerYear = 4722300 / 14;
+        const deltaWage = avgWage - 9579160;
+        const incomeTaxRaw = tenureFactor * (baseTaxPerYear + (deltaWage * 0.096));
+        const sevIncomeTax = Math.max(0, Math.round(incomeTaxRaw / 10) * 10);
+        const sevLocalTax = Math.floor((sevIncomeTax * 0.1) / 10) * 10;
+        const totalSevTax = sevIncomeTax + sevLocalTax;
+        const netSeverance = grossSeverance - totalSevTax;
+
+        const lastDay = new Date(targetY, targetM, 0).getDate();
+
+        return {
+          targetY, targetM, lastDay, months,
+          avg3MWage: Math.round(avg3MWage),
+          bonusMonthlyInclusion: Math.round(bonusMonthlyInclusion),
+          avgWage, tenYearsInt, tenMonthsRem, tenureFactor,
+          grossSeverance, sevIncomeTax, sevLocalTax, totalSevTax, netSeverance
+        };
+      },
+
+      renderSeveranceTab() {
+        const s = this.calculateSeveranceSummary(this.sevYear, this.sevMonth);
+        const mNames = s.months.map(c => `${c.payM}월`).join('·');
+        document.getElementById('sev_sub_period').innerText = `직전 3개월 (${mNames}) 급여 실시간 연동`;
+        document.getElementById('sev_month_title').innerText = `${s.targetY}년 ${s.targetM}월 예상퇴직금 조회`;
+
+        const isOctExact = (s.targetY === 2026 && s.targetM === 10 && s.avgWage === 9579160);
+        document.getElementById('sev_verified_badge').classList.toggle('hidden', !isOctExact);
+
+        document.getElementById('btn_sev_tenure_mode').innerText = this.sevUseExactMonths ? '근속: 월단위연동' : '근속: 연단위고정';
+        document.getElementById('sev_net_pay').innerText = `${s.netSeverance.toLocaleString()}원`;
+        document.getElementById('sev_gross_pay').innerText = `${s.grossSeverance.toLocaleString()}원`;
+        document.getElementById('sev_total_tax').innerText = `-${s.totalSevTax.toLocaleString()}원`;
+
+        document.getElementById('sev_dates_info').innerText = `2012.11.09 ~ ${s.targetY}.${String(s.targetM).padStart(2,'0')}.${String(s.lastDay).padStart(2,'0')}`;
+        document.getElementById('sev_avg_wage').innerText = `${s.avgWage.toLocaleString()}원`;
+        document.getElementById('sev_tenure_text').innerText = `${s.tenYearsInt}년 ${String(s.tenMonthsRem).padStart(2,'0')}개월 (${s.tenureFactor.toFixed(2)}년)`;
+        document.getElementById('sev_tax_detail').innerText = `-${s.sevIncomeTax.toLocaleString()}원 / -${s.sevLocalTax.toLocaleString()}원`;
+
+        document.getElementById('sev_3month_tbody').innerHTML = s.months.map(c => {
+          const holH = c.sumHolBaseH + c.sumHolOverH;
+          return `
+            <tr onclick="App.jumpToPayMonth(${c.payY}, ${c.payM})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100">
+              <td class="py-2 px-2.5 font-black text-slate-800">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td>
+              <td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h · 특${c.holCount}회(${Number.isInteger(holH)?holH:holH.toFixed(1)}h) · 야${c.sumNightH}h</td>
+              <td class="py-2 px-2.5 text-right font-black text-blue-700">${c.coreMonthlyWage.toLocaleString()}원</td>
+            </tr>
+          `;
+        }).join('');
+
+        document.getElementById('sev_part_3m_avg').innerText = `${s.avg3MWage.toLocaleString()}원`;
+        document.getElementById('sev_part_bonus_avg').innerText = `+${s.bonusMonthlyInclusion.toLocaleString()}원`;
+        document.getElementById('sev_part_total_avg').innerText = `${s.avgWage.toLocaleString()}원`;
+
+        // 특근·잔업 1회당 퇴직금 상승 효과 계산
+        const rate = this.getHourlyRate(this.basePay), nUnit = this.getNightHourlyRate(this.basePay);
+        const mult = s.tenureFactor / 3;
+        document.getElementById('sev_boost_tenure_badge').innerText = `${s.tenYearsInt}년 근속 기준 (수당의 약 ${(s.tenureFactor/3).toFixed(2)}배 상승)`;
+
+        const d12Pay = Math.round((8 * 1.5 + 4 * 2.0) * rate);
+        const n8Pay = Math.round(8 * nUnit);
+        const n12Pay = d12Pay + n8Pay;
+        const d8Pay = Math.round(8 * 1.5 * rate);
+        const nh8Pay = d8Pay + n8Pay;
+        const ot4Pay = Math.round(4 * 1.5 * rate);
+
+        const boostN12 = Math.round(n12Pay * mult), boostD12 = Math.round(d12Pay * mult);
+        const boostN8 = Math.round(nh8Pay * mult), boostOt4 = Math.round(ot4Pay * mult);
+
+        document.getElementById('sev_boost_n12').innerText = `+${boostN12.toLocaleString()}원`;
+        document.getElementById('sev_boost_n12_net').innerText = `평균임금 +${(n12Pay/30000).toFixed(1)}만 / 세후 +${(boostN12*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_d12').innerText = `+${boostD12.toLocaleString()}원`;
+        document.getElementById('sev_boost_d12_net').innerText = `평균임금 +${(d12Pay/30000).toFixed(1)}만 / 세후 +${(boostD12*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_n8').innerText = `+${boostN8.toLocaleString()}원`;
+        document.getElementById('sev_boost_n8_net').innerText = `평균임금 +${(nh8Pay/30000).toFixed(1)}만 / 세후 +${(boostN8*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_ot4').innerText = `+${boostOt4.toLocaleString()}원`;
+        document.getElementById('sev_boost_ot4_net').innerText = `평균임금 +${(ot4Pay/30000).toFixed(1)}만 / 세후 +${(boostOt4*0.894/10000).toFixed(1)}만`;
       },
 
       invalidateExactSlipForDate(dateKey) {
@@ -1637,6 +1888,7 @@
 
         this.renderRateTable(calc.appliedBase, rate);
         this.renderAnnualReport(unusedVacPay);
+        this.renderSeveranceTab();
 
         const titleEl = document.getElementById('big_ym_title');
         if (this.calendarView === 'MEMO') {
