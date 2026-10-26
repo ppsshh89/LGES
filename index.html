@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/jpeg" href="./icon.jpg">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon.jpg">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.9</title>
+  <title>LGES 월급·퇴직금 계산기 v7.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -39,7 +39,6 @@
     .tnum { font-variant-numeric: tabular-nums; }
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.2px, 1.95vw, 8.3px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
     .work-top-chip { width: 100%; font-size: clamp(7.3px, 2.0vw, 8.4px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.1; padding: 0.5px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
-    /* 3단 구역 명확한 구분선 스타일 */
     .section-divider { height: 6px; background: linear-gradient(180deg, #cbd5e1 0%, #e2e8f0 100%); border-top: 1.5px solid #94a3b8; border-bottom: 1.5px solid #94a3b8; width: 100%; }
     @keyframes slideLeftAnim { from { opacity: 0.55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes slideRightAnim { from { opacity: 0.55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
@@ -100,10 +99,7 @@
     <main class="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full">
       <!-- TAB 1: [① 달력] ➔ [② 뷰전환·1~12월 원터치] ➔ [③ 실수령액] 3단 밸런스 홈 -->
       <div id="tab_home" class="w-full">
-
-        <!-- ========================================== -->
-        <!-- [구역 ①] 상단 달력 영역                    -->
-        <!-- ========================================== -->
+        <!-- [구역 ①] 상단 달력 영역 -->
         <div id="calendar_swipe_zone" class="bg-white w-full overflow-hidden" style="touch-action: pan-y;">
           <div class="px-2.5 py-1 flex items-center justify-between gap-1 nowrap w-full box-border bg-white">
             <div class="flex items-center gap-1">
@@ -112,37 +108,28 @@
               <button onclick="App.changeMonth(1)" class="w-7 h-6 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-6 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-black text-[10px]">오늘</button>
             </div>
-            <span id="subbar_left_text" class="text-[10px] font-extrabold text-blue-700 truncate">📅 10월 스케줄</span>
+            <span id="subbar_left_text" class="text-[10px] font-extrabold text-blue-700 truncate">↔ 좌우 밀어서 월 이동</span>
           </div>
-
           <div class="grid grid-cols-7 text-center text-[9.5px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50 w-full">
             <div class="text-red-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-500">토</div>
           </div>
-
           <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px] w-full"></div>
         </div>
 
         <!-- ★ 1~2구역 구분선 ★ -->
         <div class="section-divider"></div>
 
-        <!-- ========================================== -->
         <!-- [구역 ②] 달력 바로 밑: 뷰 전환 + 1~12월 일정 원터치 조회 -->
-        <!-- ========================================== -->
-        <div class="bg-white px-2.5 py-2 w-full box-border space-y-1.5">
-          <!-- 엄지손가락 범위 내 큼직한 메모뷰 / 급여뷰 스위치 -->
-          <div class="flex items-center justify-between gap-2">
-            <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-300 w-full">
-              <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="py-1.5 rounded-lg text-xs font-black transition bg-slate-900 text-white shadow-sm flex items-center justify-center gap-1">
-                <span>📝 메모뷰 (일정)</span>
-              </button>
-              <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="py-1.5 rounded-lg text-xs font-bold transition text-slate-600 flex items-center justify-center gap-1">
-                <span>💰 급여뷰 (21~20일)</span>
-              </button>
-            </div>
+        <div class="bg-white px-2.5 py-1.5 w-full box-border space-y-1.5">
+          <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-300 w-full">
+            <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="py-1.5 rounded-lg text-xs font-black transition bg-slate-900 text-white shadow-sm flex items-center justify-center gap-1">
+              <span>📝 메모뷰 (일정)</span>
+            </button>
+            <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="py-1.5 rounded-lg text-xs font-bold transition text-slate-600 flex items-center justify-center gap-1">
+              <span>💰 급여뷰 (21~20일)</span>
+            </button>
           </div>
-
-          <!-- 1월~12월 일정 원터치 조회 (터치 시 해당 월 메모뷰로 즉시 이동) -->
-          <div class="pt-0.5">
+          <div>
             <div class="flex items-center justify-between mb-1 px-0.5 nowrap">
               <span id="quick_month_bar_title" class="text-[10.5px] font-black text-slate-800">🗓️ 2026년 1월~12월 일정 원터치 조회</span>
               <span class="text-[9px] text-blue-600 font-extrabold">터치 시 메모뷰 이동</span>
@@ -154,13 +141,10 @@
         <!-- ★ 2~3구역 구분선 ★ -->
         <div class="section-divider"></div>
 
-        <!-- ========================================== -->
-        <!-- [구역 ③] 하단 실수령액 및 상세 급여 카드   -->
-        <!-- ========================================== -->
+        <!-- [구역 ③] 하단 실수령액 및 상세 급여 카드 -->
         <div class="px-2 pt-1.5 pb-2 space-y-2 w-full box-border">
           <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2 shadow-md w-full box-border overflow-hidden border border-slate-700">
-            <!-- 상단 당월/익월 급여 선택 바 -->
-            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1 w-full">
+            <div class="flex items-center justify-between pb-1.5 mb-1 border-b border-slate-700/80 gap-1 w-full">
               <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 min-w-0">
                 <button id="pay_target_curr" onclick="App.onPayTabClick(0)" class="px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate">당월 급여</button>
                 <button id="pay_target_next" onclick="App.onPayTabClick(1)" class="px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate">익월 급여</button>
@@ -168,7 +152,6 @@
               <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[9.5px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-0.5 rounded-lg font-extrabold nowrap">↺ 초기화</button>
             </div>
 
-            <!-- 첫 화면 하단에 딱 맞춰 보이는 핵심 실수령액 라인 -->
             <div class="flex items-center justify-between gap-2 w-full py-0.5">
               <div class="min-w-0 flex-1">
                 <span id="hero_pay_month_label" class="text-xs font-extrabold text-emerald-400 block truncate">예상 실수령액</span>
@@ -182,7 +165,6 @@
               <div id="hero_net_pay" class="text-2xl font-black tracking-tight text-white shrink-0 nowrap tnum">0원</div>
             </div>
 
-            <!-- 아래로 살짝 스크롤하면 나오는 세전/공제/공수 상세 -->
             <div class="mt-2 pt-2 border-t border-slate-700/70 grid grid-cols-2 gap-1.5 text-xs w-full">
               <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1 nowrap">
                 <span class="text-slate-400 text-[10px] font-semibold shrink-0">세전총액</span>
@@ -245,7 +227,7 @@
           </div>
         </div>
       </div>
-<!-- 여기 바로 아래에 [코드 2/4]를 이어서 붙여넣으세요 -->
+
       <!-- TAB 2: 연간 리포트 -->
       <div id="tab_report" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between">
@@ -315,7 +297,6 @@
             <button onclick="App.resetSeveranceToOct()" class="px-2 h-8 bg-amber-100 text-amber-900 rounded-xl font-black text-[10px] nowrap">10월기준</button>
           </div>
         </div>
-
         <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-3.5 shadow-md space-y-3">
           <div class="flex items-start justify-between gap-2 nowrap">
             <div class="min-w-0">
@@ -325,11 +306,8 @@
               </div>
               <strong id="sev_net_pay" class="text-2xl sm:text-3xl font-black tracking-tight text-white block mt-0.5 tnum">0원</strong>
             </div>
-            <button onclick="App.toggleSeveranceTenureMode()" id="btn_sev_tenure_mode" class="shrink-0 text-[9.5px] font-black bg-indigo-600/90 border border-indigo-400/50 px-2 py-1 rounded-xl text-indigo-100 active:scale-95">
-              근속: 월단위연동
-            </button>
+            <button onclick="App.toggleSeveranceTenureMode()" id="btn_sev_tenure_mode" class="shrink-0 text-[9.5px] font-black bg-indigo-600/90 border border-indigo-400/50 px-2 py-1 rounded-xl text-indigo-100 active:scale-95">근속: 월단위연동</button>
           </div>
-
           <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-700/80 nowrap">
             <div class="bg-slate-800/90 p-2.5 rounded-2xl min-w-0">
               <span class="text-slate-400 text-[10px] block">퇴직금 총액 (세전)</span>
@@ -340,89 +318,35 @@
               <strong id="sev_total_tax" class="text-[13px] font-black text-rose-300 tnum block truncate">-0원</strong>
             </div>
           </div>
-
           <div class="bg-slate-950/60 rounded-2xl p-2.5 space-y-1.5 text-[11px] nowrap">
-            <div class="flex justify-between gap-2 text-slate-300">
-              <span class="truncate">• 퇴직기산일 / 평균임금 기산일</span>
-              <strong id="sev_dates_info" class="text-white font-bold shrink-0 tnum">-</strong>
-            </div>
-            <div class="flex justify-between gap-2 text-slate-300">
-              <span class="truncate">• 3개월 평균임금 (상여 1/12 포함)</span>
-              <strong id="sev_avg_wage" class="text-amber-300 font-black shrink-0 tnum">0원</strong>
-            </div>
-            <div class="flex justify-between gap-2 text-slate-300">
-              <span class="truncate">• 인정 근속년수</span>
-              <strong id="sev_tenure_text" class="text-emerald-300 font-black shrink-0 tnum">-</strong>
-            </div>
-            <div class="pt-1.5 border-t border-slate-800 flex justify-between gap-2 text-[10.5px] text-slate-400">
-              <span class="truncate">• 퇴직갑근세 / 주민세(10%)</span>
-              <strong id="sev_tax_detail" class="text-rose-200 shrink-0 tnum">-0원 / -0원</strong>
-            </div>
+            <div class="flex justify-between gap-2 text-slate-300"><span class="truncate">• 퇴직기산일 / 평균임금 기산일</span><strong id="sev_dates_info" class="text-white font-bold shrink-0 tnum">-</strong></div>
+            <div class="flex justify-between gap-2 text-slate-300"><span class="truncate">• 3개월 평균임금 (상여 1/12 포함)</span><strong id="sev_avg_wage" class="text-amber-300 font-black shrink-0 tnum">0원</strong></div>
+            <div class="flex justify-between gap-2 text-slate-300"><span class="truncate">• 인정 근속년수</span><strong id="sev_tenure_text" class="text-emerald-300 font-black shrink-0 tnum">-</strong></div>
+            <div class="pt-1.5 border-t border-slate-800 flex justify-between gap-2 text-[10.5px] text-slate-400"><span class="truncate">• 퇴직갑근세 / 주민세(10%)</span><strong id="sev_tax_detail" class="text-rose-200 shrink-0 tnum">-0원 / -0원</strong></div>
           </div>
         </div>
-
         <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between gap-1 nowrap">
-            <h3 class="text-xs font-black text-slate-900">📊 직전 3개월 평균임금 산출 내역</h3>
-            <span class="text-[9.5px] text-blue-600 font-bold shrink-0">터치 시 급여뷰 이동</span>
-          </div>
-          <p class="text-[10.5px] text-slate-500 leading-snug">
-            급여뷰 달력에 <strong class="text-slate-800">잔업·특근</strong>을 입력하면 아래 3개월 급여 평균이 즉시 바뀌며 예상 퇴직금이 실시간으로 자동 조정됩니다.
-          </p>
+          <div class="flex items-center justify-between gap-1 nowrap"><h3 class="text-xs font-black text-slate-900">📊 직전 3개월 평균임금 산출 내역</h3><span class="text-[9.5px] text-blue-600 font-bold shrink-0">터치 시 급여뷰 이동</span></div>
+          <p class="text-[10.5px] text-slate-500 leading-snug">급여뷰 달력에 <strong class="text-slate-800">잔업·특근</strong>을 입력하면 아래 3개월 급여 평균이 즉시 바뀌며 예상 퇴직금이 실시간으로 자동 조정됩니다.</p>
           <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs w-full">
             <table class="w-full table-fixed text-left border-collapse nowrap">
-              <thead>
-                <tr class="bg-slate-100 text-slate-600 text-[10px] font-black tracking-tighter">
-                  <th class="py-2 pl-2.5 pr-1 w-[27%]">산입 급여월</th>
-                  <th class="py-2 px-1 text-center w-[41%]">근태 (잔업·특근·야간)</th>
-                  <th class="py-2 pl-1 pr-2.5 text-right w-[32%]">월 급여(상여제외)</th>
-                </tr>
-              </thead>
+              <thead><tr class="bg-slate-100 text-slate-600 text-[10px] font-black tracking-tighter"><th class="py-2 pl-2.5 pr-1 w-[27%]">산입 급여월</th><th class="py-2 px-1 text-center w-[41%]">근태 (잔업·특근·야간)</th><th class="py-2 pl-1 pr-2.5 text-right w-[32%]">월 급여(상여제외)</th></tr></thead>
               <tbody id="sev_3month_tbody" class="divide-y divide-slate-100 text-[10.5px] tnum"></tbody>
             </table>
           </div>
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1 text-[10.5px] nowrap">
-            <div class="flex justify-between items-center gap-2 text-slate-600">
-              <span class="truncate">① 직전 3개월 급여 평균 (기본+연장·특근·야간)</span>
-              <strong id="sev_part_3m_avg" class="text-slate-900 font-black shrink-0 tnum">0원</strong>
-            </div>
-            <div class="flex justify-between items-center gap-2 text-slate-600">
-              <span class="truncate">② 연간 상여(800%)·부가수당 1/12 산입</span>
-              <strong id="sev_part_bonus_avg" class="text-indigo-700 font-black shrink-0 tnum">+0원</strong>
-            </div>
-            <div class="flex justify-between items-center gap-2 pt-1 border-t border-slate-200 text-slate-900 font-extrabold">
-              <span class="truncate">= 최종 산정 평균임금 (① + ②)</span>
-              <strong id="sev_part_total_avg" class="text-blue-700 font-black shrink-0 tnum">0원</strong>
-            </div>
+            <div class="flex justify-between items-center gap-2 text-slate-600"><span class="truncate">① 직전 3개월 급여 평균 (기본+연장·특근·야간)</span><strong id="sev_part_3m_avg" class="text-slate-900 font-black shrink-0 tnum">0원</strong></div>
+            <div class="flex justify-between items-center gap-2 text-slate-600"><span class="truncate">② 연간 상여(800%)·부가수당 1/12 산입</span><strong id="sev_part_bonus_avg" class="text-indigo-700 font-black shrink-0 tnum">+0원</strong></div>
+            <div class="flex justify-between items-center gap-2 pt-1 border-t border-slate-200 text-slate-900 font-extrabold"><span class="truncate">= 최종 산정 평균임금 (① + ②)</span><strong id="sev_part_total_avg" class="text-blue-700 font-black shrink-0 tnum">0원</strong></div>
           </div>
         </div>
-
         <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between gap-1 nowrap">
-            <h3 class="text-[11.5px] font-black text-red-700 tracking-tight truncate">🔥 특근·잔업 1회당 퇴직금 상승액</h3>
-            <span id="sev_boost_tenure_badge" class="text-[9.5px] font-extrabold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full shrink-0">근속 비례</span>
-          </div>
+          <div class="flex items-center justify-between gap-1 nowrap"><h3 class="text-[11.5px] font-black text-red-700 tracking-tight truncate">🔥 특근·잔업 1회당 퇴직금 상승액</h3><span id="sev_boost_tenure_badge" class="text-[9.5px] font-extrabold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full shrink-0">근속 비례</span></div>
           <div class="grid grid-cols-2 gap-1.5 text-xs">
-            <div class="p-2.5 rounded-2xl bg-purple-50 border border-purple-200 min-w-0 nowrap">
-              <span class="text-[10.5px] font-bold text-purple-900 block truncate">🌙 야간 12h 특근 1회</span>
-              <strong id="sev_boost_n12" class="text-sm font-black text-purple-700 block mt-0.5 tnum">+0원</strong>
-              <span id="sev_boost_n12_net" class="text-[9.5px] tracking-tighter text-purple-800 font-bold block truncate">평균 +0만 / 세후 +0만</span>
-            </div>
-            <div class="p-2.5 rounded-2xl bg-red-50 border border-red-200 min-w-0 nowrap">
-              <span class="text-[10.5px] font-bold text-red-900 block truncate">☀️ 주간 12h 특근 1회</span>
-              <strong id="sev_boost_d12" class="text-sm font-black text-red-600 block mt-0.5 tnum">+0원</strong>
-              <span id="sev_boost_d12_net" class="text-[9.5px] tracking-tighter text-red-700 font-bold block truncate">평균 +0만 / 세후 +0만</span>
-            </div>
-            <div class="p-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 min-w-0 nowrap">
-              <span class="text-[10.5px] font-bold text-indigo-900 block truncate">🌙 야간 8h 특근 1회</span>
-              <strong id="sev_boost_n8" class="text-sm font-black text-indigo-700 block mt-0.5 tnum">+0원</strong>
-              <span id="sev_boost_n8_net" class="text-[9.5px] tracking-tighter text-indigo-800 font-bold block truncate">평균 +0만 / 세후 +0만</span>
-            </div>
-            <div class="p-2.5 rounded-2xl bg-blue-50/70 border border-blue-200 min-w-0 nowrap">
-              <span class="text-[10.5px] font-bold text-blue-900 block truncate">⚡ 평일 4h 잔업 1회</span>
-              <strong id="sev_boost_ot4" class="text-sm font-black text-blue-700 block mt-0.5 tnum">+0원</strong>
-              <span id="sev_boost_ot4_net" class="text-[9.5px] tracking-tighter text-blue-800 font-bold block truncate">평균 +0만 / 세후 +0만</span>
-            </div>
+            <div class="p-2.5 rounded-2xl bg-purple-50 border border-purple-200 min-w-0 nowrap"><span class="text-[10.5px] font-bold text-purple-900 block truncate">🌙 야간 12h 특근 1회</span><strong id="sev_boost_n12" class="text-sm font-black text-purple-700 block mt-0.5 tnum">+0원</strong><span id="sev_boost_n12_net" class="text-[9.5px] tracking-tighter text-purple-800 font-bold block truncate">평균 +0만 / 세후 +0만</span></div>
+            <div class="p-2.5 rounded-2xl bg-red-50 border border-red-200 min-w-0 nowrap"><span class="text-[10.5px] font-bold text-red-900 block truncate">☀️ 주간 12h 특근 1회</span><strong id="sev_boost_d12" class="text-sm font-black text-red-600 block mt-0.5 tnum">+0원</strong><span id="sev_boost_d12_net" class="text-[9.5px] tracking-tighter text-red-700 font-bold block truncate">평균 +0만 / 세후 +0만</span></div>
+            <div class="p-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 min-w-0 nowrap"><span class="text-[10.5px] font-bold text-indigo-900 block truncate">🌙 야간 8h 특근 1회</span><strong id="sev_boost_n8" class="text-sm font-black text-indigo-700 block mt-0.5 tnum">+0원</strong><span id="sev_boost_n8_net" class="text-[9.5px] tracking-tighter text-indigo-800 font-bold block truncate">평균 +0만 / 세후 +0만</span></div>
+            <div class="p-2.5 rounded-2xl bg-blue-50/70 border border-blue-200 min-w-0 nowrap"><span class="text-[10.5px] font-bold text-blue-900 block truncate">⚡ 평일 4h 잔업 1회</span><strong id="sev_boost_ot4" class="text-sm font-black text-blue-700 block mt-0.5 tnum">+0원</strong><span id="sev_boost_ot4_net" class="text-[9.5px] tracking-tighter text-blue-800 font-bold block truncate">평균 +0만 / 세후 +0만</span></div>
           </div>
         </div>
       </div>
@@ -463,39 +387,24 @@
       <div id="tab_settings" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-3.5 shadow-md border border-sky-500/40 space-y-3">
           <div class="flex items-center justify-between gap-1 nowrap">
-            <div class="flex items-center gap-1.5 min-w-0">
-              <span class="text-base shrink-0">☁️</span>
-              <h2 class="text-sm font-black text-white truncate">깃허브 원터치 클라우드 백업</h2>
-            </div>
+            <div class="flex items-center gap-1.5 min-w-0"><span class="text-base shrink-0">☁️</span><h2 class="text-sm font-black text-white truncate">깃허브 원터치 클라우드 백업</h2></div>
             <span id="gh_sync_status_badge" class="text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0">열쇠 미등록</span>
           </div>
-
-          <p class="text-[11px] text-slate-300 leading-relaxed">
-            모든 개인 급여·근태·메모는 <strong class="text-emerald-300">공개 코드에서 완전 분리</strong>되어 내 폰과 비공개 금고에만 안전하게 암호화 보관됩니다.
-          </p>
-
+          <p class="text-[11px] text-slate-300 leading-relaxed">모든 개인 급여·근태·메모는 <strong class="text-emerald-300">공개 코드에서 완전 분리</strong>되어 내 폰과 비공개 금고에만 안전하게 암호화 보관됩니다.</p>
           <div class="space-y-1.5 text-xs">
             <div class="flex items-center justify-between gap-1 nowrap">
               <label class="text-[10.5px] font-extrabold text-sky-300 truncate">🔑 내 깃허브 열쇠 번호 (ghp_...)</label>
-              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Vault&scopes=gist" target="_blank" class="shrink-0 text-[9.5px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">
-                🔗 열쇠 10초 발급 ↗
-              </a>
+              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Vault&scopes=gist" target="_blank" class="shrink-0 text-[9.5px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">🔗 열쇠 10초 발급 ↗</a>
             </div>
             <div class="flex items-center gap-1.5">
               <input type="password" id="input_gh_token" placeholder="ghp_ 로 시작하는 열쇠 붙여넣기" oninput="App.saveGithubToken()" onchange="App.saveGithubToken()" class="w-full p-2 rounded-xl bg-slate-950/80 border border-slate-600 text-white font-mono text-xs focus:outline-none focus:border-sky-400">
               <button onclick="App.toggleTokenVisibility()" class="shrink-0 px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300">보기</button>
             </div>
           </div>
-
           <div class="grid grid-cols-2 gap-2 text-xs pt-0.5">
-            <button onclick="App.cloudBackupToGithub(false)" class="py-2.5 px-2 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
-              ☁️ 깃허브에 딸깍 백업
-            </button>
-            <button onclick="App.cloudRestoreFromGithub()" class="py-2.5 px-2 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
-              📥 깃허브에서 딸깍 복원
-            </button>
+            <button onclick="App.cloudBackupToGithub(false)" class="py-2.5 px-2 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">☁️ 깃허브에 딸깍 백업</button>
+            <button onclick="App.cloudRestoreFromGithub()" class="py-2.5 px-2 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">📥 깃허브에서 딸깍 복원</button>
           </div>
-
           <div class="pt-2 border-t border-slate-700/80 flex items-center justify-between gap-1 text-[10.5px] nowrap">
             <label class="flex items-center gap-1.5 cursor-pointer min-w-0">
               <input type="checkbox" id="chk_gh_auto_sync" onchange="App.toggleGithubAutoSync()" class="w-4 h-4 accent-sky-400 rounded shrink-0">
@@ -506,10 +415,7 @@
         </div>
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between nowrap">
-            <h2 class="text-sm font-black text-slate-900">🔒 앱 실행 4자리 암호 잠금 (사생활 보호)</h2>
-            <span id="pin_status_badge" class="text-[10px] font-bold text-slate-400">잠금 꺼짐</span>
-          </div>
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔒 앱 실행 4자리 암호 잠금 (사생활 보호)</h2><span id="pin_status_badge" class="text-[10px] font-bold text-slate-400">잠금 꺼짐</span></div>
           <div class="flex items-center gap-2 text-xs">
             <input type="password" id="input_app_pin" maxlength="4" inputmode="numeric" placeholder="숫자 4자리 입력 (비우면 해제)" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center tracking-widest">
             <button onclick="App.saveAppPin()" class="shrink-0 px-3 py-2 bg-slate-900 text-white font-black rounded-xl nowrap">암호 저장</button>
@@ -609,22 +515,15 @@
                 <button onclick="App.clearMemoOnly()" class="px-2 py-0.5 rounded-lg bg-white border border-rose-200 text-[10px] font-extrabold text-rose-600 active:scale-95">메모삭제</button>
               </div>
             </div>
-            <div class="text-[10px] font-bold text-amber-900/90 bg-amber-100/70 px-2 py-0.5 rounded-lg truncate">
-              💡 띄어쓰기 = 단어별 줄바꿈 / 엔터 = 새 색상박스 구분
-            </div>
+            <div class="text-[10px] font-bold text-amber-900/90 bg-amber-100/70 px-2 py-0.5 rounded-lg truncate">💡 띄어쓰기 = 단어별 줄바꿈 / 엔터 = 새 색상박스 구분</div>
             <textarea id="modal_memo_input" rows="2" placeholder="예: 얼집멤버 고기파티 (엔터 치면 다른 색 박스로 구분)" class="w-full p-2 rounded-xl border border-amber-300 bg-white font-bold text-slate-900 text-xs focus:outline-none focus:border-slate-900 box-border"></textarea>
             <button onclick="App.saveMemoOnly()" class="w-full py-2 rounded-xl bg-slate-900 text-white font-black text-xs shadow-sm active:scale-98">💾 메모만 바로 저장하기</button>
           </div>
 
-          <button id="btn_company_holiday" onclick="App.toggleCompanyHoliday()" class="w-full py-2 px-2 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-700 font-black text-xs active:scale-98 truncate box-border">
-            🎉 회사창립·노조기념일 (빨간날 유급휴무 지정/해제)
-          </button>
+          <button id="btn_company_holiday" onclick="App.toggleCompanyHoliday()" class="w-full py-2 px-2 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-700 font-black text-xs active:scale-98 truncate box-border">🎉 회사창립·노조기념일 (빨간날 유급휴무 지정/해제)</button>
 
           <div class="bg-red-50/60 p-2.5 rounded-2xl border border-red-200 w-full box-border">
-            <div class="flex items-center justify-between gap-1 mb-1.5">
-              <span class="font-extrabold text-red-900 text-xs truncate">☀️ 주간특근 (배지 '초' 표시)</span>
-              <span class="text-[9.5px] font-bold text-red-600 shrink-0">평일·주말 언제든 특근</span>
-            </div>
+            <div class="flex items-center justify-between gap-1 mb-1.5"><span class="font-extrabold text-red-900 text-xs truncate">☀️ 주간특근 (배지 '초' 표시)</span><span class="text-[9.5px] font-bold text-red-600 shrink-0">평일·주말 언제든 특근</span></div>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
               <button onclick="App.applyDay('HOLIDAY',12,'DAY')" class="py-2 rounded-xl bg-red-600 text-white font-black shadow-sm">☀️ 주간 12h 특근</button>
               <button onclick="App.applyDay('HOLIDAY',8,'DAY')" class="py-2 rounded-xl bg-rose-500 text-white font-black shadow-sm">☀️ 주간 8h 특근</button>
@@ -633,10 +532,7 @@
           </div>
 
           <div class="bg-purple-50/70 p-2.5 rounded-2xl border border-purple-200 w-full box-border">
-            <div class="flex items-center justify-between gap-1 mb-1.5">
-              <span class="font-extrabold text-purple-950 text-xs truncate">🌙 야간특근 (배지 '야' 표시)</span>
-              <span class="text-[9.5px] font-bold text-purple-700 shrink-0">야간가산 자동포함</span>
-            </div>
+            <div class="flex items-center justify-between gap-1 mb-1.5"><span class="font-extrabold text-purple-950 text-xs truncate">🌙 야간특근 (배지 '야' 표시)</span><span class="text-[9.5px] font-bold text-purple-700 shrink-0">야간가산 자동포함</span></div>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
               <button onclick="App.applyDay('HOLIDAY',12,'NIGHT')" class="py-2 rounded-xl bg-purple-700 text-yellow-200 font-black shadow-sm">🌙 야간 12h 특근</button>
               <button onclick="App.applyDay('HOLIDAY',8,'NIGHT')" class="py-2 rounded-xl bg-purple-600 text-white font-black shadow-sm">🌙 야간 8h 특근</button>
@@ -660,15 +556,11 @@
               <span class="font-extrabold text-emerald-950 text-xs truncate">🌴 시간차 · 반차 · 연차 휴가</span>
               <span class="text-[9.5px] font-black bg-emerald-200/80 text-emerald-900 px-1.5 py-0.5 rounded shrink-0">1h = 0.125일</span>
             </div>
-            <div id="modal_leave_SubInfo" class="text-[10px] font-extrabold text-emerald-800 bg-white/80 px-2 py-1 rounded-lg border border-emerald-200/80 truncate">
-              ☀️ 초·중반조: 시간차 사용 시 급여차감 0원
-            </div>
+            <div id="modal_leave_SubInfo" class="text-[10px] font-extrabold text-emerald-800 bg-white/80 px-2 py-1 rounded-lg border border-emerald-200/80 truncate">☀️ 초·중반조: 시간차 사용 시 급여차감 0원</div>
             <div id="modal_leave_btns" class="grid grid-cols-4 gap-1 text-[10.5px]"></div>
           </div>
 
-          <button onclick="App.applyDay('DEFAULT',0)" class="w-full py-2 rounded-xl border border-slate-300 bg-slate-100 text-slate-700 font-extrabold active:scale-98">
-            ↺ 당일 근무 설정 초기화 (기본 근무로 복구)
-          </button>
+          <button onclick="App.applyDay('DEFAULT',0)" class="w-full py-2 rounded-xl border border-slate-300 bg-slate-100 text-slate-700 font-extrabold active:scale-98">↺ 당일 근무 설정 초기화 (기본 근무로 복구)</button>
 
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
             <span class="text-slate-500 font-semibold shrink-0">당일 고정 근무조:</span>
@@ -682,7 +574,7 @@
       </div>
     </div>
   </div>
-<!-- 여기 바로 아래에 [코드 3/4]를 이어서 붙여넣으세요 -->
+
   <script>
     const KoreanHolidayEngine = {
       cache: {},
@@ -727,7 +619,6 @@
         const [sMD, bMD, cMD] = this.LUNAR_TABLE[year] || this.computeDynamicLunar(year);
         const pMD = (md) => { const [m, d] = md.split('-').map(Number); return { m, d }; };
         const s = pMD(sMD), b = pMD(bMD), c = pMD(cMD);
-
         const groups = [
           { days: [{ ...this.addDays(year,1,1,0), name:'신정' }], subRule:'NONE' },
           { days: [{ ...this.addDays(year,s.m,s.d,-1), name:'설연휴' }, { ...this.addDays(year,s.m,s.d,0), name:'설날' }, { ...this.addDays(year,s.m,s.d,1), name:'설연휴' }], subRule:'SUN_ONLY' },
@@ -741,7 +632,6 @@
           { days: [{ ...this.addDays(year,10,9,0), name:'한글날' }], subRule:'SAT_SUN' },
           { days: [{ ...this.addDays(year,12,25,0), name:'성탄절' }], subRule:'SAT_SUN' }
         ];
-
         groups.forEach(g => {
           g.subNeeded = 0;
           g.days.forEach(day => {
@@ -752,7 +642,6 @@
             else if (g.subRule === 'SUN_ONLY' && (day.dow === 0 || dup)) g.subNeeded++;
           });
         });
-
         groups.forEach(g => {
           let cur = g.days[g.days.length - 1];
           while (g.subNeeded > 0) {
@@ -762,10 +651,8 @@
             }
           }
         });
-
         const mayKey = this.fmt(year, 5, 1);
         if (!map[mayKey]) map[mayKey] = '근로자의날';
-
         if (year >= 2028 && (year - 2024) % 4 === 0) {
           for (let d = 9; d <= 15; d++) {
             const dt = this.addDays(year, 4, d, 0);
@@ -886,7 +773,6 @@
         else if (key === 'DEL') this.enteredPin = this.enteredPin.slice(0, -1);
         else if (this.enteredPin.length < 4) this.enteredPin += key;
         this.updatePinDots();
-
         if (this.enteredPin.length === 4) {
           if (this.enteredPin === this.appPin) {
             const overlay = document.getElementById('pin_lock_overlay');
@@ -910,9 +796,7 @@
       },
       saveAppPin() {
         const val = (document.getElementById('input_app_pin').value || '').trim();
-        if (val && !/^\d{4}$/.test(val)) {
-          return alert('암호는 숫자 4자리로 입력해 주세요. (잠금을 해제하려면 칸을 비우고 저장하세요)');
-        }
+        if (val && !/^\d{4}$/.test(val)) return alert('암호는 숫자 4자리로 입력해 주세요. (잠금을 해제하려면 칸을 비우고 저장하세요)');
         this.appPin = val;
         this.save(true);
         this.syncSettingsInputs();
@@ -925,43 +809,32 @@
         let startX = 0, startY = 0;
         zone.addEventListener('touchstart', (e) => {
           if (e.touches.length !== 1) return;
-          startX = e.touches[0].clientX;
-          startY = e.touches[0].clientY;
+          startX = e.touches[0].clientX; startY = e.touches[0].clientY;
         }, { passive: true });
-
         zone.addEventListener('touchend', (e) => {
           if (!e.changedTouches || e.changedTouches.length !== 1) return;
-          const dx = e.changedTouches[0].clientX - startX;
-          const dy = e.changedTouches[0].clientY - startY;
+          const dx = e.changedTouches[0].clientX - startX, dy = e.changedTouches[0].clientY - startY;
           if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-            if (dx < 0) this.changeMonth(1);
-            else this.changeMonth(-1);
+            if (dx < 0) this.changeMonth(1); else this.changeMonth(-1);
           }
         }, { passive: true });
       },
 
       resetBothViewsToToday() {
         const t = this.getTodayInfo();
-        this.memoYear = t.y;
-        this.memoMonth = t.m;
+        this.memoYear = t.y; this.memoMonth = t.m;
         this.memoPayOffset = (t.d <= 25) ? 0 : 1;
-
         let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
         if (pm > 12) { pm = 1; py += 1; }
-        this.payViewYear = py;
-        this.payViewMonth = pm;
-        this.reportYear = t.y;
-        this.sevYear = t.y;
-        this.sevMonth = t.m;
+        this.payViewYear = py; this.payViewMonth = pm;
+        this.reportYear = t.y; this.sevYear = t.y; this.sevMonth = t.m;
       },
 
       saveGithubToken() {
         const val = (document.getElementById('input_gh_token').value || '').trim();
         if (val !== this.ghToken) {
-          this.ghToken = val;
-          this.ghGistId = '';
-          this.save(true);
-          this.updateGithubUiStatus();
+          this.ghToken = val; this.ghGistId = '';
+          this.save(true); this.updateGithubUiStatus();
         }
       },
       toggleTokenVisibility() {
@@ -970,15 +843,13 @@
       },
       toggleGithubAutoSync() {
         this.ghAutoSync = document.getElementById('chk_gh_auto_sync').checked;
-        this.save(true);
-        this.updateGithubUiStatus();
+        this.save(true); this.updateGithubUiStatus();
       },
       updateGithubUiStatus(customMsg = null, isErr = false) {
         const badge = document.getElementById('gh_sync_status_badge');
         const lastEl = document.getElementById('gh_last_sync_time');
         const topDot = document.getElementById('top_cloud_Dot');
         if (!badge || !lastEl) return;
-
         if (!this.ghToken) {
           badge.innerText = '열쇠 미등록';
           badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0';
@@ -998,75 +869,40 @@
       },
 
       getGithubHeaders(token) {
-        return {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28'
-        };
+        return { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
       },
 
       async findExistingGistId(token) {
         if (this.ghGistId) return this.ghGistId;
-        const res = await fetch(`https://api.github.com/gists?per_page=100&_t=${Date.now()}`, {
-          headers: this.getGithubHeaders(token),
-          cache: 'no-store'
-        });
+        const res = await fetch(`https://api.github.com/gists?per_page=100&_t=${Date.now()}`, { headers: this.getGithubHeaders(token), cache: 'no-store' });
         if (res.status === 401) throw new Error('TOKEN_REVOKED');
         if (res.status === 403) throw new Error('SCOPE_MISSING');
         if (!res.ok) throw new Error(`HTTP_${res.status}`);
         const list = await res.json();
         const found = list.find(g => g.files && g.files[this.GIST_FILENAME]);
-        if (found) {
-          this.ghGistId = found.id;
-          return found.id;
-        }
+        if (found) { this.ghGistId = found.id; return found.id; }
         return null;
       },
 
       async cloudBackupToGithub(silent = false) {
         const inputVal = (document.getElementById('input_gh_token')?.value || '').trim();
         const token = inputVal || this.ghToken;
-        if (!token) {
-          if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.');
-          return;
-        }
+        if (!token) { if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.'); return; }
         this.ghToken = token;
         this.updateGithubUiStatus('⏳ 백업 중...');
-
         try {
           let gistId = await this.findExistingGistId(token);
           const cloudPayload = this.getExportPayload(false);
-          const contentStr = JSON.stringify(cloudPayload, null, 2);
-          const bodyObj = {
-            description: 'LGES 월급계산기·메모 자동 백업 금고',
-            public: false,
-            files: { [this.GIST_FILENAME]: { content: contentStr } }
-          };
-
+          const bodyObj = { description: 'LGES 월급계산기·메모 자동 백업 금고', public: false, files: { [this.GIST_FILENAME]: { content: JSON.stringify(cloudPayload, null, 2) } } };
           let res;
           if (gistId) {
-            res = await fetch(`https://api.github.com/gists/${gistId}`, {
-              method: 'PATCH',
-              headers: { ...this.getGithubHeaders(token), 'Content-Type': 'application/json' },
-              body: JSON.stringify(bodyObj)
-            });
-            if (res.status === 404) {
-              this.ghGistId = '';
-              gistId = null;
-            }
+            res = await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { ...this.getGithubHeaders(token), 'Content-Type': 'application/json' }, body: JSON.stringify(bodyObj) });
+            if (res.status === 404) { this.ghGistId = ''; gistId = null; }
           }
           if (!gistId) {
-            res = await fetch('https://api.github.com/gists', {
-              method: 'POST',
-              headers: { ...this.getGithubHeaders(token), 'Content-Type': 'application/json' },
-              body: JSON.stringify(bodyObj)
-            });
+            res = await fetch('https://api.github.com/gists', { method: 'POST', headers: { ...this.getGithubHeaders(token), 'Content-Type': 'application/json' }, body: JSON.stringify(bodyObj) });
           }
-
-          if (res.status === 401) throw new Error('TOKEN_REVOKED');
-          if (res.status === 403 || res.status === 404) throw new Error('SCOPE_MISSING');
           if (!res.ok) throw new Error(`HTTP_${res.status}`);
-
           const data = await res.json();
           this.ghGistId = data.id;
           const now = new Date();
@@ -1076,56 +912,38 @@
           if (!silent) alert('☁️ 깃허브 비공개 금고에 안전하게 백업되었습니다!');
         } catch (err) {
           this.updateGithubUiStatus('⚠️ 열쇠 확인 필요', true);
-          if (!silent) {
-            alert('깃허브 백업에 실패했습니다. 열쇠 번호(ghp_...)를 확인해 주세요.');
-          }
+          if (!silent) alert('깃허브 백업에 실패했습니다. 열쇠 번호(ghp_...)를 확인해 주세요.');
         }
       },
 
       async cloudRestoreFromGithub() {
         const inputVal = (document.getElementById('input_gh_token')?.value || '').trim();
         const token = inputVal || this.ghToken;
-        if (!token) {
-          alert('복원하려면 🔑 내 깃허브 열쇠 번호(ghp_...)를 먼저 입력해 주세요.');
-          return;
-        }
+        if (!token) { alert('복원하려면 🔑 내 깃허브 열쇠 번호(ghp_...)를 먼저 입력해 주세요.'); return; }
         this.ghToken = token;
         this.updateGithubUiStatus('⏳ 복원 중...');
-
         try {
           this.ghGistId = '';
           const gistId = await this.findExistingGistId(token);
-          if (!gistId) {
-            this.updateGithubUiStatus();
-            alert('깃허브 금고에서 저장된 백업 파일을 찾지 못했습니다.');
-            return;
-          }
-          const res = await fetch(`https://api.github.com/gists/${gistId}?_t=${Date.now()}`, {
-            headers: this.getGithubHeaders(token),
-            cache: 'no-store'
-          });
+          if (!gistId) { this.updateGithubUiStatus(); alert('깃허브 금고에서 저장된 백업 파일을 찾지 못했습니다.'); return; }
+          const res = await fetch(`https://api.github.com/gists/${gistId}?_t=${Date.now()}`, { headers: this.getGithubHeaders(token), cache: 'no-store' });
           if (!res.ok) throw new Error('불러오기 실패');
           const gistData = await res.json();
           const rawContent = gistData.files?.[this.GIST_FILENAME]?.content;
           if (!rawContent) throw new Error('파일 없음');
-
-          const parsed = JSON.parse(rawContent);
-          this.loadStateObject(parsed);
-          this.ghToken = token;
-          this.ghGistId = gistId;
-          this.save(true);
-          this.syncSettingsInputs();
+          this.loadStateObject(JSON.parse(rawContent));
+          this.ghToken = token; this.ghGistId = gistId;
+          this.save(true); this.syncSettingsInputs();
           this.updateGithubUiStatus('✔ 복원 완료');
           this.render();
-          alert('📥 깃허브 금고에서 1~10월 급여·근무기록과 메모를 모두 완벽하게 복원했습니다!');
+          alert('📥 깃허브 금고에서 모든 급여·근무기록과 메모를 완벽하게 복원했습니다!');
           this.switchTab('home');
         } catch (err) {
           this.updateGithubUiStatus('⚠️ 복원 오류', true);
           alert('깃허브 복원에 실패했습니다. 열쇠 번호를 확인해 주세요.');
         }
       },
-<!-- 여기 바로 아래에 [코드 4/4]를 이어서 붙여넣으세요 -->
-      // [신설]: 1월~12월 일정 원터치 버튼 클릭 시 해당 월의 메모뷰로 즉시 이동
+
       jumpToScheduleMonth(m) {
         const targetYear = (this.calendarView === 'MEMO') ? this.memoYear : this.payViewYear;
         this.memoYear = targetYear;
@@ -1137,10 +955,8 @@
       },
 
       jumpToPayMonth(y, m) {
-        this.payViewYear = y;
-        this.payViewMonth = m;
-        this.switchTab('home');
-        this.setCalendarView('PAY');
+        this.payViewYear = y; this.payViewMonth = m;
+        this.switchTab('home'); this.setCalendarView('PAY');
       },
 
       initModalButtons() {
@@ -1153,23 +969,15 @@
 
         const leaveHrs = [1, 2, 3, 4, 5, 6, 7, 8];
         document.getElementById('modal_leave_btns').innerHTML = leaveHrs.map(lh => {
-          const workH = 8 - lh;
-          const isMain = (lh === 4 || lh === 8);
+          const workH = 8 - lh, isMain = (lh === 4 || lh === 8);
           const topLabel = lh === 8 ? '🌴8h연차' : (lh === 4 ? '🌴4h반차' : `🌴${lh}h휴가`);
           const subLabel = lh === 8 ? '전일휴무' : `${workH}h근무`;
-          const btnStyle = lh === 8
-            ? 'bg-emerald-600 text-white border-emerald-700 font-black shadow-sm'
-            : (lh === 4 ? 'bg-emerald-500 text-white border-emerald-600 font-black shadow-sm' : 'bg-white text-emerald-900 border-emerald-300 font-bold');
-          return `<button onclick="App.applyDay('LEAVE', ${lh / 8})" class="py-1.5 px-1 rounded-xl border ${btnStyle} flex flex-col items-center justify-center leading-tight active:scale-95">
-            <span class="text-[10.5px]">${topLabel}</span>
-            <span class="text-[8.5px] ${isMain ? 'text-emerald-100' : 'text-emerald-600'} font-semibold">(${subLabel})</span>
-          </button>`;
+          const btnStyle = lh === 8 ? 'bg-emerald-600 text-white border-emerald-700 font-black shadow-sm' : (lh === 4 ? 'bg-emerald-500 text-white border-emerald-600 font-black shadow-sm' : 'bg-white text-emerald-900 border-emerald-300 font-bold');
+          return `<button onclick="App.applyDay('LEAVE', ${lh / 8})" class="py-1.5 px-1 rounded-xl border ${btnStyle} flex flex-col items-center justify-center leading-tight active:scale-95"><span class="text-[10.5px]">${topLabel}</span><span class="text-[8.5px] ${isMain ? 'text-emerald-100' : 'text-emerald-600'} font-semibold">(${subLabel})</span></button>`;
         }).join('');
       },
 
-      fmtVacNum(d) {
-        return Number(Number(d || 0).toFixed(3));
-      },
+      fmtVacNum(d) { return Number(Number(d || 0).toFixed(3)); },
 
       loadStateObject(p) {
         if (p.basePay !== undefined) this.basePay = Number(p.basePay);
@@ -1189,20 +997,11 @@
 
       getExportPayload(includeSecrets = true) {
         const payload = {
-          version: '6.9',
-          exportedAt: new Date().toISOString(),
-          basePay: this.basePay,
-          totalVacation: this.totalVacation,
-          priorUsedVacation: this.priorUsedVacation,
-          shiftOffset: this.shiftOffset,
-          calibGrossOffset: this.calibGrossOffset,
-          calibDedRatio: this.calibDedRatio,
-          records: this.records,
-          monthExtras: this.monthExtras,
-          ghGistId: this.ghGistId,
-          ghAutoSync: this.ghAutoSync,
-          ghLastSync: this.ghLastSync,
-          appPin: this.appPin
+          version: '7.0', exportedAt: new Date().toISOString(),
+          basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
+          shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio,
+          records: this.records, monthExtras: this.monthExtras,
+          ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync, appPin: this.appPin
         };
         if (includeSecrets) payload.ghToken = this.ghToken;
         return payload;
@@ -1244,12 +1043,8 @@
       },
 
       onPayTabClick(idx) {
-        if (this.calendarView === 'MEMO') {
-          this.memoPayOffset = idx;
-          this.render(false);
-        } else {
-          if (idx === 0) this.changeMonth(-1);
-        }
+        if (this.calendarView === 'MEMO') { this.memoPayOffset = idx; this.render(false); }
+        else { if (idx === 0) this.changeMonth(-1); }
       },
 
       getBaseWeekDiff(y, m, d) {
@@ -1261,7 +1056,6 @@
         const weeks = this.getBaseWeekDiff(y, m, d);
         return this.SHIFT_ORDER[(((weeks + this.shiftOffset) % 3) + 3) % 3];
       },
-      cycleShiftPattern() { this.shiftOffset = (this.shiftOffset + 1) % 3; this.save(); this.render(); },
       setThisWeekShift(targetShift) {
         const t = this.getTodayInfo(), weeks = this.getBaseWeekDiff(t.y, t.m, t.d);
         this.shiftOffset = (((this.SHIFT_ORDER.indexOf(targetShift) - (weeks % 3)) % 3) + 3) % 3;
@@ -1298,22 +1092,16 @@
       goToTodayMonth(doRender = true) {
         const t = this.getTodayInfo();
         if (this.calendarView === 'MEMO') {
-          this.memoYear = t.y;
-          this.memoMonth = t.m;
-          this.memoPayOffset = (t.d <= 25) ? 0 : 1;
+          this.memoYear = t.y; this.memoMonth = t.m; this.memoPayOffset = (t.d <= 25) ? 0 : 1;
         } else {
           let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
           if (pm > 12) { pm = 1; py += 1; }
-          this.payViewYear = py;
-          this.payViewMonth = pm;
+          this.payViewYear = py; this.payViewMonth = pm;
         }
         if (doRender) this.render();
       },
 
-      getLmsAllowance(base = this.basePay) {
-        if (!base || base <= 0) return 0;
-        return Math.round(base / 44);
-      },
+      getLmsAllowance(base = this.basePay) { return (!base || base <= 0) ? 0 : Math.round(base / 44); },
       getHourlyRate(base = this.basePay) {
         if (!base || base <= 0) return 0;
         if (base === 2882000) return 22949.2559;
@@ -1425,9 +1213,7 @@
         const compHol = Boolean(rec.compHol);
         const sysHolName = KoreanHolidayEngine.getHolidayName(y, m, d);
         const holidayName = sysHolName || (compHol ? '회사휴일' : null);
-
-        const isWeekend = (dow === 0 || dow === 6);
-        const isRedOffDay = isWeekend || Boolean(holidayName);
+        const isWeekend = (dow === 0 || dow === 6), isRedOffDay = isWeekend || Boolean(holidayName);
         const isSundayOrHol = (dow === 0 || Boolean(holidayName)), isSaturday = (dow === 6 && !holidayName);
 
         const defaultShift = this.getDefaultShift(y, m, d);
@@ -1450,8 +1236,7 @@
         } else if (type === 'LEAVE') {
           vacDays = (rec.vacDays !== undefined) ? Number(rec.vacDays) : 1;
           vacHours = Math.round(vacDays * 8 * 10) / 10;
-          const workedHoursOnLeave = Math.max(0, 8 - vacHours);
-          nightHours = (shift === 'NIGHT') ? workedHoursOnLeave : 0;
+          nightHours = (shift === 'NIGHT') ? Math.max(0, 8 - vacHours) : 0;
         }
 
         let badgeKey = shift;
@@ -1471,27 +1256,16 @@
       estimateMonthlyIncomeTax(nonBonusGross, regBonusPay, prevMonthHadHolBonus, basePay) {
         if (!basePay || basePay <= 0 || nonBonusGross <= 0) return 0;
         let baseTax = 0;
-        if (nonBonusGross <= 5000000) {
-          baseTax = Math.max(0, (nonBonusGross - 3500000) * 0.12);
-        } else if (nonBonusGross <= 6233901) {
-          baseTax = 180000 + (nonBonusGross - 5000000) * 0.183167;
-        } else if (nonBonusGross <= 6721792) {
-          baseTax = 406010 + (nonBonusGross - 6233901) * 0.135276;
-        } else if (nonBonusGross <= 7333072) {
-          baseTax = 472010 + (nonBonusGross - 6721792) * 0.201086;
-        } else if (nonBonusGross <= 8192719) {
-          baseTax = 594930 + (nonBonusGross - 7333072) * 0.211284;
-        } else {
-          baseTax = 776560 + (nonBonusGross - 8192719) * 0.220577;
-        }
+        if (nonBonusGross <= 5000000) baseTax = Math.max(0, (nonBonusGross - 3500000) * 0.12);
+        else if (nonBonusGross <= 6233901) baseTax = 180000 + (nonBonusGross - 5000000) * 0.183167;
+        else if (nonBonusGross <= 6721792) baseTax = 406010 + (nonBonusGross - 6233901) * 0.135276;
+        else if (nonBonusGross <= 7333072) baseTax = 472010 + (nonBonusGross - 6721792) * 0.201086;
+        else if (nonBonusGross <= 8192719) baseTax = 594930 + (nonBonusGross - 7333072) * 0.211284;
+        else baseTax = 776560 + (nonBonusGross - 8192719) * 0.220577;
 
         let bonusTax = 0;
-        if (regBonusPay > 0) {
-          bonusTax += regBonusPay * (prevMonthHadHolBonus ? 0.2508 : 0.217);
-        }
-        if (prevMonthHadHolBonus) {
-          bonusTax += basePay * 0.2508;
-        }
+        if (regBonusPay > 0) bonusTax += regBonusPay * (prevMonthHadHolBonus ? 0.2508 : 0.217);
+        if (prevMonthHadHolBonus) bonusTax += basePay * 0.2508;
         const incomeTax = Math.round((baseTax + bonusTax) / 10) * 10;
         const localTax = Math.floor((incomeTax * 0.1) / 10) * 10;
         return incomeTax + localTax;
@@ -1499,65 +1273,44 @@
 
       calculateMonthSummary(payY, payM) {
         const ex = this.getMonthExtra(payY, payM);
-        const appliedBase = ex.customBasePay || this.basePay;
-        const hasBase = appliedBase > 0;
-        const rate = this.getHourlyRate(appliedBase);
-        const nightUnit = this.getNightHourlyRate(appliedBase);
-        const lmsPay = this.getLmsAllowance(appliedBase);
-        const unionFee = hasBase ? Math.floor(appliedBase * 0.02) : 0;
+        const appliedBase = ex.customBasePay || this.basePay, hasBase = appliedBase > 0;
+        const rate = this.getHourlyRate(appliedBase), nightUnit = this.getNightHourlyRate(appliedBase);
+        const lmsPay = this.getLmsAllowance(appliedBase), unionFee = hasBase ? Math.floor(appliedBase * 0.02) : 0;
 
         const cutoffDates = this.getCutoffDates(payY, payM);
-        let sumOtH = 0, sumHolBaseH = 0, sumHolOverH = 0, sumNightH = 0, holCount = 0, monthVacDays = 0;
-        let normalWorkDays = 0;
+        let sumOtH = 0, sumHolBaseH = 0, sumHolOverH = 0, sumNightH = 0, holCount = 0, monthVacDays = 0, normalWorkDays = 0;
 
         const evaluated = cutoffDates.map(dt => {
           const ev = this.evaluateDay(dt.y, dt.m, dt.d);
           sumOtH += ev.otHours; sumHolBaseH += ev.holBaseHours; sumHolOverH += ev.holOverHours; sumNightH += ev.nightHours;
           if (ev.type === 'HOLIDAY') holCount++;
-          else if (ev.type === 'LEAVE') {
-            monthVacDays += ev.vacDays;
-            if (ev.vacDays < 1) normalWorkDays += (1 - ev.vacDays);
-          } else if (ev.type === 'NORMAL' || ev.type === 'OT' || ev.type === 'NIGHT_OT') {
-            normalWorkDays += 1;
-          }
+          else if (ev.type === 'LEAVE') { monthVacDays += ev.vacDays; if (ev.vacDays < 1) normalWorkDays += (1 - ev.vacDays); }
+          else if (ev.type === 'NORMAL' || ev.type === 'OT' || ev.type === 'NIGHT_OT') normalWorkDays += 1;
           return ev;
         });
 
-        const paidDays = cutoffDates.length;
-        const workDays = normalWorkDays + holCount;
-        const eduH = Number(ex.eduHours) || 0;
-
+        const paidDays = cutoffDates.length, workDays = normalWorkDays + holCount, eduH = Number(ex.eduHours) || 0;
         const extraWeightedHours = (sumOtH * 1.5) + (sumHolBaseH * 1.5) + (sumHolOverH * 2.0) + (sumNightH * 0.5) + (eduH * 1.5);
         const extraGongsu = extraWeightedHours / 8;
-        const timeGongsu = hasBase ? (paidDays + extraGongsu) : 0;
-        const moneyGongsu = hasBase ? (paidDays + (extraGongsu * 1.0909)) : 0;
-
+        const timeGongsu = hasBase ? (paidDays + extraGongsu) : 0, moneyGongsu = hasBase ? (paidDays + (extraGongsu * 1.0909)) : 0;
         const actualWorkHours = (normalWorkDays * 8) + sumOtH + sumHolBaseH + sumHolOverH + eduH;
         const weeklyAvgHours = hasBase ? (actualWorkHours / (paidDays / 7)) : 0;
 
         const festInfo = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
         let hasHolBonus = Boolean(festInfo);
-        if (ex.manualHolBonus === true) hasHolBonus = true;
-        else if (ex.manualHolBonus === false) hasHolBonus = false;
+        if (ex.manualHolBonus === true) hasHolBonus = true; else if (ex.manualHolBonus === false) hasHolBonus = false;
         const autoHolName = hasHolBonus ? (festInfo ? festInfo.name : '명절') : null;
 
         let prevY = payY, prevM = payM - 1; if (prevM < 1) { prevM = 12; prevY -= 1; }
-        const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM);
-        const prevEx = this.getMonthExtra(prevY, prevM);
+        const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM), prevEx = this.getMonthExtra(prevY, prevM);
         const prevHadHolBonus = (prevEx.manualHolBonus === true) || (prevEx.manualHolBonus !== false && Boolean(prevFest));
 
         const isEven = (payM % 2 === 0);
-        const otPay = Math.round(sumOtH * 1.5 * rate);
-        const holBasePay = Math.round(sumHolBaseH * 1.5 * rate);
-        const holOverPay = Math.round(sumHolOverH * 2.0 * rate);
-        const nightPay = Math.round(sumNightH * nightUnit);
-        const eduPay = Math.round(eduH * 1.5 * rate);
-        const regBonusPay = (hasBase && isEven) ? appliedBase : 0;
-        const holBonusPay = (hasBase && hasHolBonus) ? appliedBase : 0;
-        const housingAllow = ex.housingAllow !== undefined ? ex.housingAllow : 0;
-        const housingDed = ex.housingDed !== undefined ? ex.housingDed : 0;
-        const retroPay = Number(ex.retroPay) || 0;
-        const fixedAllow = hasBase ? 180000 : 0;
+        const otPay = Math.round(sumOtH * 1.5 * rate), holBasePay = Math.round(sumHolBaseH * 1.5 * rate), holOverPay = Math.round(sumHolOverH * 2.0 * rate);
+        const nightPay = Math.round(sumNightH * nightUnit), eduPay = Math.round(eduH * 1.5 * rate);
+        const regBonusPay = (hasBase && isEven) ? appliedBase : 0, holBonusPay = (hasBase && hasHolBonus) ? appliedBase : 0;
+        const housingAllow = ex.housingAllow !== undefined ? ex.housingAllow : 0, housingDed = ex.housingDed !== undefined ? ex.housingDed : 0;
+        const retroPay = Number(ex.retroPay) || 0, fixedAllow = hasBase ? 180000 : 0;
 
         const coreMonthlyWage = hasBase ? (appliedBase + fixedAllow + lmsPay + otPay + holBasePay + holOverPay + nightPay + eduPay) : 0;
         const fixedBaseTotal = hasBase ? (appliedBase + fixedAllow + lmsPay + housingAllow + retroPay) : 0;
@@ -1579,124 +1332,67 @@
           sumOtH, sumHolBaseH, sumHolOverH, sumNightH, holCount, monthVacDays,
           paidDays, workDays, timeGongsu, moneyGongsu, weeklyAvgHours,
           fixedBaseTotal, coreMonthlyWage, lmsPay, housingAllow, housingDed, retroPay, regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay,
-          totalTax, fixedInsurances, unionFee, foodDed,
-          rawGross, rawDed, finalGross, finalDed, finalNet, dedDiff: finalDed - rawDed
+          totalTax, fixedInsurances, unionFee, foodDed, rawGross, rawDed, finalGross, finalDed, finalNet
         };
       },
 
       changeSeveranceMonth(delta) {
         this.sevMonth += delta;
-        if (this.sevMonth > 12) { this.sevMonth = 1; this.sevYear++; }
-        else if (this.sevMonth < 1) { this.sevMonth = 12; this.sevYear--; }
+        if (this.sevMonth > 12) { this.sevMonth = 1; this.sevYear++; } else if (this.sevMonth < 1) { this.sevMonth = 12; this.sevYear--; }
         this.renderSeveranceTab();
       },
-      resetSeveranceToOct() {
-        this.sevYear = 2026;
-        this.sevMonth = 10;
-        this.renderSeveranceTab();
-      },
-      toggleSeveranceTenureMode() {
-        this.sevUseExactMonths = !this.sevUseExactMonths;
-        this.renderSeveranceTab();
-      },
+      resetSeveranceToOct() { this.sevYear = 2026; this.sevMonth = 10; this.renderSeveranceTab(); },
+      toggleSeveranceTenureMode() { this.sevUseExactMonths = !this.sevUseExactMonths; this.renderSeveranceTab(); },
 
       calculateSeveranceSummary(targetY, targetM) {
         const months = [];
         for (let i = 2; i >= 0; i--) {
-          let y = targetY, m = targetM - i;
-          while (m < 1) { m += 12; y -= 1; }
+          let y = targetY, m = targetM - i; while (m < 1) { m += 12; y -= 1; }
           months.push(this.calculateMonthSummary(y, m));
         }
-
         const latestBase = months[2].appliedBase || this.basePay;
         if (!latestBase || latestBase <= 0) {
-          return {
-            targetY, targetM, lastDay: 30, months,
-            avg3MWage: 0, bonusMonthlyInclusion: 0, avgWage: 0,
-            tenYearsInt: 0, tenMonthsRem: 0, tenureFactor: 0,
-            grossSeverance: 0, sevIncomeTax: 0, sevLocalTax: 0, totalSevTax: 0, netSeverance: 0
-          };
+          return { targetY, targetM, lastDay: 30, months, avg3MWage: 0, bonusMonthlyInclusion: 0, avgWage: 0, tenYearsInt: 0, tenMonthsRem: 0, tenureFactor: 0, grossSeverance: 0, sevIncomeTax: 0, sevLocalTax: 0, totalSevTax: 0, netSeverance: 0 };
         }
-
-        const sum3M = months.reduce((acc, c) => acc + c.coreMonthlyWage, 0);
-        const avg3MWage = sum3M / 3;
+        const avg3MWage = months.reduce((acc, c) => acc + c.coreMonthlyWage, 0) / 3;
         const bonusMonthlyInclusion = (latestBase * (8 / 12)) + 64961.6667;
         const avgWage = Math.round((avg3MWage + bonusMonthlyInclusion) / 10) * 10;
-
         const totalMonths = Math.max(12, (targetY - 2012) * 12 + (targetM - 10));
-        const tenYearsInt = Math.floor(totalMonths / 12);
-        const tenMonthsRem = totalMonths % 12;
+        const tenYearsInt = Math.floor(totalMonths / 12), tenMonthsRem = totalMonths % 12;
         const tenureFactor = this.sevUseExactMonths ? (tenYearsInt + (tenMonthsRem / 12)) : tenYearsInt;
-
         const grossSeverance = Math.round(avgWage * tenureFactor);
-
-        const baseTaxPerYear = 4722300 / 14;
-        const deltaWage = avgWage - 9579160;
-        const incomeTaxRaw = tenureFactor * (baseTaxPerYear + (deltaWage * 0.096));
+        const incomeTaxRaw = tenureFactor * ((4722300 / 14) + ((avgWage - 9579160) * 0.096));
         const sevIncomeTax = Math.max(0, Math.round(incomeTaxRaw / 10) * 10);
         const sevLocalTax = Math.floor((sevIncomeTax * 0.1) / 10) * 10;
         const totalSevTax = sevIncomeTax + sevLocalTax;
-        const netSeverance = grossSeverance - totalSevTax;
-
-        const lastDay = new Date(targetY, targetM, 0).getDate();
-
-        return {
-          targetY, targetM, lastDay, months,
-          avg3MWage: Math.round(avg3MWage),
-          bonusMonthlyInclusion: Math.round(bonusMonthlyInclusion),
-          avgWage, tenYearsInt, tenMonthsRem, tenureFactor,
-          grossSeverance, sevIncomeTax, sevLocalTax, totalSevTax, netSeverance
-        };
+        return { targetY, targetM, lastDay: new Date(targetY, targetM, 0).getDate(), months, avg3MWage: Math.round(avg3MWage), bonusMonthlyInclusion: Math.round(bonusMonthlyInclusion), avgWage, tenYearsInt, tenMonthsRem, tenureFactor, grossSeverance, sevIncomeTax, sevLocalTax, totalSevTax, netSeverance: grossSeverance - totalSevTax };
       },
 
       renderSeveranceTab() {
         const s = this.calculateSeveranceSummary(this.sevYear, this.sevMonth);
-        const mNames = s.months.map(c => `${c.payM}월`).join('·');
-        document.getElementById('sev_sub_period').innerText = `직전 3개월 (${mNames}) 급여 실시간 연동`;
+        document.getElementById('sev_sub_period').innerText = `직전 3개월 (${s.months.map(c => `${c.payM}월`).join('·')}) 급여 실시간 연동`;
         document.getElementById('sev_month_title').innerText = `${s.targetY}년 ${s.targetM}월 예상퇴직금 조회`;
-
-        const isOctExact = (s.targetY === 2026 && s.targetM === 10 && s.avgWage === 9579160);
-        document.getElementById('sev_verified_badge').classList.toggle('hidden', !isOctExact);
-
+        document.getElementById('sev_verified_badge').classList.toggle('hidden', !(s.targetY === 2026 && s.targetM === 10 && s.avgWage === 9579160));
         document.getElementById('btn_sev_tenure_mode').innerText = this.sevUseExactMonths ? '근속: 월단위연동' : '근속: 연단위고정';
         document.getElementById('sev_net_pay').innerText = `${s.netSeverance.toLocaleString()}원`;
         document.getElementById('sev_gross_pay').innerText = `${s.grossSeverance.toLocaleString()}원`;
         document.getElementById('sev_total_tax').innerText = `-${s.totalSevTax.toLocaleString()}원`;
-
         document.getElementById('sev_dates_info').innerText = s.tenureFactor > 0 ? `2012.11.09 ~ ${s.targetY}.${String(s.targetM).padStart(2,'0')}.${String(s.lastDay).padStart(2,'0')}` : '-';
         document.getElementById('sev_avg_wage').innerText = `${s.avgWage.toLocaleString()}원`;
         document.getElementById('sev_tenure_text').innerText = s.tenureFactor > 0 ? `${s.tenYearsInt}년 ${String(s.tenMonthsRem).padStart(2,'0')}개월 (${s.tenureFactor.toFixed(2)}년)` : '-';
         document.getElementById('sev_tax_detail').innerText = `-${s.sevIncomeTax.toLocaleString()}원 / -${s.sevLocalTax.toLocaleString()}원`;
-
         document.getElementById('sev_3month_tbody').innerHTML = s.months.map(c => {
           const holH = c.sumHolBaseH + c.sumHolOverH;
-          return `
-            <tr onclick="App.jumpToPayMonth(${c.payY}, ${c.payM})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100">
-              <td class="py-2 pl-2.5 pr-1 font-black text-slate-800 tracking-tighter">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td>
-              <td class="py-2 px-1 text-center text-[10px] text-slate-600 tracking-tighter">잔${c.sumOtH}h·특${c.holCount}회(${Number.isInteger(holH)?holH:holH.toFixed(1)}h)·야${c.sumNightH}h</td>
-              <td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700 tracking-tighter">${c.coreMonthlyWage.toLocaleString()}원</td>
-            </tr>
-          `;
+          return `<tr onclick="App.jumpToPayMonth(${c.payY}, ${c.payM})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100"><td class="py-2 pl-2.5 pr-1 font-black text-slate-800 tracking-tighter">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td><td class="py-2 px-1 text-center text-[10px] text-slate-600 tracking-tighter">잔${c.sumOtH}h·특${c.holCount}회(${Number.isInteger(holH)?holH:holH.toFixed(1)}h)·야${c.sumNightH}h</td><td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700 tracking-tighter">${c.coreMonthlyWage.toLocaleString()}원</td></tr>`;
         }).join('');
-
         document.getElementById('sev_part_3m_avg').innerText = `${s.avg3MWage.toLocaleString()}원`;
         document.getElementById('sev_part_bonus_avg').innerText = `+${s.bonusMonthlyInclusion.toLocaleString()}원`;
         document.getElementById('sev_part_total_avg').innerText = `${s.avgWage.toLocaleString()}원`;
 
-        const rate = this.getHourlyRate(this.basePay), nUnit = this.getNightHourlyRate(this.basePay);
-        const mult = s.tenureFactor / 3;
+        const rate = this.getHourlyRate(this.basePay), nUnit = this.getNightHourlyRate(this.basePay), mult = s.tenureFactor / 3;
         document.getElementById('sev_boost_tenure_badge').innerText = `${s.tenYearsInt}년 근속 (×${mult.toFixed(2)}배)`;
-
-        const d12Pay = Math.round((8 * 1.5 + 4 * 2.0) * rate);
-        const n8Pay = Math.round(8 * nUnit);
-        const n12Pay = d12Pay + n8Pay;
-        const d8Pay = Math.round(8 * 1.5 * rate);
-        const nh8Pay = d8Pay + n8Pay;
-        const ot4Pay = Math.round(4 * 1.5 * rate);
-
-        const boostN12 = Math.round(n12Pay * mult), boostD12 = Math.round(d12Pay * mult);
-        const boostN8 = Math.round(nh8Pay * mult), boostOt4 = Math.round(ot4Pay * mult);
-
+        const d12Pay = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8Pay = Math.round(8 * nUnit), n12Pay = d12Pay + n8Pay, d8Pay = Math.round(8 * 1.5 * rate), nh8Pay = d8Pay + n8Pay, ot4Pay = Math.round(4 * 1.5 * rate);
+        const boostN12 = Math.round(n12Pay * mult), boostD12 = Math.round(d12Pay * mult), boostN8 = Math.round(nh8Pay * mult), boostOt4 = Math.round(ot4Pay * mult);
         document.getElementById('sev_boost_n12').innerText = `+${boostN12.toLocaleString()}원`;
         document.getElementById('sev_boost_n12_net').innerText = `평균 +${(n12Pay/30000).toFixed(1)}만 / 세후 +${(boostN12*0.894/10000).toFixed(1)}만`;
         document.getElementById('sev_boost_d12').innerText = `+${boostD12.toLocaleString()}원`;
@@ -1709,8 +1405,7 @@
 
       invalidateExactSlipForDate(dateKey) {
         const [y, m, d] = dateKey.split('-').map(Number);
-        let py = y, pm = (d >= 21) ? (m + 1) : m;
-        if (pm > 12) { pm = 1; py += 1; }
+        let py = y, pm = (d >= 21) ? (m + 1) : m; if (pm > 12) { pm = 1; py += 1; }
         const ex = this.monthExtras[this.getMonthKey(py, pm)];
         if (ex) { delete ex.exactGross; delete ex.exactDed; delete ex.exactTax; }
       },
@@ -1779,7 +1474,6 @@
 
         document.getElementById('modal_shift_select').value = ev.shift;
         document.getElementById('modal_memo_input').value = ev.memo || '';
-
         const modal = document.getElementById('day_modal');
         modal.classList.remove('hidden'); modal.classList.add('flex');
       },
@@ -1845,24 +1539,17 @@
         this.swipeAnimClass = delta > 0 ? 'swipe-left-anim' : 'swipe-right-anim';
         if (this.calendarView === 'MEMO') {
           this.memoMonth += delta;
-          if (this.memoMonth > 12) { this.memoMonth = 1; this.memoYear++; }
-          else if (this.memoMonth < 1) { this.memoMonth = 12; this.memoYear--; }
+          if (this.memoMonth > 12) { this.memoMonth = 1; this.memoYear++; } else if (this.memoMonth < 1) { this.memoMonth = 12; this.memoYear--; }
           this.memoPayOffset = 0;
         } else {
           this.payViewMonth += delta;
-          if (this.payViewMonth > 12) { this.payViewMonth = 1; this.payViewYear++; }
-          else if (this.payViewMonth < 1) { this.payViewMonth = 12; this.payViewYear--; }
+          if (this.payViewMonth > 12) { this.payViewMonth = 1; this.payViewYear++; } else if (this.payViewMonth < 1) { this.payViewMonth = 12; this.payViewYear--; }
         }
         this.render();
       },
 
       changeReportYear(delta) { this.reportYear += delta; this.renderAnnualReport(); },
-      jumpToMonthFromReport(y, m) {
-        this.payViewYear = y;
-        this.payViewMonth = m;
-        this.switchTab('home');
-        this.setCalendarView('PAY');
-      },
+      jumpToMonthFromReport(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
       resetCurrentMonth() {
         const pm = this.getActivePayYM();
         if (!confirm(`${pm.m}월 급여 산정기간 근무 내역을 초기화하시겠습니까? (메모는 그대로 유지됩니다)`)) return;
@@ -1880,14 +1567,11 @@
         return `<div class="flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[9.5px] font-black ${dc} tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
       },
 
-      // 1월~12월 일정 원터치 그리드 렌더링 (선택된 달 강조)
       renderQuick12MonthsGrid() {
         const gridEl = document.getElementById('quick_12month_grid');
         if (!gridEl) return;
         const activeY = (this.calendarView === 'MEMO') ? this.memoYear : this.payViewYear;
-        const activeM = (this.calendarView === 'MEMO') ? this.memoMonth : this.payViewMonth;
         document.getElementById('quick_month_bar_title').innerText = `🗓️ ${activeY}년 1월~12월 일정 원터치 조회`;
-
         const btns = [];
         for (let m = 1; m <= 12; m++) {
           const isSelected = (this.calendarView === 'MEMO' && this.memoMonth === m);
@@ -1933,11 +1617,9 @@
         this.renderSeveranceTab();
 
         const titleEl = document.getElementById('big_ym_title');
-        if (this.calendarView === 'MEMO') {
-          titleEl.innerText = `${this.memoYear}. ${String(this.memoMonth).padStart(2, '0')} 일정`;
-        } else {
-          titleEl.innerText = `${this.payViewYear}. ${String(this.payViewMonth).padStart(2, '0')} 급여`;
-        }
+        titleEl.innerText = this.calendarView === 'MEMO'
+          ? `${this.memoYear}. ${String(this.memoMonth).padStart(2, '0')} 일정`
+          : `${this.payViewYear}. ${String(this.payViewMonth).padStart(2, '0')} 급여`;
 
         const btnCurr = document.getElementById('pay_target_curr'), btnNext = document.getElementById('pay_target_next');
         if (this.calendarView === 'MEMO') {
@@ -1967,7 +1649,6 @@
         const evenBadge = document.getElementById('even_odd_badge');
         evenBadge.innerText = calc.isEven ? '짝수상여 100%' : '홀수달';
         evenBadge.className = `text-[8.5px] font-black px-1.5 py-0.5 rounded-full nowrap ${calc.isEven ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'}`;
-
         document.getElementById('verified_slip_badge').classList.toggle('hidden', !calc.isVerifiedSlip);
 
         if (!skipInput) {
@@ -2041,42 +1722,32 @@
           this.swipeAnimClass = '';
         }
 
-        // [핵심 밸런스 조정]: 달력 + 원터치조회 + 실수령액 3개가 한 화면에 모두 들어오도록 셀 높이 최적화
         if (this.calendarView === 'MEMO') {
           const stdDates = this.getStandardMonthGridDates(this.memoYear, this.memoMonth);
           const CELL_H = (Math.ceil(stdDates.length / 7) >= 6) ? 'min-h-[60px]' : 'min-h-[70px]';
-
           stdDates.forEach(dt => {
             const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth), isToday = (ev.key === todayInfo.key);
             let cellStyle = 'bg-white';
             if (ev.isOtherMonth) cellStyle += ' opacity-35';
             if (isToday) cellStyle += ' cell-today';
-
             let dc = 'text-slate-900';
             if (ev.isSundayOrHol) dc = 'text-red-600'; else if (ev.isSaturday) dc = 'text-blue-600';
-
             const dateLabel = (ev.isOtherMonth && ev.d === 1) ? `${ev.m}.${ev.d}` : `${ev.d}`;
             const headerHtml = this.buildCellHeaderHtml(dateLabel, dc, isToday, ev.badgeKey);
             const holSubHtml = ev.holidayName ? `<div class="text-[7px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>` : '';
-
             const chips = [];
             if (ev.type === 'HOLIDAY') {
-              const th = ev.holBaseHours + ev.holOverHours;
-              const hTxt = this.fmtHoursLabel(th);
-              chips.push(ev.holKind === 'NIGHT'
-                ? `<div class="work-top-chip text-purple-800">🌙야특${hTxt}</div>`
-                : `<div class="work-top-chip text-red-600">☀️주특${hTxt}</div>`);
+              const hTxt = this.fmtHoursLabel(ev.holBaseHours + ev.holOverHours);
+              chips.push(ev.holKind === 'NIGHT' ? `<div class="work-top-chip text-purple-800">🌙야특${hTxt}</div>` : `<div class="work-top-chip text-red-600">☀️주특${hTxt}</div>`);
             } else if (ev.type === 'OT') chips.push(`<div class="work-top-chip text-blue-700">⚡+${ev.otHours}h잔업</div>`);
             else if (ev.type === 'NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
             else if (ev.type === 'LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">${this.getLeaveChipLabel(ev, false)}</div>`);
-
             if (ev.memo) {
               ev.memo.split('\n').map(l => l.trim()).filter(Boolean).forEach((line, idx) => {
                 const pal = PASTEL_PALETTE[(ev.memoColor + idx * 3) % PASTEL_PALETTE.length];
                 chips.push(`<div class="memo-chip" style="background-color:${pal.bg}; border:1px solid ${pal.border};">${this.escapeHtml(line)}</div>`);
               });
             }
-
             const div = document.createElement('div');
             div.className = `p-0.5 ${CELL_H} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
@@ -2086,42 +1757,27 @@
         } else {
           const firstDow = calc.evaluated[0].dow, totalCells = firstDow + calc.evaluated.length;
           const CELL_H = (Math.ceil(totalCells / 7) >= 6) ? 'min-h-[60px]' : 'min-h-[70px]';
-
           for (let i = 0; i < firstDow; i++) {
             const emptyBefore = document.createElement('div');
             emptyBefore.className = `${CELL_H} bg-slate-50/80`;
             grid.appendChild(emptyBefore);
           }
           calc.evaluated.forEach(ev => {
-            let cellStyle = 'bg-white';
-            let statusHtml = `<span class="text-[8.5px] text-slate-500 font-semibold nowrap">고정8h</span>`;
-            if (ev.type === 'OT') {
-              cellStyle = 'cell-checked-ot';
-              statusHtml = `<span class="text-[9px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`;
-            } else if (ev.type === 'NIGHT_OT') {
-              cellStyle = 'cell-checked-night-ot';
-              statusHtml = `<span class="text-[9px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`;
-            } else if (ev.type === 'HOLIDAY') {
-              const th = ev.holBaseHours + ev.holOverHours;
-              const hTxt = this.fmtHoursLabel(th);
+            let cellStyle = 'bg-white', statusHtml = `<span class="text-[8.5px] text-slate-500 font-semibold nowrap">고정8h</span>`;
+            if (ev.type === 'OT') { cellStyle = 'cell-checked-ot'; statusHtml = `<span class="text-[9px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`; }
+            else if (ev.type === 'NIGHT_OT') { cellStyle = 'cell-checked-night-ot'; statusHtml = `<span class="text-[9px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`; }
+            else if (ev.type === 'HOLIDAY') {
+              const hTxt = this.fmtHoursLabel(ev.holBaseHours + ev.holOverHours);
               cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
               statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[9px] font-black text-purple-800 nowrap">🌙야특${hTxt}</span>` : `<span class="text-[9px] font-black text-red-600 nowrap">☀️주특${hTxt}</span>`;
-            } else if (ev.type === 'LEAVE') {
-              cellStyle = 'cell-checked-leave';
-              statusHtml = `<span class="text-[8.5px] font-black text-emerald-800 tracking-tighter nowrap">${this.getLeaveChipLabel(ev, true)}</span>`;
-            } else if (ev.type === 'OFF') {
-              cellStyle = 'bg-white';
-              statusHtml = `<span class="text-[8.5px] text-slate-400 nowrap">휴일</span>`;
-            }
-
+            } else if (ev.type === 'LEAVE') { cellStyle = 'cell-checked-leave'; statusHtml = `<span class="text-[8.5px] font-black text-emerald-800 tracking-tighter nowrap">${this.getLeaveChipLabel(ev, true)}</span>`; }
+            else if (ev.type === 'OFF') { cellStyle = 'bg-white'; statusHtml = `<span class="text-[8.5px] text-slate-400 nowrap">휴일</span>`; }
             if (ev.d === 1) cellStyle += ' month-start-bar';
             const isToday = (ev.key === todayInfo.key); if (isToday) cellStyle += ' cell-today';
             let dc = 'text-slate-900';
             if (ev.isSundayOrHol) dc = 'text-red-600'; else if (ev.isSaturday) dc = 'text-blue-600';
-
             const headerHtml = this.buildCellHeaderHtml(`${ev.m}.${ev.d}`, dc, isToday, ev.badgeKey);
             const mid = ev.holidayName ? `<div class="text-[7px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>` : `<div class="h-[7px]"></div>`;
-
             const div = document.createElement('div');
             div.className = `p-0.5 cursor-pointer transition active:scale-95 flex flex-col justify-between ${CELL_H} min-w-0 overflow-hidden ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
@@ -2143,10 +1799,8 @@
         const calUsedVac = this.getCalendarUsedVacationDays();
         const remainVac = Math.max(0, this.totalVacation - (this.priorUsedVacation + calUsedVac));
         const unusedVacPay = (unusedVacPayVal !== undefined) ? unusedVacPayVal : Math.round(remainVac * 8 * this.getHourlyRate(this.basePay));
-
         let totalGross = 0, totalNet = 0, totalOt = 0, totalHolCnt = 0, totalHolH = 0, totalNight = 0, totalVac = 0;
-        const rowsHtml = [];
-        const activePay = this.getActivePayYM();
+        const rowsHtml = [], activePay = this.getActivePayYM();
         for (let m = 1; m <= 12; m++) {
           const c = this.calculateMonthSummary(y, m);
           totalGross += c.finalGross; totalNet += c.finalNet; totalOt += c.sumOtH;
@@ -2157,14 +1811,7 @@
           if (c.autoHolName) badges.push(`<span class="px-1 rounded bg-amber-100 text-amber-800 text-[8.5px] font-black">${c.autoHolName[0]}</span>`);
           if (c.isVerifiedSlip) badges.push(`<span class="px-1 rounded bg-sky-100 text-sky-800 text-[8.5px] font-black">✔</span>`);
           const isCurr = (y === activePay.y && m === activePay.m);
-          rowsHtml.push(`
-            <tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100 ${isCurr?'bg-blue-50/70 font-black':''}">
-              <td class="py-2 pl-2 pr-0.5"><div class="flex items-center gap-0.5 tracking-tighter"><span class="font-extrabold">${m}월</span>${badges.join('')}</div></td>
-              <td class="py-2 px-0.5 text-center text-[9.5px] text-slate-600 tracking-tighter">잔${c.sumOtH}·특${c.holCount}·야${c.sumNightH}</td>
-              <td class="py-2 px-1 text-right font-bold text-slate-700 tracking-tighter">${Math.round(c.finalGross).toLocaleString()}</td>
-              <td class="py-2 pl-1 pr-2.5 text-right font-black text-emerald-700 tracking-tighter">${Math.round(c.finalNet).toLocaleString()}</td>
-            </tr>
-          `);
+          rowsHtml.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100 ${isCurr?'bg-blue-50/70 font-black':''}"><td class="py-2 pl-2 pr-0.5"><div class="flex items-center gap-0.5 tracking-tighter"><span class="font-extrabold">${m}월</span>${badges.join('')}</div></td><td class="py-2 px-0.5 text-center text-[9.5px] text-slate-600 tracking-tighter">잔${c.sumOtH}·특${c.holCount}·야${c.sumNightH}</td><td class="py-2 px-1 text-right font-bold text-slate-700 tracking-tighter">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 pl-1 pr-2.5 text-right font-black text-emerald-700 tracking-tighter">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
         }
         const unusedNetApprox = Math.round(unusedVacPay * 0.85);
         document.getElementById('rep_total_gross').innerText = `${(totalGross + unusedVacPay).toLocaleString()}원`;
