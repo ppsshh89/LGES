@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.0</title>
+  <title>LGES 월급·퇴직금 계산기 v6.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -19,14 +19,13 @@
     }
   </script>
   <style>
-    html, body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background-color: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; overflow-x: hidden; width: 100%; margin: 0; padding: 0; }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background-color: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; overflow-x: hidden; width: 100%; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
     .mobile-app-shell { max-width: 430px; width: 100%; min-height: 100vh; margin: 0 auto; background-color: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); display: flex; flex-direction: column; overflow-x: hidden; }
     @media (min-width: 500px) { body { padding: 20px 0; } .mobile-app-shell { min-height: 880px; border-radius: 40px; border: 10px solid #0f172a; overflow: hidden; } }
     .badge-EARLY  { background-color: #0284c7; color: #ffffff; }
     .badge-MID    { background-color: #f59e0b; color: #ffffff; }
     .badge-NIGHT  { background-color: #3b0764; color: #fde047; }
     .badge-OFF    { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-    /* 기본 평일·휴일은 흰색 유지, 급여뷰에서 추가된 잔업·특근·휴가 칸만 배경색 강조 */
     .cell-shift-EARLY, .cell-shift-MID, .cell-shift-NIGHT { background-color: #ffffff !important; }
     .cell-checked-ot        { background-color: #dbeafe !important; }
     .cell-checked-night-ot  { background-color: #ede9fe !important; }
@@ -37,8 +36,8 @@
     .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
+    .tnum { font-variant-numeric: tabular-nums; }
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 1.5px; border-radius: 3px; word-break: break-all; white-space: normal; text-align: left; box-sizing: border-box; }
-    /* 메모뷰 상단 근무 표시: 배경색·테두리 없이 글자만 깔끔하게 표시 */
     .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
     @keyframes slideLeftAnim { from { opacity: 0.55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes slideRightAnim { from { opacity: 0.55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
@@ -59,9 +58,9 @@
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴 남은연차</span>
-            <strong id="top_vacation_badge" class="text-[11px] font-black text-emerald-400">11.0 / 21일</strong>
+            <strong id="top_vacation_badge" class="text-[11px] font-black text-emerald-400">10.0 / 21일</strong>
           </div>
-          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300">미사용시 +210.3만원</div>
+          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300">미사용시 +191.2만원</div>
         </button>
       </div>
     </header>
@@ -101,58 +100,58 @@
         <div class="px-2 space-y-2 w-full box-border">
           <!-- 급여 요약 카드 -->
           <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2.5 shadow-md w-full box-border overflow-hidden">
-            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1.5 w-full">
+            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1 w-full">
               <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 min-w-0">
-                <button id="pay_target_curr" onclick="App.onPayTabClick(0)" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 truncate">10월 급여</button>
-                <button id="pay_target_next" onclick="App.onPayTabClick(1)" class="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate">11월 급여</button>
+                <button id="pay_target_curr" onclick="App.onPayTabClick(0)" class="px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate">10월 급여</button>
+                <button id="pay_target_next" onclick="App.onPayTabClick(1)" class="px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate">11월 급여</button>
               </div>
-              <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[10px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-1 rounded-lg font-extrabold nowrap">↺ 초기화</button>
+              <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[9.5px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-1 rounded-lg font-extrabold nowrap">↺ 초기화</button>
             </div>
 
-            <div class="flex items-center justify-between gap-1 w-full">
-              <div class="min-w-0">
-                <div class="flex items-center gap-1 flex-wrap">
-                  <span id="hero_pay_month_label" class="text-[11px] font-extrabold text-emerald-400 nowrap">2026년 10월 실수령액</span>
-                  <span id="even_odd_badge" class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300 nowrap">짝수상여 100%</span>
-                  <span id="auto_hol_bonus_badge" class="hidden text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 nowrap">🌕명절상여</span>
+            <div class="flex items-center justify-between gap-2 w-full">
+              <div class="min-w-0 flex-1">
+                <span id="hero_pay_month_label" class="text-[11px] font-extrabold text-emerald-400 block truncate">2026년 10월 실수령액</span>
+                <div class="flex items-center gap-1 flex-wrap mt-0.5">
+                  <span id="even_odd_badge" class="text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300 nowrap">짝수상여 100%</span>
+                  <span id="auto_hol_bonus_badge" class="hidden text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 nowrap">🌕명절상여</span>
                   <span id="verified_slip_badge" class="hidden text-[8.5px] font-black bg-sky-400 text-slate-950 px-1.5 py-0.5 rounded-full nowrap">✔명세서일치</span>
                   <span id="calibration_active_badge" class="hidden text-[8px] font-black bg-amber-500 text-slate-950 px-1 py-0.5 rounded nowrap">보정중</span>
                 </div>
               </div>
-              <div id="hero_net_pay" class="text-xl sm:text-2xl font-black tracking-tight text-white shrink-0 nowrap">0원</div>
+              <div id="hero_net_pay" class="text-xl sm:text-2xl font-black tracking-tight text-white shrink-0 nowrap tnum">0원</div>
             </div>
 
             <div class="mt-1.5 grid grid-cols-2 gap-1.5 text-xs w-full">
-              <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between nowrap">
-                <span class="text-slate-400 text-[10px] font-semibold">세전총액</span>
-                <strong id="summary_gross" class="text-xs font-black text-sky-300">0원</strong>
+              <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1 nowrap">
+                <span class="text-slate-400 text-[10px] font-semibold shrink-0">세전총액</span>
+                <strong id="summary_gross" class="text-[11.5px] font-black text-sky-300 tnum truncate">0원</strong>
               </div>
-              <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between nowrap">
-                <span class="text-slate-400 text-[10px] font-semibold">예상공제</span>
-                <strong id="summary_ded" class="text-xs font-black text-rose-300">-0원</strong>
+              <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1 nowrap">
+                <span class="text-slate-400 text-[10px] font-semibold shrink-0">예상공제</span>
+                <strong id="summary_ded" class="text-[11.5px] font-black text-rose-300 tnum truncate">-0원</strong>
               </div>
             </div>
 
-            <!-- 회사 근무표 4대 지표 (시간/금액 공수 완벽 구현) -->
+            <!-- 회사 근무표 4대 지표 -->
             <div class="mt-1.5 bg-indigo-950/70 border border-indigo-700/50 rounded-xl py-1.5 px-2 grid grid-cols-4 gap-1 text-center text-[10px] nowrap">
-              <div><span class="text-indigo-300 text-[8.5px] block">공수(시간/금액)</span><strong id="stat_gongsu" class="text-amber-300 font-black">49.94/51.75</strong></div>
-              <div><span class="text-indigo-300 text-[8.5px] block">주평균시간</span><strong id="stat_weekly_h" class="text-sky-300 font-black">52.03h</strong></div>
-              <div><span class="text-indigo-300 text-[8.5px] block">출근(근로일)</span><strong id="stat_workdays" class="text-white font-black">23.5일</strong></div>
-              <div><span class="text-indigo-300 text-[8.5px] block">유급/무급</span><strong id="stat_paid_days" class="text-emerald-300 font-black">30/0</strong></div>
+              <div><span class="text-indigo-300 text-[8.5px] block">공수(시간/금액)</span><strong id="stat_gongsu" class="text-amber-300 font-black tnum">49.94/51.75</strong></div>
+              <div><span class="text-indigo-300 text-[8.5px] block">주평균시간</span><strong id="stat_weekly_h" class="text-sky-300 font-black tnum">52.03h</strong></div>
+              <div><span class="text-indigo-300 text-[8.5px] block">출근(근로일)</span><strong id="stat_workdays" class="text-white font-black tnum">23.5일</strong></div>
+              <div><span class="text-indigo-300 text-[8.5px] block">유급/무급</span><strong id="stat_paid_days" class="text-emerald-300 font-black tnum">30/0</strong></div>
             </div>
 
             <div class="mt-1.5 bg-slate-950/60 rounded-xl py-1.5 px-2 grid grid-cols-4 gap-1 text-center text-[10px] nowrap">
-              <div><span class="text-slate-400 text-[8.5px] mr-0.5">잔업</span><strong id="stat_ot" class="text-blue-400 font-black">0h</strong></div>
-              <div><span class="text-slate-400 text-[8.5px] mr-0.5">특근</span><strong id="stat_hol" class="text-red-400 font-black">0회</strong></div>
-              <div><span class="text-slate-400 text-[8.5px] mr-0.5">야간</span><strong id="stat_night" class="text-purple-400 font-black">0h</strong></div>
-              <div><span class="text-slate-400 text-[8.5px] mr-0.5">휴가</span><strong id="stat_leave" class="text-emerald-400 font-black">0일</strong></div>
+              <div><span class="text-slate-400 text-[8.5px] mr-0.5">잔업</span><strong id="stat_ot" class="text-blue-400 font-black tnum">0h</strong></div>
+              <div><span class="text-slate-400 text-[8.5px] mr-0.5">특근</span><strong id="stat_hol" class="text-red-400 font-black tnum">0회</strong></div>
+              <div><span class="text-slate-400 text-[8.5px] mr-0.5">야간</span><strong id="stat_night" class="text-purple-400 font-black tnum">0h</strong></div>
+              <div><span class="text-slate-400 text-[8.5px] mr-0.5">휴가</span><strong id="stat_leave" class="text-emerald-400 font-black tnum">0일</strong></div>
             </div>
 
             <details class="mt-1.5 text-xs">
               <summary class="cursor-pointer text-slate-300 font-bold flex justify-between items-center py-0.5 text-[11px] nowrap">
                 <span>🧾 지급·공제 명세서 상세 내역</span><span class="text-[10px] text-emerald-400">펼치기 ▼</span>
               </summary>
-              <div id="payslip_detail_box" class="mt-1.5 pt-1.5 border-t border-slate-700 space-y-1 text-[11px] text-slate-200"></div>
+              <div id="payslip_detail_box" class="mt-1.5 pt-1.5 border-t border-slate-700 space-y-1 text-[10.5px] text-slate-200"></div>
             </details>
           </div>
 
@@ -162,7 +161,7 @@
               <span class="text-[11px] font-black text-slate-800">📂 1월~10월 실제 명세서·근태 원터치 조회</span>
               <span class="text-[9.5px] text-blue-600 font-bold">터치 시 급여뷰 이동</span>
             </div>
-            <div class="grid grid-cols-5 gap-1 text-[10px] font-black">
+            <div class="grid grid-cols-5 gap-1 text-[10px] font-black tracking-tight">
               <button onclick="App.jumpToPayMonth(2026,1)" class="py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-800">1월</button>
               <button onclick="App.jumpToPayMonth(2026,2)" class="py-1.5 rounded-lg bg-amber-50 text-amber-900">2월(설·PS)</button>
               <button onclick="App.jumpToPayMonth(2026,3)" class="py-1.5 rounded-lg bg-slate-100 text-slate-800">3월</button>
@@ -206,8 +205,8 @@
         </div>
       </div>
 <!-- 여기 바로 아래에 [코드 2/4]를 이어서 붙여넣으세요 -->
-     <!-- TAB 2: 연간 리포트 -->
-      <div id="tab_report" class="hidden space-y-2.5 px-2.5 pt-2">
+      <!-- TAB 2: 연간 리포트 (우측 끝 숫자 잘림 완벽 해결) -->
+      <div id="tab_report" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between">
           <button onclick="App.changeReportYear(-1)" class="w-8 h-8 bg-slate-100 rounded-xl font-black text-xs text-slate-700">◀</button>
           <div class="text-center nowrap">
@@ -216,36 +215,54 @@
           </div>
           <button onclick="App.changeReportYear(1)" class="w-8 h-8 bg-slate-100 rounded-xl font-black text-xs text-slate-700">▶</button>
         </div>
-        <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white rounded-3xl p-4 shadow-md space-y-3">
-          <div class="flex justify-between items-start nowrap">
-            <div><span class="text-[11px] font-bold text-emerald-400 block">연간 예상 세후 실수령 총액 (연차수당 포함)</span><strong id="rep_total_net" class="text-2xl font-black tracking-tight mt-0.5 block">0원</strong></div>
-            <span class="text-[10px] font-black bg-indigo-600 px-2 py-0.5 rounded-full">1월~12월 합산</span>
+        <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white rounded-3xl p-3.5 shadow-md space-y-3">
+          <div class="flex justify-between items-start gap-2 nowrap">
+            <div class="min-w-0">
+              <span class="text-[11px] font-bold text-emerald-400 block truncate">연간 예상 세후 실수령 총액 (연차수당 포함)</span>
+              <strong id="rep_total_net" class="text-2xl font-black tracking-tight mt-0.5 block tnum">0원</strong>
+            </div>
+            <span class="text-[9.5px] font-black bg-indigo-600 px-2 py-0.5 rounded-full shrink-0">1~12월 합산</span>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-700/80 nowrap">
-            <div class="bg-slate-800/80 p-2.5 rounded-2xl"><span class="text-slate-400 text-[10px] block">연간 세전 총연봉 (12개월)</span><strong id="rep_total_gross" class="text-sm font-black text-sky-300">0원</strong></div>
-            <div class="bg-slate-800/80 p-2.5 rounded-2xl"><span class="text-slate-400 text-[10px] block">미사용 연차수당 (세전)</span><strong id="rep_unused_vac_pay" class="text-sm font-black text-amber-300">+0원</strong></div>
+            <div class="bg-slate-800/80 p-2.5 rounded-2xl min-w-0">
+              <span class="text-slate-400 text-[10px] block truncate">연간 세전 총연봉 (12개월)</span>
+              <strong id="rep_total_gross" class="text-[13px] font-black text-sky-300 tnum block truncate">0원</strong>
+            </div>
+            <div class="bg-slate-800/80 p-2.5 rounded-2xl min-w-0">
+              <span class="text-slate-400 text-[10px] block truncate">미사용 연차수당 (세전)</span>
+              <strong id="rep_unused_vac_pay" class="text-[13px] font-black text-amber-300 tnum block truncate">+0원</strong>
+            </div>
           </div>
           <div class="bg-slate-950/60 rounded-2xl p-2.5 grid grid-cols-4 gap-1 text-center text-[11px] nowrap">
-            <div><span class="text-slate-400 text-[9px] block">연간 잔업</span><strong id="rep_sum_ot" class="text-blue-400 font-black">0h</strong></div>
-            <div><span class="text-slate-400 text-[9px] block">연간 특근</span><strong id="rep_sum_hol" class="text-red-400 font-black">0회(0h)</strong></div>
-            <div><span class="text-slate-400 text-[9px] block">연간 야간</span><strong id="rep_sum_night" class="text-purple-400 font-black">0h</strong></div>
-            <div><span class="text-slate-400 text-[9px] block">사용 연차</span><strong id="rep_sum_vac" class="text-emerald-400 font-black">0일</strong></div>
+            <div><span class="text-slate-400 text-[9px] block">연간 잔업</span><strong id="rep_sum_ot" class="text-blue-400 font-black tnum">0h</strong></div>
+            <div><span class="text-slate-400 text-[9px] block">연간 특근</span><strong id="rep_sum_hol" class="text-red-400 font-black tnum">0회(0h)</strong></div>
+            <div><span class="text-slate-400 text-[9px] block">연간 야간</span><strong id="rep_sum_night" class="text-purple-400 font-black tnum">0h</strong></div>
+            <div><span class="text-slate-400 text-[9px] block">사용 연차</span><strong id="rep_sum_vac" class="text-emerald-400 font-black tnum">0일</strong></div>
           </div>
         </div>
-        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200">
-          <div class="flex items-center justify-between mb-2 nowrap"><h3 class="text-xs font-black text-slate-800">📅 월별 급여·특근 상세 (터치 시 급여뷰 이동)</h3><span class="text-[10px] text-slate-400">단위: 원</span></div>
-          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
-            <table class="w-full text-left border-collapse nowrap">
-              <thead><tr class="bg-slate-100 text-slate-600 text-[10px] font-black"><th class="py-2 px-2">급여월</th><th class="py-2 px-1 text-center">잔업/특근/야간</th><th class="py-2 px-2 text-right">세전총액</th><th class="py-2 px-2 text-right">세후실수령</th></tr></thead>
-              <tbody id="rep_monthly_tbody" class="divide-y divide-slate-100 text-[11px]"></tbody>
+        <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2 px-0.5 nowrap">
+            <h3 class="text-xs font-black text-slate-800">📅 월별 급여·특근 상세 (터치 시 급여뷰 이동)</h3>
+            <span class="text-[10px] text-slate-400 font-bold">단위: 원</span>
+          </div>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs w-full">
+            <table class="w-full table-fixed text-left border-collapse nowrap">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 text-[10px] font-black tracking-tighter">
+                  <th class="py-2 pl-2 pr-1 w-[26%]">급여월</th>
+                  <th class="py-2 px-1 text-center w-[28%]">잔업·특근·야간</th>
+                  <th class="py-2 px-1 text-right w-[23%]">세전총액</th>
+                  <th class="py-2 pl-1 pr-2.5 text-right w-[23%]">세후실수령</th>
+                </tr>
+              </thead>
+              <tbody id="rep_monthly_tbody" class="divide-y divide-slate-100 text-[10.5px] tnum"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- TAB 3: 예상 퇴직금 조회 (독립 신설 탭) -->
-      <div id="tab_severance" class="hidden space-y-2.5 px-2.5 pt-2">
-        <!-- 상단 산정 기준월 네비게이터 -->
+      <!-- TAB 3: 예상 퇴직금 조회 (글씨 잘림 완벽 해결) -->
+      <div id="tab_severance" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between gap-1">
           <button onclick="App.changeSeveranceMonth(-1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700 shrink-0">◀</button>
           <div class="text-center min-w-0">
@@ -259,146 +276,144 @@
         </div>
 
         <!-- 사내 시스템 연동 예상퇴직금 메인 카드 -->
-        <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-4 shadow-md space-y-3">
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-3.5 shadow-md space-y-3">
           <div class="flex items-start justify-between gap-2 nowrap">
-            <div>
-              <div class="flex items-center gap-1.5">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="text-[11px] font-extrabold text-emerald-400">차감지급액 (세후 실수령 퇴직금)</span>
                 <span id="sev_verified_badge" class="text-[8.5px] font-black bg-sky-400 text-slate-950 px-1.5 py-0.5 rounded-full">✔조회표일치</span>
               </div>
-              <strong id="sev_net_pay" class="text-2xl sm:text-3xl font-black tracking-tight text-white block mt-0.5">128,913,710원</strong>
+              <strong id="sev_net_pay" class="text-2xl sm:text-3xl font-black tracking-tight text-white block mt-0.5 tnum">128,913,710원</strong>
             </div>
-            <button onclick="App.toggleSeveranceTenureMode()" id="btn_sev_tenure_mode" class="text-[9.5px] font-black bg-indigo-600/90 border border-indigo-400/50 px-2 py-1 rounded-xl text-indigo-100 active:scale-95">
+            <button onclick="App.toggleSeveranceTenureMode()" id="btn_sev_tenure_mode" class="shrink-0 text-[9.5px] font-black bg-indigo-600/90 border border-indigo-400/50 px-2 py-1 rounded-xl text-indigo-100 active:scale-95">
               근속: 월단위연동
             </button>
           </div>
 
-          <!-- 퇴직금 총액(세전) 및 공제총액 -->
           <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-700/80 nowrap">
-            <div class="bg-slate-800/90 p-2.5 rounded-2xl">
+            <div class="bg-slate-800/90 p-2.5 rounded-2xl min-w-0">
               <span class="text-slate-400 text-[10px] block">퇴직금 총액 (세전)</span>
-              <strong id="sev_gross_pay" class="text-sm font-black text-sky-300">134,108,240원</strong>
+              <strong id="sev_gross_pay" class="text-[13px] font-black text-sky-300 tnum block truncate">134,108,240원</strong>
             </div>
-            <div class="bg-slate-800/90 p-2.5 rounded-2xl">
+            <div class="bg-slate-800/90 p-2.5 rounded-2xl min-w-0">
               <span class="text-slate-400 text-[10px] block">공제총액 (퇴직세금 합계)</span>
-              <strong id="sev_total_tax" class="text-sm font-black text-rose-300">-5,194,530원</strong>
+              <strong id="sev_total_tax" class="text-[13px] font-black text-rose-300 tnum block truncate">-5,194,530원</strong>
             </div>
           </div>
 
-          <!-- 사내 조회표 기본정보 & 세금 명세 -->
-          <div class="bg-slate-950/60 rounded-2xl p-3 space-y-1.5 text-xs nowrap">
-            <div class="flex justify-between text-slate-300">
-              <span>• 퇴직기산일자 / 평균임금 기산일</span>
-              <strong id="sev_dates_info" class="text-white font-bold">2012.11.09 ~ 2026.10.31</strong>
+          <div class="bg-slate-950/60 rounded-2xl p-2.5 space-y-1.5 text-[11px] nowrap">
+            <div class="flex justify-between gap-2 text-slate-300">
+              <span class="truncate">• 퇴직기산일 / 평균임금 기산일</span>
+              <strong id="sev_dates_info" class="text-white font-bold shrink-0 tnum">2012.11.09 ~ 2026.10.31</strong>
             </div>
-            <div class="flex justify-between text-slate-300">
-              <span>• 3개월 평균임금 (상여 1/12 포함)</span>
-              <strong id="sev_avg_wage" class="text-amber-300 font-black">9,579,160원</strong>
+            <div class="flex justify-between gap-2 text-slate-300">
+              <span class="truncate">• 3개월 평균임금 (상여 1/12 포함)</span>
+              <strong id="sev_avg_wage" class="text-amber-300 font-black shrink-0 tnum">9,579,160원</strong>
             </div>
-            <div class="flex justify-between text-slate-300">
-              <span>• 인정 근속년수</span>
-              <strong id="sev_tenure_text" class="text-emerald-300 font-black">14년 00개월 (14.00년)</strong>
+            <div class="flex justify-between gap-2 text-slate-300">
+              <span class="truncate">• 인정 근속년수</span>
+              <strong id="sev_tenure_text" class="text-emerald-300 font-black shrink-0 tnum">14년 00개월 (14.00년)</strong>
             </div>
-            <div class="pt-1.5 border-t border-slate-800 flex justify-between text-[11px] text-slate-400">
-              <span>• 퇴직갑근세 / 퇴직주민세(10%)</span>
-              <strong id="sev_tax_detail" class="text-rose-200">-4,722,300원 / -472,230원</strong>
+            <div class="pt-1.5 border-t border-slate-800 flex justify-between gap-2 text-[10.5px] text-slate-400">
+              <span class="truncate">• 퇴직갑근세 / 주민세(10%)</span>
+              <strong id="sev_tax_detail" class="text-rose-200 shrink-0 tnum">-4,722,300원 / -472,230원</strong>
             </div>
           </div>
         </div>
 
-        <!-- 직전 3개월 평균임금 산출 상세 내역 (급여뷰 실시간 연동) -->
-        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between nowrap">
+        <!-- 직전 3개월 평균임금 산출 상세 내역 -->
+        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between gap-1 nowrap">
             <h3 class="text-xs font-black text-slate-900">📊 직전 3개월 평균임금 산출 내역</h3>
-            <span class="text-[10px] text-blue-600 font-bold">터치 시 해당 월 급여뷰 수정</span>
+            <span class="text-[9.5px] text-blue-600 font-bold shrink-0">터치 시 급여뷰 이동</span>
           </div>
           <p class="text-[10.5px] text-slate-500 leading-snug">
             급여뷰 달력에 <strong class="text-slate-800">잔업·특근</strong>을 입력하면 아래 3개월 급여 평균이 즉시 바뀌며 예상 퇴직금이 실시간으로 자동 조정됩니다.
           </p>
-          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
-            <table class="w-full text-left border-collapse nowrap">
+          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs w-full">
+            <table class="w-full table-fixed text-left border-collapse nowrap">
               <thead>
-                <tr class="bg-slate-100 text-slate-600 text-[10px] font-black">
-                  <th class="py-2 px-2.5">산입 월</th>
-                  <th class="py-2 px-1 text-center">근태 (잔업/특근/야간)</th>
-                  <th class="py-2 px-2.5 text-right">월 급여액(상여제외)</th>
+                <tr class="bg-slate-100 text-slate-600 text-[10px] font-black tracking-tighter">
+                  <th class="py-2 pl-2.5 pr-1 w-[27%]">산입 급여월</th>
+                  <th class="py-2 px-1 text-center w-[41%]">근태 (잔업·특근·야간)</th>
+                  <th class="py-2 pl-1 pr-2.5 text-right w-[32%]">월 급여(상여제외)</th>
                 </tr>
               </thead>
-              <tbody id="sev_3month_tbody" class="divide-y divide-slate-100 text-[11px]"></tbody>
+              <tbody id="sev_3month_tbody" class="divide-y divide-slate-100 text-[10.5px] tnum"></tbody>
             </table>
           </div>
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1 text-[11px] nowrap">
-            <div class="flex justify-between text-slate-600">
-              <span>① 직전 3개월 급여 평균 (기본·고정급 + 연장·특근·야간)</span>
-              <strong id="sev_part_3m_avg" class="text-slate-900 font-black">7,510,532원</strong>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1 text-[10.5px] nowrap">
+            <div class="flex justify-between items-center gap-2 text-slate-600">
+              <span class="truncate">① 직전 3개월 급여 평균 (기본+연장·특근·야간)</span>
+              <strong id="sev_part_3m_avg" class="text-slate-900 font-black shrink-0 tnum">7,510,532원</strong>
             </div>
-            <div class="flex justify-between text-slate-600">
-              <span>② 연간 상여금(800%) 및 부가수당 1/12 산입분</span>
-              <strong id="sev_part_bonus_avg" class="text-indigo-700 font-black">+2,068,628원</strong>
+            <div class="flex justify-between items-center gap-2 text-slate-600">
+              <span class="truncate">② 연간 상여(800%)·부가수당 1/12 산입</span>
+              <strong id="sev_part_bonus_avg" class="text-indigo-700 font-black shrink-0 tnum">+2,068,628원</strong>
             </div>
-            <div class="flex justify-between pt-1 border-t border-slate-200 text-slate-900 font-extrabold">
-              <span>= 최종 산정 평균임금 (① + ②)</span>
-              <strong id="sev_part_total_avg" class="text-blue-700 font-black">9,579,160원</strong>
+            <div class="flex justify-between items-center gap-2 pt-1 border-t border-slate-200 text-slate-900 font-extrabold">
+              <span class="truncate">= 최종 산정 평균임금 (① + ②)</span>
+              <strong id="sev_part_total_avg" class="text-blue-700 font-black shrink-0 tnum">9,579,160원</strong>
             </div>
           </div>
         </div>
 
-        <!-- 직전 3개월 내 특근·잔업 1회당 퇴직금 상승 효과표 -->
-        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between nowrap">
-            <h3 class="text-xs font-black text-red-700">🔥 퇴직 전 3개월 내 특근·잔업 1회당 퇴직금 상승액</h3>
-            <span id="sev_boost_tenure_badge" class="text-[10px] font-bold text-slate-500">14년 근속 기준 (약 4.67배 효과)</span>
+        <!-- 직전 3개월 내 특근·잔업 1회당 퇴직금 상승 효과표 (글씨 잘림 해결) -->
+        <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between gap-1 nowrap">
+            <h3 class="text-[11.5px] font-black text-red-700 tracking-tight truncate">🔥 특근·잔업 1회당 퇴직금 상승액</h3>
+            <span id="sev_boost_tenure_badge" class="text-[9.5px] font-extrabold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full shrink-0">14년 근속 (×4.67배)</span>
           </div>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="p-2.5 rounded-2xl bg-purple-50 border border-purple-200 nowrap">
-              <span class="text-[10.5px] font-bold text-purple-900 block">🌙 야간 12h 특근 1회 추가 시</span>
-              <strong id="sev_boost_n12" class="text-sm font-black text-purple-700 block mt-0.5">+2,676,534원</strong>
-              <span id="sev_boost_n12_net" class="text-[10px] text-purple-800 font-bold block">평균임금 +19.1만 / 세후 +242만</span>
+          <div class="grid grid-cols-2 gap-1.5 text-xs">
+            <div class="p-2.5 rounded-2xl bg-purple-50 border border-purple-200 min-w-0 nowrap">
+              <span class="text-[10.5px] font-bold text-purple-900 block truncate">🌙 야간 12h 특근 1회</span>
+              <strong id="sev_boost_n12" class="text-sm font-black text-purple-700 block mt-0.5 tnum">+2,676,534원</strong>
+              <span id="sev_boost_n12_net" class="text-[9.5px] tracking-tighter text-purple-800 font-bold block truncate">평균 +19.1만 / 세후 +239만</span>
             </div>
-            <div class="p-2.5 rounded-2xl bg-red-50 border border-red-200 nowrap">
-              <span class="text-[10.5px] font-bold text-red-900 block">☀️ 주간 12h 특근 1회 추가 시</span>
-              <strong id="sev_boost_d12" class="text-sm font-black text-red-600 block mt-0.5">+2,230,443원</strong>
-              <span id="sev_boost_d12_net" class="text-[10px] text-red-700 font-bold block">평균임금 +15.9만 / 세후 +202만</span>
+            <div class="p-2.5 rounded-2xl bg-red-50 border border-red-200 min-w-0 nowrap">
+              <span class="text-[10.5px] font-bold text-red-900 block truncate">☀️ 주간 12h 특근 1회</span>
+              <strong id="sev_boost_d12" class="text-sm font-black text-red-600 block mt-0.5 tnum">+2,230,443원</strong>
+              <span id="sev_boost_d12_net" class="text-[9.5px] tracking-tighter text-red-700 font-bold block truncate">평균 +15.9만 / 세후 +199만</span>
             </div>
-            <div class="p-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 nowrap">
-              <span class="text-[10.5px] font-bold text-indigo-900 block">🌙 야간 8h 특근 1회 추가 시</span>
-              <strong id="sev_boost_n8" class="text-sm font-black text-indigo-700 block mt-0.5">+1,784,356원</strong>
-              <span id="sev_boost_n8_net" class="text-[10px] text-indigo-800 font-bold block">평균임금 +12.7만 / 세후 +161만</span>
+            <div class="p-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 min-w-0 nowrap">
+              <span class="text-[10.5px] font-bold text-indigo-900 block truncate">🌙 야간 8h 특근 1회</span>
+              <strong id="sev_boost_n8" class="text-sm font-black text-indigo-700 block mt-0.5 tnum">+1,784,356원</strong>
+              <span id="sev_boost_n8_net" class="text-[9.5px] tracking-tighter text-indigo-800 font-bold block truncate">평균 +12.7만 / 세후 +160만</span>
             </div>
-            <div class="p-2.5 rounded-2xl bg-blue-50/70 border border-blue-200 nowrap">
-              <span class="text-[10.5px] font-bold text-blue-900 block">⚡ 평일 4h 잔업 1회 추가 시</span>
-              <strong id="sev_boost_ot4" class="text-sm font-black text-blue-700 block mt-0.5">+669,135원</strong>
-              <span id="sev_boost_ot4_net" class="text-[10px] text-blue-800 font-bold block">평균임금 +4.8만 / 세후 +60.5만</span>
+            <div class="p-2.5 rounded-2xl bg-blue-50/70 border border-blue-200 min-w-0 nowrap">
+              <span class="text-[10.5px] font-bold text-blue-900 block truncate">⚡ 평일 4h 잔업 1회</span>
+              <strong id="sev_boost_ot4" class="text-sm font-black text-blue-700 block mt-0.5 tnum">+669,135원</strong>
+              <span id="sev_boost_ot4_net" class="text-[9.5px] tracking-tighter text-blue-800 font-bold block truncate">평균 +4.8만 / 세후 +59.8만</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- TAB 4: 수당 단가표 -->
-      <div id="tab_rates" class="hidden space-y-2.5 px-2.5 pt-2">
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <div id="tab_rates" class="hidden space-y-2.5 px-2 pt-2">
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200">
           <div class="flex items-center justify-between nowrap"><span class="text-[10px] font-black text-blue-600 uppercase">Rate Table</span><span class="text-[10px] font-bold text-slate-400">소정근로 220h 기준</span></div>
           <h2 class="text-base font-black text-slate-900 mt-0.5 nowrap">내 시간당·특근당 수당 단가표</h2>
           <div class="mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center text-xs nowrap">
             <span class="text-slate-600 font-bold">선택월 기본급 / 통상시급</span>
-            <div><strong id="rate_tab_base" class="text-slate-900">3,005,500원</strong><span class="text-slate-300 mx-1">|</span><strong id="rate_tab_hourly" class="text-blue-700 font-black">23,898원/h</strong></div>
+            <div class="tnum"><strong id="rate_tab_base" class="text-slate-900">3,005,500원</strong><span class="text-slate-300 mx-1">|</span><strong id="rate_tab_hourly" class="text-blue-700 font-black">23,898원/h</strong></div>
           </div>
           <h3 class="text-xs font-extrabold text-red-700 mt-4 mb-2 nowrap">🔥 주말·휴일 특근 1회당 가격</h3>
-          <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="grid grid-cols-2 gap-2 text-xs tnum">
             <div class="p-3 rounded-2xl bg-red-50 border border-red-200 nowrap"><span class="text-[11px] font-bold text-red-800 block">☀️ 주간 12시간 특근</span><strong id="price_day_hol12" class="text-sm sm:text-base font-black text-red-600 block mt-0.5">0원</strong><span id="net_day_hol12" class="text-[10px] text-red-700 font-bold block mt-0.5">세후 약 0만</span></div>
             <div class="p-3 rounded-2xl bg-purple-50 border border-purple-200 nowrap"><span class="text-[11px] font-bold text-purple-900 block">🌙 야간 12시간 특근</span><strong id="price_night_hol12" class="text-sm sm:text-base font-black text-purple-700 block mt-0.5">0원</strong><span id="net_night_hol12" class="text-[10px] text-purple-800 font-bold block mt-0.5">세후 약 0만</span></div>
             <div class="p-3 rounded-2xl bg-orange-50/70 border border-orange-200 nowrap"><span class="text-[11px] font-bold text-orange-900 block">☀️ 주간 8시간 특근</span><strong id="price_day_hol8" class="text-sm sm:text-base font-black text-orange-700 block mt-0.5">0원</strong><span id="net_day_hol8" class="text-[10px] text-orange-800 font-bold block mt-0.5">세후 약 0만</span></div>
             <div class="p-3 rounded-2xl bg-indigo-50/70 border border-indigo-200 nowrap"><span class="text-[11px] font-bold text-indigo-900 block">🌙 야간 8시간 특근</span><strong id="price_night_hol8" class="text-sm sm:text-base font-black text-indigo-700 block mt-0.5">0원</strong><span id="net_night_hol8" class="text-[10px] text-indigo-800 font-bold block mt-0.5">세후 약 0만</span></div>
           </div>
           <h3 class="text-xs font-extrabold text-blue-800 mt-4 mb-2 nowrap">⚡ 평일 주간잔업(1.5배) vs 야간잔업(2.0배)</h3>
-          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
+          <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs tnum">
             <table class="w-full text-left border-collapse nowrap">
               <thead><tr class="bg-slate-100 text-slate-600 text-[11px]"><th class="py-2 px-2.5">시간</th><th class="py-2 px-2.5 text-right">⚡주간잔업(세전)</th><th class="py-2 px-2.5 text-right">🦉야간잔업(세전)</th></tr></thead>
               <tbody id="ot_rate_table_body" class="divide-y divide-slate-100 font-semibold"></tbody>
             </table>
           </div>
           <h3 class="text-xs font-extrabold text-purple-800 mt-4 mb-2 nowrap">🌙 야간근무 가산 수당 (0.5배)</h3>
-          <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-3 space-y-1.5 text-xs nowrap">
+          <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-3 space-y-1.5 text-xs nowrap tnum">
             <div class="flex justify-between"><span class="text-slate-600 font-semibold">야간 1시간당 (0.5배)</span><strong id="price_night_1h" class="text-purple-800 font-black">0원</strong></div>
             <div class="flex justify-between"><span class="text-slate-600 font-semibold">야간조 1일 출근 (8시간)</span><strong id="price_night_8h" class="text-purple-800 font-black">0원</strong></div>
             <div class="flex justify-between border-t border-purple-200 pt-1.5"><span class="text-slate-600 font-semibold">야간조 평일 5일 만근 (40시간)</span><strong id="price_night_40h" class="text-purple-900 font-black">0원</strong></div>
@@ -407,14 +422,14 @@
       </div>
 
       <!-- TAB 5: 보정 · 설정 · 깃허브 클라우드 백업 -->
-      <div id="tab_settings" class="hidden space-y-2.5 px-2.5 pt-2">
-        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-4 shadow-md border border-sky-500/40 space-y-3">
-          <div class="flex items-center justify-between nowrap">
-            <div class="flex items-center gap-1.5">
-              <span class="text-base">☁️</span>
-              <h2 class="text-sm font-black text-white">깃허브 원터치 클라우드 백업</h2>
+      <div id="tab_settings" class="hidden space-y-2.5 px-2 pt-2">
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-3.5 shadow-md border border-sky-500/40 space-y-3">
+          <div class="flex items-center justify-between gap-1 nowrap">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-base shrink-0">☁️</span>
+              <h2 class="text-sm font-black text-white truncate">깃허브 원터치 클라우드 백업</h2>
             </div>
-            <span id="gh_sync_status_badge" class="text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">열쇠 미등록</span>
+            <span id="gh_sync_status_badge" class="text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0">열쇠 미등록</span>
           </div>
 
           <p class="text-[11px] text-slate-300 leading-relaxed">
@@ -422,10 +437,10 @@
           </p>
 
           <div class="space-y-1.5 text-xs">
-            <div class="flex items-center justify-between nowrap">
-              <label class="text-[10.5px] font-extrabold text-sky-300">🔑 내 깃허브 열쇠 번호 (최초 1회만 입력)</label>
-              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Backup&scopes=gist" target="_blank" class="text-[10px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">
-                🔗 열쇠 10초 발급 바로가기 ↗
+            <div class="flex items-center justify-between gap-1 nowrap">
+              <label class="text-[10.5px] font-extrabold text-sky-300 truncate">🔑 내 깃허브 열쇠 번호 (최초 1회)</label>
+              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Backup&scopes=gist" target="_blank" class="shrink-0 text-[9.5px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">
+                🔗 열쇠 10초 발급 ↗
               </a>
             </div>
             <div class="flex items-center gap-1.5">
@@ -435,24 +450,24 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-xs pt-0.5">
-            <button onclick="App.cloudBackupToGithub(false)" class="py-2.5 px-3 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
+            <button onclick="App.cloudBackupToGithub(false)" class="py-2.5 px-2 bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
               ☁️ 깃허브에 딸깍 백업
             </button>
-            <button onclick="App.cloudRestoreFromGithub()" class="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
+            <button onclick="App.cloudRestoreFromGithub()" class="py-2.5 px-2 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black rounded-xl shadow-sm nowrap">
               📥 깃허브에서 딸깍 복원
             </button>
           </div>
 
-          <div class="pt-2 border-t border-slate-700/80 flex items-center justify-between text-[11px] nowrap">
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="chk_gh_auto_sync" onchange="App.toggleGithubAutoSync()" class="w-4 h-4 accent-sky-400 rounded">
-              <span class="font-bold text-slate-200">🔄 기록 수정 시마다 자동 서버 백업</span>
+          <div class="pt-2 border-t border-slate-700/80 flex items-center justify-between gap-1 text-[10.5px] nowrap">
+            <label class="flex items-center gap-1.5 cursor-pointer min-w-0">
+              <input type="checkbox" id="chk_gh_auto_sync" onchange="App.toggleGithubAutoSync()" class="w-4 h-4 accent-sky-400 rounded shrink-0">
+              <span class="font-bold text-slate-200 truncate">🔄 기록 수정 시마다 자동 백업</span>
             </label>
-            <span id="gh_last_sync_time" class="text-[10px] text-slate-400">백업 기록 없음</span>
+            <span id="gh_last_sync_time" class="text-[9.5px] text-slate-400 shrink-0">백업 기록 없음</span>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5">
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔄 내 근무조 패턴 원터치 설정</h2><span class="text-[10px] font-bold text-blue-600">오늘이 속한 주 기준</span></div>
           <div class="grid grid-cols-3 gap-2 text-xs font-black pt-1">
             <button id="btn_set_shift_EARLY" onclick="App.setThisWeekShift('EARLY')" class="py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 nowrap">☀️ 이번주 초반</button>
@@ -461,9 +476,9 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🌴 연차 휴가 및 기본급 설정</h2><span class="text-[10px] font-bold text-emerald-700">1일 = 8h 통상시급</span></div>
-          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
               <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">10.0일</strong></div>
               <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">4.5일</strong></div></div>
@@ -483,13 +498,13 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm border-2 border-indigo-500">
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border-2 border-indigo-500">
           <div class="flex items-center justify-between mb-1 nowrap"><span class="text-[10px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full">SMART CALIBRATION</span><button onclick="App.resetCalibration()" class="text-[11px] text-slate-400 hover:text-red-600 font-bold">보정 초기화</button></div>
           <h2 class="text-sm font-black text-slate-900 mt-1 nowrap">🎯 실급여 세전·세후 자동 보정</h2>
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 my-2.5 text-xs space-y-1 nowrap">
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 my-2.5 text-xs space-y-1 nowrap tnum">
             <div class="flex justify-between text-slate-500"><span>선택월(<strong id="calib_month_label" class="text-indigo-700">10월</strong>) 보정 전 세전</span><strong id="calib_raw_gross" class="text-slate-800">0원</strong></div>
             <div class="flex justify-between text-slate-500"><span>선택월 보정 전 세후</span><strong id="calib_raw_net" class="text-slate-800">0원</strong></div>
-            <div class="flex justify-between pt-1 border-t border-slate-200 font-bold text-indigo-700"><span>현재 보정 상태</span><strong id="calib_current_status">1~10월 명세서 정밀공식 적용중</strong></div>
+            <div class="flex justify-between gap-2 pt-1 border-t border-slate-200 font-bold text-indigo-700"><span class="shrink-0">현재 보정 상태</span><strong id="calib_current_status" class="truncate">1~10월 명세서 정밀공식 적용중</strong></div>
           </div>
           <div class="space-y-2 text-xs">
             <div><label class="block font-extrabold text-slate-700 mb-1 nowrap">1. 명세서 총지급액 (상여 포함 세전, 원)</label><input type="number" id="input_actual_gross" placeholder="예: 10076258" step="10" class="w-full p-2.5 border border-slate-300 rounded-xl font-black text-right text-sm bg-white"></div>
@@ -498,7 +513,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5">
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드·파일 백업 (보조용)</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
           <button onclick="App.reseedAllHistory()" class="w-full py-2 bg-sky-100 text-sky-900 font-black rounded-xl text-xs border border-sky-300 nowrap">🔄 1월~10월 사진 원본 근무데이터 다시 불러오기</button>
           <div class="grid grid-cols-2 gap-2 text-xs pt-1">
@@ -513,8 +528,8 @@
       </div>
     </main>
 
-    <!-- 하단 5탭 네비게이션 (예상퇴직금 독립 탭 추가) -->
-    <nav class="bg-white border-t border-slate-200 px-0.5 py-1.5 grid grid-cols-5 text-center text-[9.5px] font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
+    <!-- 하단 5탭 네비게이션 -->
+    <nav class="bg-white border-t border-slate-200 px-0.5 py-1.5 grid grid-cols-5 text-center text-[9.5px] tracking-tighter font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
       <button id="nav_severance" onclick="App.switchTab('severance')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🏦</span><span>예상퇴직금</span></button>
@@ -761,7 +776,6 @@
       memoYear: 2026, memoMonth: 10, memoPayOffset: 0,
       payViewYear: 2026, payViewMonth: 11,
       reportYear: 2026,
-      // 예상퇴직금 산정 기준 연·월 (기본값: 2026년 10월 조회표 기준)
       sevYear: 2026, sevMonth: 10, sevUseExactMonths: true,
 
       basePay: 3005500, totalVacation: 21, priorUsedVacation: 6.5, shiftOffset: 0,
@@ -853,15 +867,15 @@
 
         if (!this.ghToken) {
           badge.innerText = '열쇠 미등록';
-          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300';
+          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0';
           if (topDot) topDot.classList.add('hidden');
         } else if (customMsg) {
           badge.innerText = customMsg;
-          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950';
+          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 shrink-0';
           if (topDot) topDot.classList.remove('hidden');
         } else {
           badge.innerText = this.ghAutoSync ? '✔ 자동백업 켜짐' : '✔ 열쇠 등록됨';
-          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950';
+          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 shrink-0';
           if (topDot) topDot.classList.remove('hidden');
         }
         lastEl.innerText = this.ghLastSync ? `최근 백업: ${this.ghLastSync}` : '아직 서버 백업 전';
@@ -885,7 +899,7 @@
       async cloudBackupToGithub(silent = false) {
         const token = (this.ghToken || document.getElementById('input_gh_token')?.value || '').trim();
         if (!token) {
-          if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.\n우측의 [🔗 열쇠 10초 발급 바로가기]를 누르면 바로 만들 수 있습니다.');
+          if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.\n우측의 [🔗 열쇠 10초 발급]을 누르면 바로 만들 수 있습니다.');
           return;
         }
         this.ghToken = token;
@@ -1225,7 +1239,7 @@
       },
 
       getExportPayload() {
-        return { version: '6.0', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV59: this.seededHistoryV59, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
+        return { version: '6.1', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV59: this.seededHistoryV59, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
       },
 
       save(skipCloudAuto = false) {
@@ -1544,7 +1558,6 @@
         const housingDed = ex.housingDed !== undefined ? ex.housingDed : 0;
         const retroPay = Number(ex.retroPay) || 0;
 
-        // 퇴직금 3개월 평균임금 산입 대상 월 급여액 (상여·소급·이자지원 제외 순수 급여+수당)
         const coreMonthlyWage = appliedBase + 50000 + 130000 + lmsPay + otPay + holBasePay + holOverPay + nightPay + eduPay;
 
         const fixedBaseTotal = appliedBase + 50000 + 130000 + lmsPay + housingAllow + retroPay;
@@ -1571,9 +1584,6 @@
         };
       },
 
-      // ============================================================
-      // 🏦 예상 퇴직금 정밀 산정 엔진 (사내 조회표 100% 일치 + 실시간 근태 연동)
-      // ============================================================
       changeSeveranceMonth(delta) {
         this.sevMonth += delta;
         if (this.sevMonth > 12) { this.sevMonth = 1; this.sevYear++; }
@@ -1591,7 +1601,6 @@
       },
 
       calculateSeveranceSummary(targetY, targetM) {
-        // 직전 3개월 (M-2, M-1, M) 산출
         const months = [];
         for (let i = 2; i >= 0; i--) {
           let y = targetY, m = targetM - i;
@@ -1602,23 +1611,17 @@
         const sum3M = months.reduce((acc, c) => acc + c.coreMonthlyWage, 0);
         const avg3MWage = sum3M / 3;
 
-        // 연간 정기상여(600%) + 명절상여(200%) = 800%의 1/12 + 연차/복리/이자지원 고정산입분(64,961.67원)
         const latestBase = months[2].appliedBase || this.basePay;
         const bonusMonthlyInclusion = (latestBase * (8 / 12)) + 64961.6667;
-
-        // 3개월 평균임금 (10원 단위 반올림: 2026.10 기준 정확히 9,579,160원)
         const avgWage = Math.round((avg3MWage + bonusMonthlyInclusion) / 10) * 10;
 
-        // 퇴직기산일(2012.11.09) 기준 근속년수 산출 (2026.10 = 168개월 = 14년 00개월)
         const totalMonths = Math.max(12, (targetY - 2012) * 12 + (targetM - 10));
         const tenYearsInt = Math.floor(totalMonths / 12);
         const tenMonthsRem = totalMonths % 12;
         const tenureFactor = this.sevUseExactMonths ? (tenYearsInt + (tenMonthsRem / 12)) : tenYearsInt;
 
-        // 퇴직금 총액(세전) = 평균임금 × 근속년수 (2026.10 기준: 9,579,160 × 14 = 134,108,240원)
         const grossSeverance = Math.round(avgWage * tenureFactor);
 
-        // 퇴직갑근세 & 퇴직주민세 (사내 조회표 4,722,300원 / 472,230원 완벽 일치 및 한계세율 연동)
         const baseTaxPerYear = 4722300 / 14;
         const deltaWage = avgWage - 9579160;
         const incomeTaxRaw = tenureFactor * (baseTaxPerYear + (deltaWage * 0.096));
@@ -1661,9 +1664,9 @@
           const holH = c.sumHolBaseH + c.sumHolOverH;
           return `
             <tr onclick="App.jumpToPayMonth(${c.payY}, ${c.payM})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100">
-              <td class="py-2 px-2.5 font-black text-slate-800">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td>
-              <td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h · 특${c.holCount}회(${Number.isInteger(holH)?holH:holH.toFixed(1)}h) · 야${c.sumNightH}h</td>
-              <td class="py-2 px-2.5 text-right font-black text-blue-700">${c.coreMonthlyWage.toLocaleString()}원</td>
+              <td class="py-2 pl-2.5 pr-1 font-black text-slate-800 tracking-tighter">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td>
+              <td class="py-2 px-1 text-center text-[10px] text-slate-600 tracking-tighter">잔${c.sumOtH}h·특${c.holCount}회(${Number.isInteger(holH)?holH:holH.toFixed(1)}h)·야${c.sumNightH}h</td>
+              <td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700 tracking-tighter">${c.coreMonthlyWage.toLocaleString()}원</td>
             </tr>
           `;
         }).join('');
@@ -1672,10 +1675,9 @@
         document.getElementById('sev_part_bonus_avg').innerText = `+${s.bonusMonthlyInclusion.toLocaleString()}원`;
         document.getElementById('sev_part_total_avg').innerText = `${s.avgWage.toLocaleString()}원`;
 
-        // 특근·잔업 1회당 퇴직금 상승 효과 계산
         const rate = this.getHourlyRate(this.basePay), nUnit = this.getNightHourlyRate(this.basePay);
         const mult = s.tenureFactor / 3;
-        document.getElementById('sev_boost_tenure_badge').innerText = `${s.tenYearsInt}년 근속 기준 (수당의 약 ${(s.tenureFactor/3).toFixed(2)}배 상승)`;
+        document.getElementById('sev_boost_tenure_badge').innerText = `${s.tenYearsInt}년 근속 (×${mult.toFixed(2)}배)`;
 
         const d12Pay = Math.round((8 * 1.5 + 4 * 2.0) * rate);
         const n8Pay = Math.round(8 * nUnit);
@@ -1688,13 +1690,13 @@
         const boostN8 = Math.round(nh8Pay * mult), boostOt4 = Math.round(ot4Pay * mult);
 
         document.getElementById('sev_boost_n12').innerText = `+${boostN12.toLocaleString()}원`;
-        document.getElementById('sev_boost_n12_net').innerText = `평균임금 +${(n12Pay/30000).toFixed(1)}만 / 세후 +${(boostN12*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_n12_net').innerText = `평균 +${(n12Pay/30000).toFixed(1)}만 / 세후 +${(boostN12*0.894/10000).toFixed(1)}만`;
         document.getElementById('sev_boost_d12').innerText = `+${boostD12.toLocaleString()}원`;
-        document.getElementById('sev_boost_d12_net').innerText = `평균임금 +${(d12Pay/30000).toFixed(1)}만 / 세후 +${(boostD12*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_d12_net').innerText = `평균 +${(d12Pay/30000).toFixed(1)}만 / 세후 +${(boostD12*0.894/10000).toFixed(1)}만`;
         document.getElementById('sev_boost_n8').innerText = `+${boostN8.toLocaleString()}원`;
-        document.getElementById('sev_boost_n8_net').innerText = `평균임금 +${(nh8Pay/30000).toFixed(1)}만 / 세후 +${(boostN8*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_n8_net').innerText = `평균 +${(nh8Pay/30000).toFixed(1)}만 / 세후 +${(boostN8*0.894/10000).toFixed(1)}만`;
         document.getElementById('sev_boost_ot4').innerText = `+${boostOt4.toLocaleString()}원`;
-        document.getElementById('sev_boost_ot4_net').innerText = `평균임금 +${(ot4Pay/30000).toFixed(1)}만 / 세후 +${(boostOt4*0.894/10000).toFixed(1)}만`;
+        document.getElementById('sev_boost_ot4_net').innerText = `평균 +${(ot4Pay/30000).toFixed(1)}만 / 세후 +${(boostOt4*0.894/10000).toFixed(1)}만`;
       },
 
       invalidateExactSlipForDate(dateKey) {
@@ -1903,15 +1905,15 @@
           let nextM = this.memoMonth + 1; if (nextM > 12) nextM = 1;
           btnCurr.innerText = `${this.memoMonth}월 급여(${prevM}.21~${this.memoMonth}.20)`;
           btnNext.innerText = `${nextM}월 급여(${this.memoMonth}.21~${nextM}.20)`;
-          btnCurr.className = this.memoPayOffset === 0 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
-          btnNext.className = this.memoPayOffset === 1 ? 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
+          btnCurr.className = this.memoPayOffset === 0 ? 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
+          btnNext.className = this.memoPayOffset === 1 ? 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 shadow-sm truncate' : 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
         } else {
           let prevM = this.payViewMonth - 1; if (prevM < 1) prevM = 12;
           let prevPrevM = prevM - 1; if (prevPrevM < 1) prevPrevM = 12;
           btnCurr.innerText = `${prevM}월 급여(${prevPrevM}.21~${prevM}.20)`;
           btnNext.innerText = `${this.payViewMonth}월 급여(${prevM}.21~${this.payViewMonth}.20)`;
-          btnCurr.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 truncate';
-          btnNext.className = 'px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-400 text-slate-950 shadow-sm truncate';
+          btnCurr.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
+          btnNext.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 shadow-sm truncate';
         }
 
         const first = calc.cutoffDates[0], last = calc.cutoffDates[calc.cutoffDates.length - 1];
@@ -1924,7 +1926,7 @@
 
         const evenBadge = document.getElementById('even_odd_badge');
         evenBadge.innerText = calc.isEven ? '짝수상여 100%' : '홀수달';
-        evenBadge.className = `text-[9px] font-black px-1.5 py-0.5 rounded-full nowrap ${calc.isEven ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'}`;
+        evenBadge.className = `text-[8.5px] font-black px-1.5 py-0.5 rounded-full nowrap ${calc.isEven ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'}`;
 
         document.getElementById('verified_slip_badge').classList.toggle('hidden', !calc.isVerifiedSlip);
 
@@ -1960,7 +1962,7 @@
         document.getElementById('stat_gongsu').innerText = `${calc.timeGongsu.toFixed(2)}/${calc.moneyGongsu.toFixed(2)}`;
         const wkEl = document.getElementById('stat_weekly_h');
         wkEl.innerText = `${calc.weeklyAvgHours.toFixed(2)}h`;
-        wkEl.className = calc.weeklyAvgHours > 52 ? 'text-rose-400 font-black' : 'text-sky-300 font-black';
+        wkEl.className = calc.weeklyAvgHours > 52 ? 'text-rose-400 font-black tnum' : 'text-sky-300 font-black tnum';
         document.getElementById('stat_workdays').innerText = `${calc.workDays.toFixed(1).replace('.0','')}일`;
         document.getElementById('stat_paid_days').innerText = `${calc.paidDays}/0`;
 
@@ -1971,22 +1973,22 @@
         document.getElementById('stat_leave').innerText = `${calc.monthVacDays}일`;
 
         document.getElementById('payslip_detail_box').innerHTML = `
-          ${calc.ex.slipNote ? `<div class="text-amber-300 font-black mb-1">📌 ${calc.ex.slipNote}</div>` : ''}
-          <div class="font-bold text-sky-300">[지급 내역 (기본급 ${calc.appliedBase.toLocaleString()}원 기준)]</div>
-          <div class="flex justify-between nowrap"><span>• 기본급·교대(5만)·장려(13만)·LMS(${calc.lmsPay.toLocaleString()})</span><strong>${(calc.appliedBase+180000+calc.lmsPay).toLocaleString()}원</strong></div>
-          ${(calc.housingAllow + calc.retroPay) > 0 ? `<div class="flex justify-between text-sky-200 nowrap"><span>• 주택이자지원(${calc.housingAllow.toLocaleString()}) + 성과/소급(${calc.retroPay.toLocaleString()})</span><strong>+${(calc.housingAllow+calc.retroPay).toLocaleString()}원</strong></div>` : ''}
-          ${calc.regBonusPay > 0 ? `<div class="flex justify-between text-indigo-300 nowrap"><span>• 짝수달 정기상여 (100%)</span><strong>+${calc.regBonusPay.toLocaleString()}원</strong></div>` : ''}
-          ${calc.holBonusPay > 0 ? `<div class="flex justify-between text-amber-300 nowrap"><span>• ${calc.autoHolName} 명절상여 (100%)</span><strong>+${calc.holBonusPay.toLocaleString()}원</strong></div>` : ''}
-          <div class="flex justify-between text-blue-300 nowrap"><span>• 평일연장수당 (${calc.sumOtH}h)</span><strong>+${calc.otPay.toLocaleString()}원</strong></div>
-          <div class="flex justify-between text-red-300 nowrap"><span>• 휴일근로수당 (${calc.sumHolBaseH}h)</span><strong>+${calc.holBasePay.toLocaleString()}원</strong></div>
-          <div class="flex justify-between text-rose-300 nowrap"><span>• 휴일연장수당 (${Number.isInteger(calc.sumHolOverH)?calc.sumHolOverH:calc.sumHolOverH.toFixed(2)}h)</span><strong>+${calc.holOverPay.toLocaleString()}원</strong></div>
-          <div class="flex justify-between text-purple-300 nowrap"><span>• 야간근무수당 (${calc.sumNightH}h)</span><strong>+${calc.nightPay.toLocaleString()}원</strong></div>
-          ${calc.eduPay > 0 ? `<div class="flex justify-between text-emerald-300 nowrap"><span>• 교육수당 (${calc.ex.eduHours}h)</span><strong>+${calc.eduPay.toLocaleString()}원</strong></div>` : ''}
+          ${calc.ex.slipNote ? `<div class="text-amber-300 font-black mb-1 leading-snug">📌 ${calc.ex.slipNote}</div>` : ''}
+          <div class="font-bold text-sky-300">[지급 내역 · 기본급 ${calc.appliedBase.toLocaleString()}원]</div>
+          <div class="flex justify-between gap-2 nowrap"><span class="truncate">• 기본급·교대·장려·LMS(${calc.lmsPay.toLocaleString()})</span><strong class="shrink-0 tnum">${(calc.appliedBase+180000+calc.lmsPay).toLocaleString()}원</strong></div>
+          ${(calc.housingAllow + calc.retroPay) > 0 ? `<div class="flex justify-between gap-2 text-sky-200 nowrap"><span class="truncate">• 주택이자(${calc.housingAllow.toLocaleString()})·성과/소급(${calc.retroPay.toLocaleString()})</span><strong class="shrink-0 tnum">+${(calc.housingAllow+calc.retroPay).toLocaleString()}원</strong></div>` : ''}
+          ${calc.regBonusPay > 0 ? `<div class="flex justify-between gap-2 text-indigo-300 nowrap"><span class="truncate">• 짝수달 정기상여 (100%)</span><strong class="shrink-0 tnum">+${calc.regBonusPay.toLocaleString()}원</strong></div>` : ''}
+          ${calc.holBonusPay > 0 ? `<div class="flex justify-between gap-2 text-amber-300 nowrap"><span class="truncate">• ${calc.autoHolName} 명절상여 (100%)</span><strong class="shrink-0 tnum">+${calc.holBonusPay.toLocaleString()}원</strong></div>` : ''}
+          <div class="flex justify-between gap-2 text-blue-300 nowrap"><span class="truncate">• 평일연장수당 (${calc.sumOtH}h)</span><strong class="shrink-0 tnum">+${calc.otPay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between gap-2 text-red-300 nowrap"><span class="truncate">• 휴일근로수당 (${calc.sumHolBaseH}h)</span><strong class="shrink-0 tnum">+${calc.holBasePay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between gap-2 text-rose-300 nowrap"><span class="truncate">• 휴일연장수당 (${Number.isInteger(calc.sumHolOverH)?calc.sumHolOverH:calc.sumHolOverH.toFixed(2)}h)</span><strong class="shrink-0 tnum">+${calc.holOverPay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between gap-2 text-purple-300 nowrap"><span class="truncate">• 야간근무수당 (${calc.sumNightH}h)</span><strong class="shrink-0 tnum">+${calc.nightPay.toLocaleString()}원</strong></div>
+          ${calc.eduPay > 0 ? `<div class="flex justify-between gap-2 text-emerald-300 nowrap"><span class="truncate">• 교육수당 (${calc.ex.eduHours}h)</span><strong class="shrink-0 tnum">+${calc.eduPay.toLocaleString()}원</strong></div>` : ''}
           <div class="font-bold text-rose-300 pt-1.5 border-t border-slate-700">[공제 내역]</div>
-          <div class="flex justify-between nowrap"><span>• 소득세·주민세 ${calc.prevHadHolBonus ? '(전월 명절상여 세금정산 포함)' : ''}</span><strong>-${calc.totalTax.toLocaleString()}원</strong></div>
-          <div class="flex justify-between nowrap"><span>• 4대보험(${calc.fixedInsurances.toLocaleString()}) + 노조비(${calc.unionFee.toLocaleString()})</span><strong>-${(calc.fixedInsurances + calc.unionFee).toLocaleString()}원</strong></div>
-          ${calc.housingDed > 0 ? `<div class="flex justify-between text-rose-200 nowrap"><span>• 주택자금 상환 및 이자</span><strong>-${calc.housingDed.toLocaleString()}원</strong></div>` : ''}
-          ${calc.foodDed > 0 ? `<div class="flex justify-between nowrap"><span>• 경조금·푸드트럭·연말정산/소급공제</span><strong>-${calc.foodDed.toLocaleString()}원</strong></div>` : ''}
+          <div class="flex justify-between gap-2 nowrap"><span class="truncate">• 소득세·주민세 ${calc.prevHadHolBonus ? '(전월 명절상여 정산포함)' : ''}</span><strong class="shrink-0 tnum">-${calc.totalTax.toLocaleString()}원</strong></div>
+          <div class="flex justify-between gap-2 nowrap"><span class="truncate">• 4대보험(${calc.fixedInsurances.toLocaleString()})·노조비(${calc.unionFee.toLocaleString()})</span><strong class="shrink-0 tnum">-${(calc.fixedInsurances + calc.unionFee).toLocaleString()}원</strong></div>
+          ${calc.housingDed > 0 ? `<div class="flex justify-between gap-2 text-rose-200 nowrap"><span class="truncate">• 주택자금 상환 및 이자</span><strong class="shrink-0 tnum">-${calc.housingDed.toLocaleString()}원</strong></div>` : ''}
+          ${calc.foodDed > 0 ? `<div class="flex justify-between gap-2 nowrap"><span class="truncate">• 경조·푸드트럭·연말정산/소급공제</span><strong class="shrink-0 tnum">-${calc.foodDed.toLocaleString()}원</strong></div>` : ''}
         `;
 
         const grid = document.getElementById('calendar_grid');
@@ -2109,11 +2111,18 @@
           totalHolCnt += c.holCount; totalHolH += (c.sumHolBaseH + c.sumHolOverH);
           totalNight += c.sumNightH; totalVac += c.monthVacDays;
           const badges = [];
-          if (c.isEven) badges.push(`<span class="px-1 rounded bg-indigo-100 text-indigo-700 text-[9px] font-black">짝</span>`);
-          if (c.autoHolName) badges.push(`<span class="px-1 rounded bg-amber-100 text-amber-800 text-[9px] font-black">${c.autoHolName[0]}</span>`);
-          if (c.isVerifiedSlip) badges.push(`<span class="px-1 rounded bg-sky-100 text-sky-800 text-[8.5px] font-black">✔실제</span>`);
+          if (c.isEven) badges.push(`<span class="px-1 rounded bg-indigo-100 text-indigo-700 text-[8.5px] font-black">짝</span>`);
+          if (c.autoHolName) badges.push(`<span class="px-1 rounded bg-amber-100 text-amber-800 text-[8.5px] font-black">${c.autoHolName[0]}</span>`);
+          if (c.isVerifiedSlip) badges.push(`<span class="px-1 rounded bg-sky-100 text-sky-800 text-[8.5px] font-black">✔</span>`);
           const isCurr = (y === activePay.y && m === activePay.m);
-          rowsHtml.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100 ${isCurr?'bg-blue-50/70 font-black':''}"><td class="py-2 px-2 flex items-center gap-1"><span>${m}월</span>${badges.join('')}</td><td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h·특${c.holCount}회·야${c.sumNightH}h</td><td class="py-2 px-2 text-right font-bold text-slate-700">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 px-2 text-right font-black text-emerald-700">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
+          rowsHtml.push(`
+            <tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50 active:bg-slate-100 ${isCurr?'bg-blue-50/70 font-black':''}">
+              <td class="py-2 pl-2 pr-0.5"><div class="flex items-center gap-0.5 tracking-tighter"><span class="font-extrabold">${m}월</span>${badges.join('')}</div></td>
+              <td class="py-2 px-0.5 text-center text-[9.5px] text-slate-600 tracking-tighter">잔${c.sumOtH}·특${c.holCount}·야${c.sumNightH}</td>
+              <td class="py-2 px-1 text-right font-bold text-slate-700 tracking-tighter">${Math.round(c.finalGross).toLocaleString()}</td>
+              <td class="py-2 pl-1 pr-2.5 text-right font-black text-emerald-700 tracking-tighter">${Math.round(c.finalNet).toLocaleString()}</td>
+            </tr>
+          `);
         }
         const unusedNetApprox = Math.round(unusedVacPay * 0.85);
         document.getElementById('rep_total_gross').innerText = `${(totalGross + unusedVacPay).toLocaleString()}원`;
