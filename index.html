@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.4</title>
+  <title>LGES 월급·퇴직금 계산기 v6.5</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -37,7 +37,7 @@
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
     .tnum { font-variant-numeric: tabular-nums; }
-    /* 한글 단어(띄어쓰기) 단위 줄바꿈(keep-all) 적용: 단어 중간이 잘리지 않고 통째로 다음 줄로 이동 */
+    /* 같은 줄 내에서는 띄어쓰기(단어) 단위로 줄바꿈되어 글자가 중간에 잘리지 않음 */
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.2; padding: 2px 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
     .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
     @keyframes slideLeftAnim { from { opacity: 0.55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
@@ -591,13 +591,13 @@
         <div class="space-y-2.5 text-xs">
           <div class="bg-amber-50/70 p-2.5 rounded-2xl border-2 border-amber-300 space-y-2">
             <div class="flex items-center justify-between nowrap">
-              <span class="font-black text-slate-900 text-xs">📝 스케줄 · 메모 (띄어쓰기 단어별 자동 줄바꿈)</span>
+              <span class="font-black text-slate-900 text-xs">📝 스케줄 · 메모 (띄어쓰기=단어줄바꿈 / 엔터=새 색상박스)</span>
               <div class="flex items-center gap-1">
                 <button onclick="App.rerollMemoColor()" class="px-2 py-0.5 rounded-lg bg-white border border-slate-300 text-[10px] font-extrabold text-slate-700 active:scale-95">🎨 색바꾸기</button>
                 <button onclick="App.clearMemoOnly()" class="px-2 py-0.5 rounded-lg bg-white border border-rose-200 text-[10px] font-extrabold text-rose-600 active:scale-95">메모삭제</button>
               </div>
             </div>
-            <textarea id="modal_memo_input" rows="2" placeholder="예: 얼집멤버 고기파티 (단어 중간이 잘리지 않고 띄어쓰기 단위로 깔끔하게 줄바꿈됩니다)" class="w-full p-2 rounded-xl border border-amber-300 bg-white font-bold text-slate-900 text-xs focus:outline-none focus:border-slate-900"></textarea>
+            <textarea id="modal_memo_input" rows="2" placeholder="예: 얼집멤버 고기파티 (띄어쓰면 같은 색 박스 안에서 단어별 줄바꿈, 엔터 치면 다른 색 테두리 박스로 구분됩니다)" class="w-full p-2 rounded-xl border border-amber-300 bg-white font-bold text-slate-900 text-xs focus:outline-none focus:border-slate-900"></textarea>
             <button onclick="App.saveMemoOnly()" class="w-full py-2 rounded-xl bg-slate-900 text-white font-black text-xs shadow-sm active:scale-98 nowrap">💾 메모만 바로 저장하기</button>
           </div>
 
@@ -1129,7 +1129,7 @@
 
       getExportPayload(includeSecrets = true) {
         const payload = {
-          version: '6.4',
+          version: '6.5',
           exportedAt: new Date().toISOString(),
           basePay: this.basePay,
           totalVacation: this.totalVacation,
@@ -1677,7 +1677,6 @@
         const hb = document.getElementById('modal_holiday_badge');
         if (ev.holidayName) { hb.innerText = `공휴일: ${ev.holidayName}`; hb.classList.remove('hidden'); } else hb.classList.add('hidden');
 
-        // 일본 국기(🎌) 대신 축하 폭죽(🎉) 아이콘 적용
         const compBtn = document.getElementById('btn_company_holiday');
         if (ev.compHol) {
           compBtn.innerText = '🎉 회사휴일(빨간날) 지정됨 · 터치 시 해제';
@@ -1956,13 +1955,13 @@
             else if (ev.type === 'NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
             else if (ev.type === 'LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">🌴휴가-${ev.vacDays}일</div>`);
 
-            // 띄어쓰기 단어 단위 줄바꿈(keep-all) + 엔터 입력 시에도 색상이 바뀌지 않고 하나의 파스텔 박스로 표시
+            // [핵심]: 엔터(\n)를 치면 줄마다 서로 다른 파스텔 배경·테두리 박스로 구분되고,
+            // 한 줄 안에서 띄어쓰기('얼집멤버 고기파티')를 하면 같은 박스 안에서 단어 단위로 깔끔하게 줄바꿈됨
             if (ev.memo) {
-              const lines = ev.memo.split('\n').map(l => this.escapeHtml(l.trim())).filter(Boolean);
-              if (lines.length > 0) {
-                const pal = PASTEL_PALETTE[ev.memoColor % PASTEL_PALETTE.length];
-                chips.push(`<div class="memo-chip" style="background-color:${pal.bg}; border:1px solid ${pal.border};">${lines.join('<br>')}</div>`);
-              }
+              ev.memo.split('\n').map(l => l.trim()).filter(Boolean).forEach((line, idx) => {
+                const pal = PASTEL_PALETTE[(ev.memoColor + idx * 3) % PASTEL_PALETTE.length];
+                chips.push(`<div class="memo-chip" style="background-color:${pal.bg}; border:1px solid ${pal.border};">${this.escapeHtml(line)}</div>`);
+              });
             }
 
             const div = document.createElement('div');
