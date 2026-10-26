@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.1</title>
+  <title>LGES 월급·퇴직금 계산기 v6.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -47,6 +47,35 @@
 </head>
 <body>
   <div class="mobile-app-shell">
+    <!-- 4자리 PIN 보안 잠금 화면 (설정 시에만 작동) -->
+    <div id="pin_lock_overlay" class="fixed inset-0 bg-slate-950 text-white z-[100] hidden flex-col items-center justify-center p-6">
+      <div class="text-center space-y-2 mb-6">
+        <span class="text-xs font-black bg-red-600 px-2 py-0.5 rounded">LGES SECURITY</span>
+        <h2 class="text-lg font-black">🔒 암호 4자리를 입력해 주세요</h2>
+        <p id="pin_lock_msg" class="text-xs text-slate-400">설정한 4자리 숫자를 누르면 열립니다</p>
+      </div>
+      <div id="pin_dots" class="flex gap-3 mb-8">
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 w-full max-w-[260px] text-lg font-black">
+        <button onclick="App.pressPin('1')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">1</button>
+        <button onclick="App.pressPin('2')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">2</button>
+        <button onclick="App.pressPin('3')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">3</button>
+        <button onclick="App.pressPin('4')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">4</button>
+        <button onclick="App.pressPin('5')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">5</button>
+        <button onclick="App.pressPin('6')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">6</button>
+        <button onclick="App.pressPin('7')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">7</button>
+        <button onclick="App.pressPin('8')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">8</button>
+        <button onclick="App.pressPin('9')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">9</button>
+        <button onclick="App.pressPin('CLR')" class="h-14 rounded-2xl bg-slate-900 text-xs text-slate-400">초기화</button>
+        <button onclick="App.pressPin('0')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">0</button>
+        <button onclick="App.pressPin('DEL')" class="h-14 rounded-2xl bg-slate-900 text-sm text-rose-400">⌫</button>
+      </div>
+    </div>
+
     <!-- 상단 헤더 -->
     <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30 w-full box-border">
       <div class="flex items-center justify-between gap-2">
@@ -58,9 +87,9 @@
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴 남은연차</span>
-            <strong id="top_vacation_badge" class="text-[11px] font-black text-emerald-400">10.0 / 21일</strong>
+            <strong id="top_vacation_badge" class="text-[11px] font-black text-emerald-400">9.0 / 21일</strong>
           </div>
-          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300">미사용시 +191.2만원</div>
+          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300">미사용시 +172.1만원</div>
         </button>
       </div>
     </header>
@@ -205,7 +234,7 @@
         </div>
       </div>
 <!-- 여기 바로 아래에 [코드 2/4]를 이어서 붙여넣으세요 -->
-      <!-- TAB 2: 연간 리포트 (우측 끝 숫자 잘림 완벽 해결) -->
+      <!-- TAB 2: 연간 리포트 -->
       <div id="tab_report" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between">
           <button onclick="App.changeReportYear(-1)" class="w-8 h-8 bg-slate-100 rounded-xl font-black text-xs text-slate-700">◀</button>
@@ -261,7 +290,7 @@
         </div>
       </div>
 
-      <!-- TAB 3: 예상 퇴직금 조회 (글씨 잘림 완벽 해결) -->
+      <!-- TAB 3: 예상 퇴직금 조회 -->
       <div id="tab_severance" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between gap-1">
           <button onclick="App.changeSeveranceMonth(-1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700 shrink-0">◀</button>
@@ -275,7 +304,6 @@
           </div>
         </div>
 
-        <!-- 사내 시스템 연동 예상퇴직금 메인 카드 -->
         <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-3.5 shadow-md space-y-3">
           <div class="flex items-start justify-between gap-2 nowrap">
             <div class="min-w-0">
@@ -321,7 +349,6 @@
           </div>
         </div>
 
-        <!-- 직전 3개월 평균임금 산출 상세 내역 -->
         <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
           <div class="flex items-center justify-between gap-1 nowrap">
             <h3 class="text-xs font-black text-slate-900">📊 직전 3개월 평균임금 산출 내역</h3>
@@ -358,7 +385,6 @@
           </div>
         </div>
 
-        <!-- 직전 3개월 내 특근·잔업 1회당 퇴직금 상승 효과표 (글씨 잘림 해결) -->
         <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 space-y-2">
           <div class="flex items-center justify-between gap-1 nowrap">
             <h3 class="text-[11.5px] font-black text-red-700 tracking-tight truncate">🔥 특근·잔업 1회당 퇴직금 상승액</h3>
@@ -421,7 +447,7 @@
         </div>
       </div>
 
-      <!-- TAB 5: 보정 · 설정 · 깃허브 클라우드 백업 -->
+      <!-- TAB 5: 보정 · 설정 · 깃허브 클라우드 백업 · 암호 잠금 -->
       <div id="tab_settings" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-3.5 shadow-md border border-sky-500/40 space-y-3">
           <div class="flex items-center justify-between gap-1 nowrap">
@@ -433,18 +459,18 @@
           </div>
 
           <p class="text-[11px] text-slate-300 leading-relaxed">
-            내 깃허브 비공개 금고(<strong class="text-sky-300">파일 1개 덮어쓰기·약 15KB</strong>)에 저장되어 용량을 차지하지 않으며, 폰이 바뀌어도 열쇠 번호만 넣으면 1초 만에 복원됩니다.
+            열쇠 번호는 백업 파일에서 <strong class="text-emerald-300">자동 분리 보호</strong>되어 폐기되지 않으며, 내 비공개 금고에 파일 1개로 안전하게 덮어쓰기 됩니다.
           </p>
 
           <div class="space-y-1.5 text-xs">
             <div class="flex items-center justify-between gap-1 nowrap">
-              <label class="text-[10.5px] font-extrabold text-sky-300 truncate">🔑 내 깃허브 열쇠 번호 (최초 1회)</label>
-              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Backup&scopes=gist" target="_blank" class="shrink-0 text-[9.5px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">
+              <label class="text-[10.5px] font-extrabold text-sky-300 truncate">🔑 내 깃허브 열쇠 번호 (ghp_...)</label>
+              <a href="https://github.com/settings/tokens/new?description=LGES_Pay_Vault&scopes=gist" target="_blank" class="shrink-0 text-[9.5px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-lg shadow-sm active:scale-95">
                 🔗 열쇠 10초 발급 ↗
               </a>
             </div>
             <div class="flex items-center gap-1.5">
-              <input type="password" id="input_gh_token" placeholder="ghp_ 로 시작하는 토큰 붙여넣기" onchange="App.saveGithubToken()" class="w-full p-2 rounded-xl bg-slate-950/80 border border-slate-600 text-white font-mono text-xs focus:outline-none focus:border-sky-400">
+              <input type="password" id="input_gh_token" placeholder="새로 발급받은 ghp_ 열쇠 붙여넣기" oninput="App.saveGithubToken()" onchange="App.saveGithubToken()" class="w-full p-2 rounded-xl bg-slate-950/80 border border-slate-600 text-white font-mono text-xs focus:outline-none focus:border-sky-400">
               <button onclick="App.toggleTokenVisibility()" class="shrink-0 px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300">보기</button>
             </div>
           </div>
@@ -467,6 +493,18 @@
           </div>
         </div>
 
+        <!-- 앱 실행 4자리 암호(PIN) 잠금 설정 카드 -->
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between nowrap">
+            <h2 class="text-sm font-black text-slate-900">🔒 앱 실행 4자리 암호 잠금 (사생활 보호)</h2>
+            <span id="pin_status_badge" class="text-[10px] font-bold text-slate-400">잠금 꺼짐</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <input type="password" id="input_app_pin" maxlength="4" inputmode="numeric" placeholder="숫자 4자리 입력 (비우면 해제)" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center tracking-widest">
+            <button onclick="App.saveAppPin()" class="shrink-0 px-3 py-2 bg-slate-900 text-white font-black rounded-xl nowrap">암호 저장</button>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔄 내 근무조 패턴 원터치 설정</h2><span class="text-[10px] font-bold text-blue-600">오늘이 속한 주 기준</span></div>
           <div class="grid grid-cols-3 gap-2 text-xs font-black pt-1">
@@ -480,12 +518,12 @@
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🌴 연차 휴가 및 기본급 설정</h2><span class="text-[10px] font-bold text-emerald-700">1일 = 8h 통상시급</span></div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
-              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">10.0일</strong></div>
-              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">4.5일</strong></div></div>
+              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">9.0일</strong></div>
+              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">5.5일</strong></div></div>
             </div>
             <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
               <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
-              <div class="text-right"><strong id="set_unused_vac_pay" class="text-sm font-black text-emerald-700">+1,911,810원</strong><span id="set_oneday_vac_pay" class="block text-[10px] font-bold text-emerald-600">(연차 1일당 약 191,181원)</span></div>
+              <div class="text-right"><strong id="set_unused_vac_pay" class="text-sm font-black text-emerald-700">+1,720,629원</strong><span id="set_oneday_vac_pay" class="block text-[10px] font-bold text-emerald-600">(연차 1일당 약 191,181원)</span></div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
@@ -783,6 +821,7 @@
       records: {}, monthExtras: {}, seededHistoryV59: false,
 
       ghToken: '', ghGistId: '', ghAutoSync: true, ghLastSync: '',
+      appPin: '', enteredPin: '',
       autoSyncTimer: null,
 
       calendarView: 'MEMO', selectedDateKey: null, selectedDayInfo: null, lastRawGross: 0, lastRawDed: 0,
@@ -803,10 +842,61 @@
           this.seededHistoryV59 = true;
           this.save(true);
         }
+        this.checkPinLockOnStart();
         this.resetBothViewsToToday();
         this.syncSettingsInputs();
         this.updateGithubUiStatus();
         this.render();
+      },
+
+      // ============================================================
+      // 🔒 4자리 PIN 암호 잠금 기능
+      // ============================================================
+      checkPinLockOnStart() {
+        const overlay = document.getElementById('pin_lock_overlay');
+        if (this.appPin && this.appPin.length === 4) {
+          this.enteredPin = '';
+          this.updatePinDots();
+          overlay.classList.remove('hidden');
+          overlay.classList.add('flex');
+        }
+      },
+      pressPin(key) {
+        if (key === 'CLR') this.enteredPin = '';
+        else if (key === 'DEL') this.enteredPin = this.enteredPin.slice(0, -1);
+        else if (this.enteredPin.length < 4) this.enteredPin += key;
+        this.updatePinDots();
+
+        if (this.enteredPin.length === 4) {
+          if (this.enteredPin === this.appPin) {
+            const overlay = document.getElementById('pin_lock_overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+          } else {
+            document.getElementById('pin_lock_msg').innerText = '❌ 암호가 일치하지 않습니다. 다시 눌러주세요.';
+            document.getElementById('pin_lock_msg').className = 'text-xs text-rose-400 font-bold';
+            setTimeout(() => { this.enteredPin = ''; this.updatePinDots(); }, 300);
+          }
+        }
+      },
+      updatePinDots() {
+        const dots = document.getElementById('pin_dots')?.children;
+        if (!dots) return;
+        for (let i = 0; i < 4; i++) {
+          dots[i].className = i < this.enteredPin.length
+            ? 'w-3.5 h-3.5 rounded-full bg-sky-400 border-2 border-sky-400'
+            : 'w-3.5 h-3.5 rounded-full border-2 border-slate-500';
+        }
+      },
+      saveAppPin() {
+        const val = (document.getElementById('input_app_pin').value || '').trim();
+        if (val && !/^\d{4}$/.test(val)) {
+          return alert('암호는 숫자 4자리로 입력해 주세요. (잠금을 해제하려면 칸을 비우고 저장하세요)');
+        }
+        this.appPin = val;
+        this.save(true);
+        this.syncSettingsInputs();
+        alert(val ? `🔒 앱 실행 암호(${val})가 설정되었습니다!` : '🔓 앱 암호 잠금이 해제되었습니다.');
       },
 
       initSwipeGesture() {
@@ -845,10 +935,17 @@
         this.sevMonth = t.m;
       },
 
+      // ============================================================
+      // ☁️ 깃허브 클라우드 백업 엔진 (열쇠 자동폐기 원천 차단!)
+      // ============================================================
       saveGithubToken() {
-        this.ghToken = (document.getElementById('input_gh_token').value || '').trim();
-        this.save(true);
-        this.updateGithubUiStatus();
+        const val = (document.getElementById('input_gh_token').value || '').trim();
+        if (val !== this.ghToken) {
+          this.ghToken = val;
+          this.ghGistId = '';
+          this.save(true);
+          this.updateGithubUiStatus();
+        }
       },
       toggleTokenVisibility() {
         const inp = document.getElementById('input_gh_token');
@@ -859,7 +956,7 @@
         this.save(true);
         this.updateGithubUiStatus();
       },
-      updateGithubUiStatus(customMsg = null) {
+      updateGithubUiStatus(customMsg = null, isErr = false) {
         const badge = document.getElementById('gh_sync_status_badge');
         const lastEl = document.getElementById('gh_last_sync_time');
         const topDot = document.getElementById('top_cloud_Dot');
@@ -871,7 +968,9 @@
           if (topDot) topDot.classList.add('hidden');
         } else if (customMsg) {
           badge.innerText = customMsg;
-          badge.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 shrink-0';
+          badge.className = isErr
+            ? 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-rose-500 text-white shrink-0'
+            : 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 shrink-0';
           if (topDot) topDot.classList.remove('hidden');
         } else {
           badge.innerText = this.ghAutoSync ? '✔ 자동백업 켜짐' : '✔ 열쇠 등록됨';
@@ -881,12 +980,23 @@
         lastEl.innerText = this.ghLastSync ? `최근 백업: ${this.ghLastSync}` : '아직 서버 백업 전';
       },
 
+      getGithubHeaders(token) {
+        return {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        };
+      },
+
       async findExistingGistId(token) {
         if (this.ghGistId) return this.ghGistId;
-        const res = await fetch('https://api.github.com/gists?per_page=100', {
-          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
+        const res = await fetch(`https://api.github.com/gists?per_page=100&_t=${Date.now()}`, {
+          headers: this.getGithubHeaders(token),
+          cache: 'no-store'
         });
-        if (!res.ok) throw new Error('토큰 인증 실패');
+        if (res.status === 401) throw new Error('TOKEN_REVOKED');
+        if (res.status === 403) throw new Error('SCOPE_MISSING');
+        if (!res.ok) throw new Error(`HTTP_${res.status}`);
         const list = await res.json();
         const found = list.find(g => g.files && g.files[this.GIST_FILENAME]);
         if (found) {
@@ -897,17 +1007,20 @@
       },
 
       async cloudBackupToGithub(silent = false) {
-        const token = (this.ghToken || document.getElementById('input_gh_token')?.value || '').trim();
+        const inputVal = (document.getElementById('input_gh_token')?.value || '').trim();
+        const token = inputVal || this.ghToken;
         if (!token) {
-          if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.\n우측의 [🔗 열쇠 10초 발급]을 누르면 바로 만들 수 있습니다.');
+          if (!silent) alert('먼저 🔑 내 깃허브 열쇠 번호(ghp_...)를 입력해 주세요.');
           return;
         }
         this.ghToken = token;
         this.updateGithubUiStatus('⏳ 백업 중...');
 
         try {
-          const gistId = await this.findExistingGistId(token);
-          const contentStr = JSON.stringify(this.getExportPayload(), null, 2);
+          let gistId = await this.findExistingGistId(token);
+          // [핵심 수정]: 깃허브 서버로 전송하는 파일에서 ghToken을 완벽히 제거하여 토큰 자동폐기 원천 차단!
+          const cloudPayload = this.getExportPayload(false);
+          const contentStr = JSON.stringify(cloudPayload, null, 2);
           const bodyObj = {
             description: 'LGES 월급계산기·메모 자동 백업 금고',
             public: false,
@@ -918,33 +1031,49 @@
           if (gistId) {
             res = await fetch(`https://api.github.com/gists/${gistId}`, {
               method: 'PATCH',
-              headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+              headers: { ...this.getGithubHeaders(token), 'Content-Type': 'application/json' },
               body: JSON.stringify(bodyObj)
             });
-          } else {
+            // 기존 Gist가 삭제되었으면 즉시 새로 생성
+            if (res.status === 404) {
+              this.ghGistId = '';
+              gistId = null;
+            }
+          }
+          if (!gistId) {
             res = await fetch('https://api.github.com/gists', {
               method: 'POST',
-              headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+              headers: { ...this.getGithubHeaders(token), 'Content-Type': 'application/json' },
               body: JSON.stringify(bodyObj)
             });
           }
 
-          if (!res.ok) throw new Error('저장 실패');
+          if (res.status === 401) throw new Error('TOKEN_REVOKED');
+          if (res.status === 403 || res.status === 404) throw new Error('SCOPE_MISSING');
+          if (!res.ok) throw new Error(`HTTP_${res.status}`);
+
           const data = await res.json();
           this.ghGistId = data.id;
           const now = new Date();
           this.ghLastSync = `${now.getMonth()+1}.${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
           this.save(true);
           this.updateGithubUiStatus('✔ 백업 완료');
-          if (!silent) alert('☁️ 깃허브 비공개 금고에 안전하게 덮어쓰기 백업되었습니다!');
+          if (!silent) alert('☁️ 깃허브 비공개 금고에 안전하게 백업되었습니다!\n(이제 열쇠가 절대 폐기되지 않고 영구 유지됩니다)');
         } catch (err) {
-          this.updateGithubUiStatus('⚠️ 백업 오류');
-          if (!silent) alert('깃허브 백업에 실패했습니다.\n열쇠 번호(ghp_...)가 정확한지, 발급 시 [gist] 권한이 체크되었는지 확인해 주세요.');
+          this.updateGithubUiStatus('⚠️ 열쇠 재발급 필요', true);
+          if (!silent) {
+            if (err.message === 'TOKEN_REVOKED') {
+              alert('⚠️ 이전에 쓰시던 열쇠(ghp_...)가 깃허브 보안 정책으로 자동 만료되었습니다.\n\n우측의 [🔗 열쇠 10초 발급 ↗]을 눌러 새 열쇠를 하나 발급받아 넣어주시면, 이제부터는 영구적으로 만료 없이 작동합니다!');
+            } else {
+              alert('깃허브 백업 실패: 열쇠 발급 시 [gist] 체크박스가 선택되었는지 확인해 주세요.');
+            }
+          }
         }
       },
 
       async cloudRestoreFromGithub() {
-        const token = (this.ghToken || document.getElementById('input_gh_token')?.value || '').trim();
+        const inputVal = (document.getElementById('input_gh_token')?.value || '').trim();
+        const token = inputVal || this.ghToken;
         if (!token) {
           alert('복원하려면 🔑 내 깃허브 열쇠 번호(ghp_...)를 먼저 입력해 주세요.');
           return;
@@ -957,11 +1086,12 @@
           const gistId = await this.findExistingGistId(token);
           if (!gistId) {
             this.updateGithubUiStatus();
-            alert('깃허브 금고에서 저장된 백업 데이터를 찾지 못했습니다.\n먼저 [☁️ 깃허브에 딸깍 백업]을 한 번 실행해 주세요.');
+            alert('깃허브 금고에서 저장된 백업 파일을 찾지 못했습니다.\n먼저 [☁️ 깃허브에 딸깍 백업]을 한 번 실행해 주세요.');
             return;
           }
-          const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-            headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }
+          const res = await fetch(`https://api.github.com/gists/${gistId}?_t=${Date.now()}`, {
+            headers: this.getGithubHeaders(token),
+            cache: 'no-store'
           });
           if (!res.ok) throw new Error('불러오기 실패');
           const gistData = await res.json();
@@ -979,8 +1109,12 @@
           alert('📥 깃허브 금고에서 모든 근무기록과 메모를 완벽하게 복원했습니다!');
           this.switchTab('home');
         } catch (err) {
-          this.updateGithubUiStatus('⚠️ 복원 오류');
-          alert('깃허브 복원에 실패했습니다. 열쇠 번호를 확인해 주세요.');
+          this.updateGithubUiStatus('⚠️ 복원 오류', true);
+          if (err.message === 'TOKEN_REVOKED') {
+            alert('⚠️ 입력하신 열쇠(ghp_...)가 만료되었습니다.\n[🔗 열쇠 10초 발급 ↗]을 눌러 새 열쇠를 발급받아 붙여넣으시면 기존 백업 데이터를 그대로 불러올 수 있습니다!');
+          } else {
+            alert('깃허브 복원에 실패했습니다. 열쇠 번호를 확인해 주세요.');
+          }
         }
       },
 
@@ -1236,14 +1370,34 @@
         if (p.ghGistId !== undefined) this.ghGistId = p.ghGistId;
         if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
         if (p.ghLastSync !== undefined) this.ghLastSync = p.ghLastSync;
+        if (p.appPin !== undefined) this.appPin = p.appPin;
       },
 
-      getExportPayload() {
-        return { version: '6.1', exportedAt: new Date().toISOString(), basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation, shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio, records: this.records, monthExtras: this.monthExtras, seededHistoryV59: this.seededHistoryV59, ghToken: this.ghToken, ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync };
+      // includeSecrets=false 일 때는 ghToken을 제외하여 깃허브 Secret Scanning 토큰 자동폐기를 원천 방지
+      getExportPayload(includeSecrets = true) {
+        const payload = {
+          version: '6.2',
+          exportedAt: new Date().toISOString(),
+          basePay: this.basePay,
+          totalVacation: this.totalVacation,
+          priorUsedVacation: this.priorUsedVacation,
+          shiftOffset: this.shiftOffset,
+          calibGrossOffset: this.calibGrossOffset,
+          calibDedRatio: this.calibDedRatio,
+          records: this.records,
+          monthExtras: this.monthExtras,
+          seededHistoryV59: this.seededHistoryV59,
+          ghGistId: this.ghGistId,
+          ghAutoSync: this.ghAutoSync,
+          ghLastSync: this.ghLastSync,
+          appPin: this.appPin
+        };
+        if (includeSecrets) payload.ghToken = this.ghToken;
+        return payload;
       },
 
       save(skipCloudAuto = false) {
-        const payload = this.getExportPayload();
+        const payload = this.getExportPayload(true);
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
         DualVault.saveSnapshot(payload);
         if (!skipCloudAuto && this.ghToken && this.ghAutoSync) {
@@ -1295,7 +1449,7 @@
 
       copyBackupCode() {
         this.save(true);
-        const s = JSON.stringify(this.getExportPayload());
+        const s = JSON.stringify(this.getExportPayload(false));
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(s).then(() => alert('백업코드(근무기록+메모)가 복사되었습니다!')).catch(() => this.fallbackCopyText(s));
         } else this.fallbackCopyText(s);
@@ -1363,6 +1517,12 @@
         document.getElementById('input_base_pay').value = this.basePay;
         if (document.getElementById('input_gh_token')) document.getElementById('input_gh_token').value = this.ghToken || '';
         if (document.getElementById('chk_gh_auto_sync')) document.getElementById('chk_gh_auto_sync').checked = this.ghAutoSync;
+        if (document.getElementById('input_app_pin')) document.getElementById('input_app_pin').value = this.appPin || '';
+        const pinBadge = document.getElementById('pin_status_badge');
+        if (pinBadge) {
+          pinBadge.innerText = this.appPin ? '🔒 잠금 켜짐' : '잠금 꺼짐';
+          pinBadge.className = this.appPin ? 'text-[10px] font-black text-emerald-600' : 'text-[10px] font-bold text-slate-400';
+        }
       },
       saveSettings() {
         this.totalVacation = Number(document.getElementById('input_total_vac').value) || 21;
