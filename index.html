@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.7</title>
+  <title>LGES 월급·퇴직금 계산기 v6.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -572,7 +572,7 @@
       <button id="nav_settings" onclick="App.switchTab('settings')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🎯</span><span>보정·설정</span></button>
     </nav>
 
-    <!-- 날짜 상세 모달 (좌우 잘림·튀어나옴 100% 원천 차단) -->
+    <!-- 날짜 상세 모달 -->
     <div id="day_modal" class="fixed inset-0 bg-slate-900/60 hidden items-end justify-center z-50">
       <div class="bg-white rounded-t-3xl max-w-[430px] w-full p-3.5 max-h-[92vh] overflow-y-auto overflow-x-hidden box-border shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-2.5 gap-2">
@@ -588,7 +588,6 @@
         </div>
 
         <div class="space-y-2.5 text-xs w-full box-border">
-          <!-- 스케줄·메모 입력 박스 (우측 버튼 튀어나옴 완벽 해결) -->
           <div class="bg-amber-50/70 p-2.5 rounded-2xl border-2 border-amber-300 space-y-1.5 w-full box-border">
             <div class="flex items-center justify-between gap-1">
               <span class="font-black text-slate-900 text-xs truncate">📝 스케줄 · 메모</span>
@@ -643,7 +642,6 @@
             </div>
           </div>
 
-          <!-- 시간차·반차·연차 휴가 선택 박스 (우측 설명글 튀어나옴 완벽 해결) -->
           <div class="bg-emerald-50/80 p-2.5 rounded-2xl border border-emerald-300 space-y-1.5 w-full box-border">
             <div class="flex items-center justify-between gap-1">
               <span class="font-extrabold text-emerald-950 text-xs truncate">🌴 시간차 · 반차 · 연차 휴가</span>
@@ -1167,7 +1165,7 @@
 
       getExportPayload(includeSecrets = true) {
         const payload = {
-          version: '6.7',
+          version: '6.8',
           exportedAt: new Date().toISOString(),
           basePay: this.basePay,
           totalVacation: this.totalVacation,
@@ -1430,7 +1428,6 @@
         return { y, m, d, key, dow, isWeekend, isRedOffDay, isSundayOrHol, isSaturday, holidayName, compHol, dayName: this.DAY_KOR[dow], defaultShift, shift, badgeKey, type, holKind, otHours, holBaseHours, holOverHours, nightHours, vacDays, vacHours, memo, memoColor, isOtherMonth };
       },
 
-      // 급여뷰·메모뷰 달력 칸 폭에 맞춰 글자가 절대 잘리지 않는 간결한 휴가 라벨
       getLeaveChipLabel(ev, isPayView = false) {
         const vh = ev.vacHours || (ev.vacDays * 8);
         if (vh >= 8) return isPayView ? '🌴연차8h' : '🌴휴가-1일';
@@ -1843,11 +1840,10 @@
 
       escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); },
 
-      // [핵심 수정]: 급여뷰('10.26')처럼 날짜가 긴 경우 '오늘' 글자를 생략하고 파란 헤더바+테두리로 표시하여 우측 '야' 배지가 절대 잘리지 않게 처리
+      // [수정 1]: 메모뷰·급여뷰 모두 '오늘' 글자를 넣지 않고 파란색 상단 바 + 파란 테두리만으로 통일감 있게 강조
       buildCellHeaderHtml(dateText, dc, isToday, badgeKey) {
         if (isToday) {
-          const showTodayWord = dateText.length <= 2;
-          return `<div class="-mx-0.5 -mt-0.5 px-1 py-[1.5px] rounded-[3px] bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[9.5px] font-black tracking-tighter nowrap">${dateText}</span>${showTodayWord ? '<span class="text-[7.5px] font-black text-amber-300 tracking-tighter nowrap">오늘</span>' : ''}<span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
+          return `<div class="-mx-0.5 -mt-0.5 px-1 py-[1.5px] rounded-[3px] bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[9.5px] font-black tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
         }
         return `<div class="flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[10px] font-black ${dc} tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
       },
@@ -2072,10 +2068,11 @@
             const headerHtml = this.buildCellHeaderHtml(`${ev.m}.${ev.d}`, dc, isToday, ev.badgeKey);
             const mid = ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>` : `<div class="h-[9px]"></div>`;
 
+            // [수정 2]: 급여뷰에서 좌측 하단 메모 핀(📌) 표시 완전 제거
             const div = document.createElement('div');
             div.className = `p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${CELL_H} min-w-0 overflow-hidden ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
-            div.innerHTML = `${headerHtml}${mid}<div class="text-center leading-none my-0.5">${statusHtml}</div><div class="flex items-center justify-between text-[7.5px] font-extrabold leading-none nowrap"><span>${ev.memo ? '📌' : ''}</span><span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span></div>`;
+            div.innerHTML = `${headerHtml}${mid}<div class="text-center leading-none my-0.5">${statusHtml}</div><div class="flex items-center justify-end text-[7.5px] font-extrabold leading-none nowrap"><span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span></div>`;
             grid.appendChild(div);
           });
           const trailing = (7 - (totalCells % 7)) % 7;
