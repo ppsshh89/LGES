@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="월급계산기">
   <meta name="theme-color" content="#0f172a">
-<link id="dynamic_favicon" rel="icon" type="image/jpeg" href="./icon.jpg">
+  <link id="dynamic_favicon" rel="icon" type="image/jpeg" href="./icon.jpg">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon.jpg">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.8</title>
+  <title>LGES 월급·퇴직금 계산기 v6.9</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -20,7 +20,7 @@
   </script>
   <style>
     html, body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background-color: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; overflow-x: hidden; width: 100%; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
-    .mobile-app-shell { max-width: 430px; width: 100%; min-height: 100vh; margin: 0 auto; background-color: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); display: flex; flex-direction: column; overflow-x: hidden; box-sizing: border-box; }
+    .mobile-app-shell { max-width: 430px; width: 100%; min-height: 100vh; margin: 0 auto; background-color: #e2e8f0; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); display: flex; flex-direction: column; overflow-x: hidden; box-sizing: border-box; }
     @media (min-width: 500px) { body { padding: 20px 0; } .mobile-app-shell { min-height: 880px; border-radius: 40px; border: 10px solid #0f172a; overflow: hidden; } }
     .badge-EARLY  { background-color: #0284c7; color: #ffffff; }
     .badge-MID    { background-color: #f59e0b; color: #ffffff; }
@@ -37,8 +37,10 @@
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
     .tnum { font-variant-numeric: tabular-nums; }
-    .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2.0vw, 8.5px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.2; padding: 2px 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
-    .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+    .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.2px, 1.95vw, 8.3px); font-weight: 800; letter-spacing: -0.05em; line-height: 1.15; padding: 1.5px 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
+    .work-top-chip { width: 100%; font-size: clamp(7.3px, 2.0vw, 8.4px); font-weight: 900; letter-spacing: -0.05em; line-height: 1.1; padding: 0.5px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+    /* 3단 구역 명확한 구분선 스타일 */
+    .section-divider { height: 6px; background: linear-gradient(180deg, #cbd5e1 0%, #e2e8f0 100%); border-top: 1.5px solid #94a3b8; border-bottom: 1.5px solid #94a3b8; width: 100%; }
     @keyframes slideLeftAnim { from { opacity: 0.55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes slideRightAnim { from { opacity: 0.55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
     .swipe-left-anim { animation: slideLeftAnim 0.18s ease-out; }
@@ -77,69 +79,99 @@
     </div>
 
     <!-- 상단 헤더 -->
-    <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30 w-full box-border">
+    <header class="bg-slate-900 text-white px-3 py-1 sticky top-0 z-30 w-full box-border">
       <div class="flex items-center justify-between gap-1.5">
         <div class="min-w-0 flex items-center gap-1.5">
           <span class="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded shrink-0">LGES</span>
           <span id="today_header_info" class="text-xs font-extrabold text-amber-400 truncate">오늘</span>
           <span id="top_cloud_Dot" onclick="App.switchTab('settings')" class="hidden text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-900/90 text-sky-300 border border-sky-500/40 cursor-pointer shrink-0">☁️연동중</span>
         </div>
-        <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2 py-1 rounded-xl text-right active:scale-95 transition nowrap">
+        <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2 py-0.5 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴남은연차</span>
             <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">0일(0h)</strong>
           </div>
-          <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300 tracking-tighter tnum">미사용시 +0만원</div>
+          <div id="top_vacation_money" class="text-[8.5px] font-extrabold text-amber-300 tracking-tighter tnum">미사용시 +0만원</div>
         </button>
       </div>
     </header>
 
     <!-- 메인 컨텐츠 -->
-    <main class="flex-1 overflow-y-auto overflow-x-hidden pb-20 space-y-1.5 w-full">
-      <!-- TAB 1: 달력(메모뷰/급여뷰) & 월급 홈 -->
-      <div id="tab_home" class="space-y-1.5 w-full">
-        <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden" style="touch-action: pan-y;">
-          <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
-            <div class="flex items-center gap-1 shrink-0">
-              <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
-              <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight px-0.5 min-w-[104px] text-center">2026. 10 일정</h2>
-              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
-              <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
+    <main class="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full">
+      <!-- TAB 1: [① 달력] ➔ [② 뷰전환·1~12월 원터치] ➔ [③ 실수령액] 3단 밸런스 홈 -->
+      <div id="tab_home" class="w-full">
+
+        <!-- ========================================== -->
+        <!-- [구역 ①] 상단 달력 영역                    -->
+        <!-- ========================================== -->
+        <div id="calendar_swipe_zone" class="bg-white w-full overflow-hidden" style="touch-action: pan-y;">
+          <div class="px-2.5 py-1 flex items-center justify-between gap-1 nowrap w-full box-border bg-white">
+            <div class="flex items-center gap-1">
+              <button onclick="App.changeMonth(-1)" class="w-7 h-6 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
+              <h2 id="big_ym_title" class="text-[15.5px] font-black text-slate-900 tracking-tight px-1 min-w-[105px] text-center">2026. 10 일정</h2>
+              <button onclick="App.changeMonth(1)" class="w-7 h-6 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
+              <button onclick="App.goToTodayMonth()" class="px-2 h-6 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-black text-[10px]">오늘</button>
             </div>
-            <div class="flex items-center shrink-0">
-              <div class="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
-                <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm">📝메모뷰</button>
-                <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500">💰급여뷰</button>
-              </div>
-            </div>
+            <span id="subbar_left_text" class="text-[10px] font-extrabold text-blue-700 truncate">📅 10월 스케줄</span>
           </div>
 
-          <div id="calendar_subbar" class="px-2.5 h-6 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-2 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
-            <span id="subbar_left_text" class="truncate">📅 달력 및 급여 계산기</span>
-            <span id="subbar_right_text" class="text-[9.5px] text-slate-500 font-bold shrink-0">↔ 좌우 밀어서 월 이동</span>
-          </div>
-
-          <div class="grid grid-cols-7 text-center text-[10px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50/70 w-full">
+          <div class="grid grid-cols-7 text-center text-[9.5px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50 w-full">
             <div class="text-red-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-500">토</div>
           </div>
 
           <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px] w-full"></div>
         </div>
 
-        <div class="px-2 space-y-2 w-full box-border">
-          <!-- 급여 요약 카드 -->
-          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2.5 shadow-md w-full box-border overflow-hidden">
+        <!-- ★ 1~2구역 구분선 ★ -->
+        <div class="section-divider"></div>
+
+        <!-- ========================================== -->
+        <!-- [구역 ②] 달력 바로 밑: 뷰 전환 + 1~12월 일정 원터치 조회 -->
+        <!-- ========================================== -->
+        <div class="bg-white px-2.5 py-2 w-full box-border space-y-1.5">
+          <!-- 엄지손가락 범위 내 큼직한 메모뷰 / 급여뷰 스위치 -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-300 w-full">
+              <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="py-1.5 rounded-lg text-xs font-black transition bg-slate-900 text-white shadow-sm flex items-center justify-center gap-1">
+                <span>📝 메모뷰 (일정)</span>
+              </button>
+              <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="py-1.5 rounded-lg text-xs font-bold transition text-slate-600 flex items-center justify-center gap-1">
+                <span>💰 급여뷰 (21~20일)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 1월~12월 일정 원터치 조회 (터치 시 해당 월 메모뷰로 즉시 이동) -->
+          <div class="pt-0.5">
+            <div class="flex items-center justify-between mb-1 px-0.5 nowrap">
+              <span id="quick_month_bar_title" class="text-[10.5px] font-black text-slate-800">🗓️ 2026년 1월~12월 일정 원터치 조회</span>
+              <span class="text-[9px] text-blue-600 font-extrabold">터치 시 메모뷰 이동</span>
+            </div>
+            <div id="quick_12month_grid" class="grid grid-cols-6 gap-1 text-[10.5px] font-black tracking-tight"></div>
+          </div>
+        </div>
+
+        <!-- ★ 2~3구역 구분선 ★ -->
+        <div class="section-divider"></div>
+
+        <!-- ========================================== -->
+        <!-- [구역 ③] 하단 실수령액 및 상세 급여 카드   -->
+        <!-- ========================================== -->
+        <div class="px-2 pt-1.5 pb-2 space-y-2 w-full box-border">
+          <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2 shadow-md w-full box-border overflow-hidden border border-slate-700">
+            <!-- 상단 당월/익월 급여 선택 바 -->
             <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1 w-full">
               <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 min-w-0">
                 <button id="pay_target_curr" onclick="App.onPayTabClick(0)" class="px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate">당월 급여</button>
                 <button id="pay_target_next" onclick="App.onPayTabClick(1)" class="px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate">익월 급여</button>
               </div>
-              <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[9.5px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-1 rounded-lg font-extrabold nowrap">↺ 초기화</button>
+              <button onclick="App.resetCurrentMonth()" class="shrink-0 text-[9.5px] bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-0.5 rounded-lg font-extrabold nowrap">↺ 초기화</button>
             </div>
 
-            <div class="flex items-center justify-between gap-2 w-full">
+            <!-- 첫 화면 하단에 딱 맞춰 보이는 핵심 실수령액 라인 -->
+            <div class="flex items-center justify-between gap-2 w-full py-0.5">
               <div class="min-w-0 flex-1">
-                <span id="hero_pay_month_label" class="text-[11px] font-extrabold text-emerald-400 block truncate">예상 실수령액</span>
+                <span id="hero_pay_month_label" class="text-xs font-extrabold text-emerald-400 block truncate">예상 실수령액</span>
                 <div class="flex items-center gap-1 flex-wrap mt-0.5">
                   <span id="even_odd_badge" class="text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300 nowrap">홀짝상여</span>
                   <span id="auto_hol_bonus_badge" class="hidden text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 nowrap">🌕명절상여</span>
@@ -147,10 +179,11 @@
                   <span id="calibration_active_badge" class="hidden text-[8px] font-black bg-amber-500 text-slate-950 px-1 py-0.5 rounded nowrap">보정중</span>
                 </div>
               </div>
-              <div id="hero_net_pay" class="text-xl sm:text-2xl font-black tracking-tight text-white shrink-0 nowrap tnum">0원</div>
+              <div id="hero_net_pay" class="text-2xl font-black tracking-tight text-white shrink-0 nowrap tnum">0원</div>
             </div>
 
-            <div class="mt-1.5 grid grid-cols-2 gap-1.5 text-xs w-full">
+            <!-- 아래로 살짝 스크롤하면 나오는 세전/공제/공수 상세 -->
+            <div class="mt-2 pt-2 border-t border-slate-700/70 grid grid-cols-2 gap-1.5 text-xs w-full">
               <div class="bg-slate-800/90 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1 nowrap">
                 <span class="text-slate-400 text-[10px] font-semibold shrink-0">세전총액</span>
                 <strong id="summary_gross" class="text-[11.5px] font-black text-sky-300 tnum truncate">0원</strong>
@@ -181,26 +214,6 @@
               </summary>
               <div id="payslip_detail_box" class="mt-1.5 pt-1.5 border-t border-slate-700 space-y-1 text-[10.5px] text-slate-200"></div>
             </details>
-          </div>
-
-          <!-- 1월~10월 명세서 바로가기 바 -->
-          <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
-            <div class="flex items-center justify-between nowrap">
-              <span class="text-[11px] font-black text-slate-800">📂 1월~10월 명세서·근태 원터치 조회</span>
-              <span class="text-[9.5px] text-blue-600 font-bold">터치 시 급여뷰 이동</span>
-            </div>
-            <div class="grid grid-cols-5 gap-1 text-[10px] font-black tracking-tight">
-              <button onclick="App.jumpToPayMonth(2026,1)" class="py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-800">1월</button>
-              <button onclick="App.jumpToPayMonth(2026,2)" class="py-1.5 rounded-lg bg-amber-50 text-amber-900">2월(설·PS)</button>
-              <button onclick="App.jumpToPayMonth(2026,3)" class="py-1.5 rounded-lg bg-slate-100 text-slate-800">3월</button>
-              <button onclick="App.jumpToPayMonth(2026,4)" class="py-1.5 rounded-lg bg-indigo-50 text-indigo-800">4월</button>
-              <button onclick="App.jumpToPayMonth(2026,5)" class="py-1.5 rounded-lg bg-slate-100 text-slate-800">5월</button>
-              <button onclick="App.jumpToPayMonth(2026,6)" class="py-1.5 rounded-lg bg-indigo-50 text-indigo-800">6월</button>
-              <button onclick="App.jumpToPayMonth(2026,7)" class="py-1.5 rounded-lg bg-slate-100 text-slate-800">7월</button>
-              <button onclick="App.jumpToPayMonth(2026,8)" class="py-1.5 rounded-lg bg-indigo-50 text-indigo-800">8월(소급)</button>
-              <button onclick="App.jumpToPayMonth(2026,9)" class="py-1.5 rounded-lg bg-amber-50 text-amber-900">9월(추석)</button>
-              <button onclick="App.jumpToPayMonth(2026,10)" class="py-1.5 rounded-lg bg-emerald-50 text-emerald-900">10월</button>
-            </div>
           </div>
 
           <!-- 급여 특이사항 -->
@@ -564,7 +577,7 @@
     </main>
 
     <!-- 하단 5탭 네비게이션 -->
-    <nav class="bg-white border-t border-slate-200 px-0.5 py-1.5 grid grid-cols-5 text-center text-[9.5px] tracking-tighter font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
+    <nav class="bg-white border-t border-slate-300 px-0.5 py-1.5 grid grid-cols-5 text-center text-[9.5px] tracking-tighter font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
       <button id="nav_severance" onclick="App.switchTab('severance')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🏦</span><span>예상퇴직금</span></button>
@@ -584,7 +597,7 @@
             </div>
             <h3 id="modal_date_title" class="text-base font-black text-slate-900 mt-1 truncate">날짜 선택</h3>
           </div>
-          <button onclick="App.closeDayModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none px-1.5 shrink-0">&times;</button>
+          <button onclick="App.closeDayModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none px-1.5 shrink-0">×</button>
         </div>
 
         <div class="space-y-2.5 text-xs w-full box-border">
@@ -1112,6 +1125,17 @@
         }
       },
 <!-- 여기 바로 아래에 [코드 4/4]를 이어서 붙여넣으세요 -->
+      // [신설]: 1월~12월 일정 원터치 버튼 클릭 시 해당 월의 메모뷰로 즉시 이동
+      jumpToScheduleMonth(m) {
+        const targetYear = (this.calendarView === 'MEMO') ? this.memoYear : this.payViewYear;
+        this.memoYear = targetYear;
+        this.memoMonth = m;
+        this.memoPayOffset = 0;
+        this.calendarView = 'MEMO';
+        this.updateViewSwitchButtons();
+        this.render(false);
+      },
+
       jumpToPayMonth(y, m) {
         this.payViewYear = y;
         this.payViewMonth = m;
@@ -1165,7 +1189,7 @@
 
       getExportPayload(includeSecrets = true) {
         const payload = {
-          version: '6.8',
+          version: '6.9',
           exportedAt: new Date().toISOString(),
           basePay: this.basePay,
           totalVacation: this.totalVacation,
@@ -1194,10 +1218,19 @@
         }
       },
 
+      updateViewSwitchButtons() {
+        const view = this.calendarView;
+        document.getElementById('view_btn_MEMO').className = view === 'MEMO'
+          ? 'py-1.5 rounded-lg text-xs font-black transition bg-slate-900 text-white shadow-sm flex items-center justify-center gap-1'
+          : 'py-1.5 rounded-lg text-xs font-bold transition text-slate-600 flex items-center justify-center gap-1';
+        document.getElementById('view_btn_PAY').className = view === 'PAY'
+          ? 'py-1.5 rounded-lg text-xs font-black transition bg-blue-600 text-white shadow-sm flex items-center justify-center gap-1'
+          : 'py-1.5 rounded-lg text-xs font-bold transition text-slate-600 flex items-center justify-center gap-1';
+      },
+
       setCalendarView(view) {
         this.calendarView = view;
-        document.getElementById('view_btn_MEMO').className = view === 'MEMO' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
-        document.getElementById('view_btn_PAY').className = view === 'PAY' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-blue-600 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
+        this.updateViewSwitchButtons();
         this.render(false);
       },
 
@@ -1838,20 +1871,40 @@
         this.save(); this.render();
       },
 
-      escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); },
+      escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({ '&':'&','<':'<','>':'>','"':'"',"'":''' }[m])); },
 
-      // [수정 1]: 메모뷰·급여뷰 모두 '오늘' 글자를 넣지 않고 파란색 상단 바 + 파란 테두리만으로 통일감 있게 강조
       buildCellHeaderHtml(dateText, dc, isToday, badgeKey) {
         if (isToday) {
-          return `<div class="-mx-0.5 -mt-0.5 px-1 py-[1.5px] rounded-[3px] bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[9.5px] font-black tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
+          return `<div class="-mx-0.5 -mt-0.5 px-1 py-[1px] rounded-[3px] bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[9.5px] font-black tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
         }
-        return `<div class="flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[10px] font-black ${dc} tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
+        return `<div class="flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[9.5px] font-black ${dc} tracking-tighter nowrap">${dateText}</span><span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${badgeKey}">${this.SHIFT_CHAR[badgeKey]}</span></div>`;
+      },
+
+      // 1월~12월 일정 원터치 그리드 렌더링 (선택된 달 강조)
+      renderQuick12MonthsGrid() {
+        const gridEl = document.getElementById('quick_12month_grid');
+        if (!gridEl) return;
+        const activeY = (this.calendarView === 'MEMO') ? this.memoYear : this.payViewYear;
+        const activeM = (this.calendarView === 'MEMO') ? this.memoMonth : this.payViewMonth;
+        document.getElementById('quick_month_bar_title').innerText = `🗓️ ${activeY}년 1월~12월 일정 원터치 조회`;
+
+        const btns = [];
+        for (let m = 1; m <= 12; m++) {
+          const isSelected = (this.calendarView === 'MEMO' && this.memoMonth === m);
+          const cls = isSelected
+            ? 'py-1.5 rounded-lg bg-blue-600 text-white font-black shadow-sm border border-blue-700 active:scale-95 transition'
+            : 'py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold border border-slate-200/80 active:scale-95 transition';
+          btns.push(`<button onclick="App.jumpToScheduleMonth(${m})" class="${cls}">${m}월</button>`);
+        }
+        gridEl.innerHTML = btns.join('');
       },
 
       render(skipInput = false) {
         const todayInfo = this.getTodayInfo();
         document.getElementById('today_header_info').innerText = `오늘 ${todayInfo.m}.${todayInfo.d} (${todayInfo.dayName})`;
         this.updateGithubUiStatus();
+        this.updateViewSwitchButtons();
+        this.renderQuick12MonthsGrid();
 
         const activePay = this.getActivePayYM(), calc = this.calculateMonthSummary(activePay.y, activePay.m);
         const rate = calc.rate;
@@ -1905,8 +1958,8 @@
 
         const first = calc.cutoffDates[0], last = calc.cutoffDates[calc.cutoffDates.length - 1];
         document.getElementById('subbar_left_text').innerText = this.calendarView === 'MEMO'
-          ? `📅 오늘은 ${todayInfo.y}년 ${todayInfo.m}월 ${todayInfo.d}일 (${todayInfo.dayName}) 입니다`
-          : `💰 ${activePay.y}년 ${activePay.m}월 급여 (${first.m}.${first.d} ~ ${last.m}.${last.d} 근무)`;
+          ? `↔ 좌우 밀어서 월 이동`
+          : `💰 ${first.m}.${first.d}~${last.m}.${last.d} 근무`;
 
         document.getElementById('hero_pay_month_label').innerText = `${activePay.y}년 ${activePay.m}월 실수령액`;
         document.getElementById('extra_section_title').innerText = `🎁 ${activePay.m}월 급여 특이사항`;
@@ -1988,9 +2041,10 @@
           this.swipeAnimClass = '';
         }
 
+        // [핵심 밸런스 조정]: 달력 + 원터치조회 + 실수령액 3개가 한 화면에 모두 들어오도록 셀 높이 최적화
         if (this.calendarView === 'MEMO') {
           const stdDates = this.getStandardMonthGridDates(this.memoYear, this.memoMonth);
-          const CELL_H = (Math.ceil(stdDates.length / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
+          const CELL_H = (Math.ceil(stdDates.length / 7) >= 6) ? 'min-h-[60px]' : 'min-h-[70px]';
 
           stdDates.forEach(dt => {
             const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth), isToday = (ev.key === todayInfo.key);
@@ -2003,7 +2057,7 @@
 
             const dateLabel = (ev.isOtherMonth && ev.d === 1) ? `${ev.m}.${ev.d}` : `${ev.d}`;
             const headerHtml = this.buildCellHeaderHtml(dateLabel, dc, isToday, ev.badgeKey);
-            const holSubHtml = ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>` : '';
+            const holSubHtml = ev.holidayName ? `<div class="text-[7px] font-extrabold text-red-600 leading-tight truncate text-center nowrap mb-0.5">${ev.holidayName}</div>` : '';
 
             const chips = [];
             if (ev.type === 'HOLIDAY') {
@@ -2024,14 +2078,14 @@
             }
 
             const div = document.createElement('div');
-            div.className = `p-1 ${CELL_H} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
+            div.className = `p-0.5 ${CELL_H} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
-            div.innerHTML = `${headerHtml}${holSubHtml}<div class="flex flex-col gap-[1.5px] w-full">${chips.join('')}</div>`;
+            div.innerHTML = `${headerHtml}${holSubHtml}<div class="flex flex-col gap-[1px] w-full">${chips.join('')}</div>`;
             grid.appendChild(div);
           });
         } else {
           const firstDow = calc.evaluated[0].dow, totalCells = firstDow + calc.evaluated.length;
-          const CELL_H = (Math.ceil(totalCells / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
+          const CELL_H = (Math.ceil(totalCells / 7) >= 6) ? 'min-h-[60px]' : 'min-h-[70px]';
 
           for (let i = 0; i < firstDow; i++) {
             const emptyBefore = document.createElement('div');
@@ -2040,24 +2094,24 @@
           }
           calc.evaluated.forEach(ev => {
             let cellStyle = 'bg-white';
-            let statusHtml = `<span class="text-[9px] text-slate-500 font-semibold nowrap">고정8h</span>`;
+            let statusHtml = `<span class="text-[8.5px] text-slate-500 font-semibold nowrap">고정8h</span>`;
             if (ev.type === 'OT') {
               cellStyle = 'cell-checked-ot';
-              statusHtml = `<span class="text-[9.5px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`;
+              statusHtml = `<span class="text-[9px] font-black text-blue-700 nowrap">+${ev.otHours}h잔업</span>`;
             } else if (ev.type === 'NIGHT_OT') {
               cellStyle = 'cell-checked-night-ot';
-              statusHtml = `<span class="text-[9.5px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`;
+              statusHtml = `<span class="text-[9px] font-black text-indigo-700 nowrap">🦉+${ev.otHours}h야잔</span>`;
             } else if (ev.type === 'HOLIDAY') {
               const th = ev.holBaseHours + ev.holOverHours;
               const hTxt = this.fmtHoursLabel(th);
               cellStyle = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
-              statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[9.5px] font-black text-purple-800 nowrap">🌙야특${hTxt}</span>` : `<span class="text-[9.5px] font-black text-red-600 nowrap">☀️주특${hTxt}</span>`;
+              statusHtml = ev.holKind === 'NIGHT' ? `<span class="text-[9px] font-black text-purple-800 nowrap">🌙야특${hTxt}</span>` : `<span class="text-[9px] font-black text-red-600 nowrap">☀️주특${hTxt}</span>`;
             } else if (ev.type === 'LEAVE') {
               cellStyle = 'cell-checked-leave';
-              statusHtml = `<span class="text-[9px] font-black text-emerald-800 tracking-tighter nowrap">${this.getLeaveChipLabel(ev, true)}</span>`;
+              statusHtml = `<span class="text-[8.5px] font-black text-emerald-800 tracking-tighter nowrap">${this.getLeaveChipLabel(ev, true)}</span>`;
             } else if (ev.type === 'OFF') {
               cellStyle = 'bg-white';
-              statusHtml = `<span class="text-[9px] text-slate-400 nowrap">휴일</span>`;
+              statusHtml = `<span class="text-[8.5px] text-slate-400 nowrap">휴일</span>`;
             }
 
             if (ev.d === 1) cellStyle += ' month-start-bar';
@@ -2066,13 +2120,12 @@
             if (ev.isSundayOrHol) dc = 'text-red-600'; else if (ev.isSaturday) dc = 'text-blue-600';
 
             const headerHtml = this.buildCellHeaderHtml(`${ev.m}.${ev.d}`, dc, isToday, ev.badgeKey);
-            const mid = ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>` : `<div class="h-[9px]"></div>`;
+            const mid = ev.holidayName ? `<div class="text-[7px] font-extrabold text-red-600 leading-tight truncate text-center nowrap">${ev.holidayName}</div>` : `<div class="h-[7px]"></div>`;
 
-            // [수정 2]: 급여뷰에서 좌측 하단 메모 핀(📌) 표시 완전 제거
             const div = document.createElement('div');
-            div.className = `p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${CELL_H} min-w-0 overflow-hidden ${cellStyle}`;
+            div.className = `p-0.5 cursor-pointer transition active:scale-95 flex flex-col justify-between ${CELL_H} min-w-0 overflow-hidden ${cellStyle}`;
             div.onclick = () => this.onCellTap(ev);
-            div.innerHTML = `${headerHtml}${mid}<div class="text-center leading-none my-0.5">${statusHtml}</div><div class="flex items-center justify-end text-[7.5px] font-extrabold leading-none nowrap"><span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span></div>`;
+            div.innerHTML = `${headerHtml}${mid}<div class="text-center leading-none my-0.5">${statusHtml}</div><div class="flex items-center justify-end text-[7px] font-extrabold leading-none nowrap"><span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span></div>`;
             grid.appendChild(div);
           });
           const trailing = (7 - (totalCells % 7)) % 7;
