@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v6.9</title>
+  <title>LGES 월급·퇴직금 계산기 v7.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
   <style>
@@ -29,7 +29,6 @@
 </head>
 <body>
   <div class="mobile-app-shell">
-    <!-- PIN 잠금 (끊겼던 부분부터 완벽 연결) -->
     <div id="pin_lock_overlay" class="fixed inset-0 bg-slate-950 text-white z-[100] hidden flex-col items-center justify-center p-6">
       <div class="text-center space-y-2 mb-6">
         <span class="text-xs font-black bg-red-600 px-2 py-0.5 rounded">LGES SECURITY</span>
@@ -56,7 +55,6 @@
       </div>
     </div>
 
-    <!-- 상단 헤더 -->
     <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30 w-full box-border">
       <div class="flex items-center justify-between gap-1.5">
         <div class="min-w-0 flex items-center gap-1.5">
@@ -74,9 +72,7 @@
       </div>
     </header>
 
-    <!-- 메인 컨텐츠 -->
     <main class="flex-1 overflow-y-auto overflow-x-hidden pb-20 space-y-1.5 w-full">
-      <!-- TAB 1: 달력 & 홈 -->
       <div id="tab_home" class="space-y-1.5 w-full">
         <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden" style="touch-action:pan-y;">
           <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
@@ -102,7 +98,6 @@
         </div>
 
         <div class="px-2 space-y-2 w-full box-border">
-          <!-- 급여 요약 카드 -->
           <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl px-3 py-2.5 shadow-md w-full box-border overflow-hidden">
             <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-700/80 gap-1 w-full">
               <div class="inline-flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 min-w-0">
@@ -145,7 +140,6 @@
             </details>
           </div>
 
-          <!-- 1월~12월 일정 원터치 조회 바 -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
             <div class="flex items-center justify-between nowrap">
               <span class="text-[11px] font-black text-slate-800">📅 1월~12월 일정 원터치 조회</span>
@@ -154,7 +148,6 @@
             <div id="quick_month_grid" class="grid grid-cols-6 gap-1 text-[10.5px] font-black tracking-tight"></div>
           </div>
 
-          <!-- 급여 특이사항 (교육시간 / 성과·소급·모르는수당 / 기타공제) -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
             <div class="flex items-center justify-between nowrap">
               <span id="extra_section_title" class="text-xs font-black text-slate-800">🎁 급여 특이사항</span>
@@ -191,7 +184,6 @@
         </div>
       </div>
 
-      <!-- TAB 2: 연간 리포트 -->
       <div id="tab_report" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between">
           <button onclick="App.changeReportYear(-1)" class="w-8 h-8 bg-slate-100 rounded-xl font-black text-xs text-slate-700">◀</button>
@@ -225,7 +217,6 @@
         </div>
       </div>
 
-      <!-- TAB 3: 예상 퇴직금 조회 -->
       <div id="tab_severance" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between gap-1">
           <button onclick="App.changeSeveranceMonth(-1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700 shrink-0">◀</button>
@@ -279,7 +270,6 @@
         </div>
       </div>
 
-      <!-- TAB 4: 수당 단가표 -->
       <div id="tab_rates" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200">
           <div class="flex items-center justify-between nowrap"><span class="text-[10px] font-black text-blue-600 uppercase">Rate Table</span><span class="text-[10px] font-bold text-slate-400">소정근로 220h 기준</span></div>
@@ -311,7 +301,6 @@
         </div>
       </div>
 
-      <!-- TAB 5: 보정 · 설정 · 백업 -->
       <div id="tab_settings" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-3.5 shadow-md border border-sky-500/40 space-y-3">
           <div class="flex items-center justify-between gap-1 nowrap">
@@ -360,7 +349,7 @@
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
               <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11일</strong></div>
-              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">5.5일</strong></div></div>
+              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">10일</strong></div></div>
             </div>
             <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
               <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
@@ -369,7 +358,7 @@
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="21" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">5월 이전 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="4.5" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+            <div><label class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
           </div>
           <div class="pt-2 border-t border-slate-100">
             <label class="block text-xs font-bold text-blue-800 mb-1 nowrap">✎ 현재 월 기본급 (원)</label>
@@ -409,7 +398,6 @@
       </div>
     </main>
 
-    <!-- 하단 5탭 네비게이션 -->
     <nav class="bg-white border-t border-slate-200 px-0.5 py-1.5 grid grid-cols-5 text-center text-[9.5px] tracking-tighter font-bold text-slate-400 sticky bottom-0 z-30 nowrap w-full">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
@@ -418,7 +406,6 @@
       <button id="nav_settings" onclick="App.switchTab('settings')" class="py-0.5 flex flex-col items-center gap-0.5"><span class="text-base leading-none">🎯</span><span>보정·설정</span></button>
     </nav>
 
-    <!-- 날짜 상세 모달 -->
     <div id="day_modal" class="fixed inset-0 bg-slate-900/60 hidden items-end justify-center z-50">
       <div class="bg-white rounded-t-3xl max-w-[430px] w-full p-3.5 max-h-[92vh] overflow-y-auto overflow-x-hidden box-border shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-2.5 gap-2">
@@ -485,94 +472,55 @@
   </div>
 
   <script>
-    // 2026년 5월~9월 실제 근태표(사진 5장) 완벽 반영 데이터
     const VERIFIED_RECORDS_5_TO_9 = {
-      // [5월 급여: 4.21 ~ 5.20] 출근 22, 연장 13h, 야간 88h, 휴일근로 40h, 휴일연장 16h, 연차 2일
-      '2026-04-22': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-04-24': { type:'OT', hours:2, shift:'NIGHT' },
-      '2026-04-25': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-04-27': { type:'LEAVE', hours:0, vacDays:1, shift:'MID' },
-      '2026-04-30': { type:'OT', hours:5, shift:'MID' },
-      '2026-05-01': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
-      '2026-05-04': { type:'OT', hours:2, shift:'EARLY' },
-      '2026-05-05': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
-      '2026-05-07': { type:'LEAVE', hours:0, vacDays:1, shift:'EARLY' },
-      '2026-05-15': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-05-16': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
+      '2026-04-22':{type:'OT',hours:4,shift:'NIGHT'},'2026-04-24':{type:'OT',hours:2,shift:'NIGHT'},
+      '2026-04-25':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-04-27':{type:'LEAVE',hours:0,vacDays:1,shift:'MID'},
+      '2026-04-30':{type:'OT',hours:5,shift:'MID'},'2026-05-01':{type:'HOLIDAY',hours:8,holKind:'DAY',shift:'EARLY'},
+      '2026-05-04':{type:'OT',hours:2,shift:'EARLY'},'2026-05-05':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
+      '2026-05-07':{type:'LEAVE',hours:0,vacDays:1,shift:'EARLY'},'2026-05-15':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT',compHol:true},
+      '2026-05-16':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
 
-      // [6월 급여: 5.21 ~ 6.20] 출근 23.5, 연장 35h(교육4h포함), 야간 64h, 휴일근로 40h, 휴일연장 16h, 반차 0.5일
-      '2026-05-25': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
-      '2026-05-27': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-05-28': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-05-30': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
-      '2026-06-03': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-06-04': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-06-05': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-06-06': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-06-09': { type:'OT', hours:5, shift:'MID' },
-      '2026-06-10': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-06-11': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-06-12': { type:'LEAVE', hours:0, vacDays:0.5, shift:'MID' },
-      '2026-06-18': { type:'OT', hours:2, shift:'EARLY' },
-      '2026-06-19': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-06-20': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
+      '2026-05-25':{type:'HOLIDAY',hours:8,holKind:'DAY',shift:'EARLY'},'2026-05-27':{type:'OT',hours:4,shift:'EARLY'},
+      '2026-05-28':{type:'OT',hours:4,shift:'EARLY'},'2026-05-30':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
+      '2026-06-03':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-06-04':{type:'OT',hours:4,shift:'NIGHT'},
+      '2026-06-05':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-06':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-06-09':{type:'OT',hours:5,shift:'MID'},'2026-06-10':{type:'OT',hours:4,shift:'NIGHT'},
+      '2026-06-11':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-12':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},
+      '2026-06-18':{type:'OT',hours:2,shift:'EARLY'},'2026-06-19':{type:'OT',hours:4,shift:'EARLY'},
+      '2026-06-20':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
 
-      // [7월 급여: 6.21 ~ 7.20] 출근 27, 연장 36h, 야간 136h, 휴일근로 56h, 휴일연장 24h, 연차 0일
-      '2026-06-21': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-06-24': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-06-25': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-06-27': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-06-30': { type:'OT', hours:4, shift:'MID' },
-      '2026-07-01': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-07-03': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-07-04': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-07-06': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-07-09': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-07-11': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
-      '2026-07-12': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-07-14': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-07-16': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-07-17': { type:'HOLIDAY', hours:8, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-07-18': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-07-20': { type:'OT', hours:4, shift:'EARLY' },
+      '2026-06-21':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-06-24':{type:'OT',hours:4,shift:'NIGHT'},
+      '2026-06-25':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-27':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-06-30':{type:'OT',hours:4,shift:'MID'},'2026-07-01':{type:'OT',hours:4,shift:'NIGHT'},
+      '2026-07-03':{type:'OT',hours:4,shift:'NIGHT'},'2026-07-04':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-07-06':{type:'OT',hours:4,shift:'EARLY'},'2026-07-09':{type:'OT',hours:4,shift:'EARLY'},
+      '2026-07-11':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},'2026-07-12':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-07-14':{type:'OT',hours:4,shift:'NIGHT'},'2026-07-16':{type:'OT',hours:4,shift:'NIGHT'},
+      '2026-07-17':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},'2026-07-18':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-07-20':{type:'OT',hours:4,shift:'EARLY'},
 
-      // [8월 급여: 7.21 ~ 8.20] 출근 22, 연장 17h, 야간 48h, 휴일근로 64h, 휴일연장 12h, 연차 3일(전일2+반차2)
-      '2026-07-22': { type:'OT', hours:5, shift:'MID' },
-      '2026-07-23': { type:'LEAVE', hours:0, vacDays:1, shift:'MID' },
-      '2026-07-24': { type:'LEAVE', hours:0, vacDays:1, shift:'MID' },
-      '2026-07-31': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-08-01': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
-      '2026-08-03': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-08-04': { type:'HOLIDAY', hours:8, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-08-05': { type:'HOLIDAY', hours:8, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-08-06': { type:'HOLIDAY', hours:8, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-08-07': { type:'HOLIDAY', hours:8, holKind:'NIGHT', shift:'NIGHT', compHol:true },
-      '2026-08-08': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-08-13': { type:'LEAVE', hours:0, vacDays:0.5, shift:'MID' },
-      '2026-08-14': { type:'LEAVE', hours:0, vacDays:0.5, shift:'MID' },
-      '2026-08-17': { type:'HOLIDAY', hours:8, holKind:'DAY', shift:'EARLY' },
-      '2026-08-19': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-08-20': { type:'OT', hours:4, shift:'EARLY' },
+      '2026-07-22':{type:'OT',hours:5,shift:'MID'},'2026-07-23':{type:'LEAVE',hours:0,vacDays:1,shift:'MID'},
+      '2026-07-24':{type:'LEAVE',hours:0,vacDays:1,shift:'MID'},'2026-07-31':{type:'OT',hours:4,shift:'EARLY'},
+      '2026-08-01':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},'2026-08-03':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT',compHol:true},
+      '2026-08-04':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},'2026-08-05':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},
+      '2026-08-06':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},'2026-08-07':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},
+      '2026-08-08':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-08-13':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},
+      '2026-08-14':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},'2026-08-17':{type:'HOLIDAY',hours:8,holKind:'DAY',shift:'EARLY'},
+      '2026-08-19':{type:'OT',hours:4,shift:'EARLY'},'2026-08-20':{type:'OT',hours:4,shift:'EARLY'},
 
-      // [9월 급여: 8.21 ~ 9.20] 출근 27, 연장 16h(교육4h포함), 야간 112h, 휴일근로 48h, 휴일연장 24h, 연차 0일
-      '2026-08-21': { type:'OT', hours:4, shift:'EARLY' },
-      '2026-08-22': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
-      '2026-08-23': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-08-24': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-08-27': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-08-29': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-09-12': { type:'HOLIDAY', hours:12, holKind:'DAY', shift:'EARLY' },
-      '2026-09-13': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' },
-      '2026-09-18': { type:'OT', hours:4, shift:'NIGHT' },
-      '2026-09-19': { type:'HOLIDAY', hours:12, holKind:'NIGHT', shift:'NIGHT' }
+      '2026-08-21':{type:'OT',hours:4,shift:'EARLY'},'2026-08-22':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
+      '2026-08-23':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-08-24':{type:'OT',hours:4,shift:'NIGHT'},
+      '2026-08-27':{type:'OT',hours:4,shift:'NIGHT'},'2026-08-29':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-09-12':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},'2026-09-13':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
+      '2026-09-18':{type:'OT',hours:4,shift:'NIGHT'},'2026-09-19':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'}
     };
 
     const VERIFIED_EXTRAS_5_TO_9 = {
-      '2026-05': { eduHours:0, foodDed:0, manualHolBonus:null },
-      '2026-06': { eduHours:4, foodDed:0, manualHolBonus:null },
-      '2026-07': { eduHours:0, foodDed:0, manualHolBonus:null },
-      '2026-08': { eduHours:0, foodDed:0, manualHolBonus:null },
-      '2026-09': { eduHours:4, foodDed:0, manualHolBonus:true }
+      '2026-05':{eduHours:0,foodDed:0,manualHolBonus:null},
+      '2026-06':{eduHours:4,foodDed:0,manualHolBonus:null},
+      '2026-07':{eduHours:0,foodDed:0,manualHolBonus:null},
+      '2026-08':{eduHours:0,foodDed:0,manualHolBonus:null},
+      '2026-09':{eduHours:4,foodDed:0,manualHolBonus:true}
     };
 
     const KoreanHolidayEngine = {
@@ -656,10 +604,10 @@
       payViewYear:2026,payViewMonth:11,
       reportYear:2026,sevYear:2026,sevMonth:10,sevUseExactMonths:true,
 
-      basePay:3005500,totalVacation:21,priorUsedVacation:4.5,shiftOffset:0,
+      basePay:3005500,totalVacation:21,priorUsedVacation:0,shiftOffset:0,
       calibGrossOffset:0,calibDedRatio:1.0,
       records:{},monthExtras:{},
-      seeded5to9:false,
+      seeded5to9_v2:false,
 
       ghToken:'',ghGistId:'',ghAutoSync:true,ghLastSync:'',
       appPin:'',enteredPin:'',autoSyncTimer:null,
@@ -674,7 +622,7 @@
           const vd=await DualVault.loadSnapshot();
           if(vd){this.loadStateObject(vd);localStorage.setItem(this.STORAGE_KEY,JSON.stringify(vd));}
         }
-        if(!this.seeded5to9){
+        if(!this.seeded5to9_v2){
           this.applyVerifiedAttendance(false);
         }
         this.checkPinLockOnStart();
@@ -684,7 +632,7 @@
         this.render();
       },
 
-      // 5~9월(4.21~9.20) 임의 근태는 비우고 사진의 실제 근태로 교체 (메모는 100% 보존)
+      // 1~4월, 10월 기록은 절대 건드리지 않고 5~9월(4.21~9.20)만 실제 근태로 적용 + 중복 기사용 연차(4.5) 0으로 정리
       applyVerifiedAttendance(showMsg=false){
         const start=new Date(2026,3,21,12,0,0), end=new Date(2026,8,20,12,0,0);
         for(let dt=new Date(start); dt<=end; dt.setDate(dt.getDate()+1)){
@@ -703,13 +651,13 @@
           this.monthExtras[mk]={...prevEx, eduHours:ex.eduHours, manualHolBonus:ex.manualHolBonus};
         });
         this.totalVacation=21;
-        this.priorUsedVacation=4.5;
+        this.priorUsedVacation=0;
         if(!this.basePay || this.basePay<=0) this.basePay=3005500;
-        this.seeded5to9=true;
+        this.seeded5to9_v2=true;
         this.save(true);
         this.syncSettingsInputs();
         this.render();
-        if(showMsg) alert('✔ 5월~9월 실제 근태표 반영 완료! (총 연차 21일 / 사용 10일 / 남은 연차 11일)');
+        if(showMsg) alert('✔ 1~4월·10월 기록은 유지하고 5~9월 실제 근태만 정확히 반영했습니다!');
       },
 
       checkPinLockOnStart(){
@@ -808,8 +756,12 @@
           if(!gid){this.updateGithubUiStatus();return alert('백업 파일을 찾지 못했습니다.');}
           const r=await fetch(`https://api.github.com/gists/${gid}?_t=${Date.now()}`,{headers:this.getGithubHeaders(t),cache:'no-store'});
           const d=await r.json(),raw=d.files?.[this.GIST_FILENAME]?.content;
-          this.loadStateObject(JSON.parse(raw));this.ghToken=t;this.ghGistId=gid;this.save(true);this.syncSettingsInputs();this.updateGithubUiStatus('✔ 복원 완료');this.render();
-          alert('📥 깃허브 금고에서 모든 데이터를 복원했습니다!');this.switchTab('home');
+          this.loadStateObject(JSON.parse(raw));
+          this.ghToken=t;this.ghGistId=gid;
+          // 복원 후에도 1~4월/10월은 그대로 살리고 5~9월은 실제 근태표로 유지
+          this.applyVerifiedAttendance(false);
+          this.updateGithubUiStatus('✔ 복원 완료');
+          alert('📥 깃허브 복원 및 5~9월 실근태 연동이 완료되었습니다!');this.switchTab('home');
         }catch(e){this.updateGithubUiStatus('⚠️ 복원 오류',true);alert('복원에 실패했습니다.');}
       },
 
@@ -846,7 +798,7 @@
         if(p.calibDedRatio!==undefined) this.calibDedRatio=Number(p.calibDedRatio);
         if(p.records&&typeof p.records==='object') this.records=p.records;
         if(p.monthExtras&&typeof p.monthExtras==='object') this.monthExtras=p.monthExtras;
-        if(p.seeded5to9!==undefined) this.seeded5to9=Boolean(p.seeded5to9);
+        if(p.seeded5to9_v2!==undefined) this.seeded5to9_v2=Boolean(p.seeded5to9_v2);
         if(p.ghToken!==undefined) this.ghToken=p.ghToken;
         if(p.ghGistId!==undefined) this.ghGistId=p.ghGistId;
         if(p.ghAutoSync!==undefined) this.ghAutoSync=Boolean(p.ghAutoSync);
@@ -855,7 +807,7 @@
       },
 
       getExportPayload(inc=true){
-        const p={version:'6.9',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9:this.seeded5to9,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
+        const p={version:'7.0',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9_v2:this.seeded5to9_v2,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
         if(inc) p.ghToken=this.ghToken;
         return p;
       },
@@ -901,7 +853,7 @@
       toggleRestoreBox(){document.getElementById('restore_code_box').classList.toggle('hidden');},
       restoreFromCode(){
         const raw=document.getElementById('textarea_restore_code').value.trim();if(!raw)return;
-        try{this.loadStateObject(JSON.parse(raw));this.save();this.syncSettingsInputs();this.render();alert('복원 완료!');this.switchTab('home');}catch(e){alert('코드 형식 오류');}
+        try{this.loadStateObject(JSON.parse(raw));this.applyVerifiedAttendance(false);alert('복원 완료!');this.switchTab('home');}catch(e){alert('코드 형식 오류');}
       },
       getTodayInfo(){const n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,d=n.getDate(),dow=n.getDay();return{y,m,d,dow,dayName:this.DAY_KOR[dow],key:this.formatKey(y,m,d)};},
       goToTodayMonth(r=true){
@@ -961,7 +913,7 @@
         if(ag<=0||an<=0||an>ag) return alert('이번 달 확정 세전·세후 금액을 입력해 주세요.');
         const pm=this.getActivePayYM(),ex=this.getMonthExtra(pm.y,pm.m);
         ex.exactGross=ag;ex.exactDed=ag-an;
-        this.save();this.render();alert(`📌 ${pm.m}월 명세서 금액이 확정 박제되었습니다! (다른 달 예상치에는 영향을 주지 않습니다)`);this.switchTab('home');
+        this.save();this.render();alert(`📌 ${pm.m}월 명세서 금액이 확정 박제되었습니다!`);this.switchTab('home');
       },
       resetCalibration(){
         this.calibGrossOffset=0;this.calibDedRatio=1.0;
@@ -1002,7 +954,6 @@
         return l;
       },
       formatKey(y,m,d){return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;},
-      fmtHoursLabel(h){return Number.isInteger(h)?`${h}h`:`${h.toFixed(1)}h`;},
 
       evaluateDay(y,m,d,isOther=false){
         const key=this.formatKey(y,m,d),dow=new Date(y,m-1,d,12,0,0).getDay(),rec=this.records[key]||{};
@@ -1093,7 +1044,6 @@
         const regBonusPay=(hasBase&&isEven)?appliedBase:0,holBonusPay=(hasBase&&hasHol)?appliedBase:0;
         const housingAllow=ex.housingAllow||0,housingDed=ex.housingDed||0,retroPay=Number(ex.retroPay)||0,fixedAllow=hasBase?180000:0;
 
-        // 퇴직금 산정용 월 급여에는 일회성 성과·소급(retroPay) 제외
         const coreMonthlyWage=hasBase?(appliedBase+fixedAllow+lmsPay+otPay+holBasePay+holOverPay+nightPay+eduPay):0;
         const fixedBaseTotal=hasBase?(appliedBase+fixedAllow+lmsPay+housingAllow+retroPay):0;
         const rawGross=ex.exactGross!==undefined?ex.exactGross:(fixedBaseTotal+regBonusPay+holBonusPay+otPay+holBasePay+holOverPay+nightPay+eduPay);
