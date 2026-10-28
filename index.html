@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v7.5</title>
+  <title>스마트 월급·퇴직금 계산기 v7.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
   <style>
@@ -172,7 +172,7 @@
             <div id="target_net_result_box" class="text-[10.5px] bg-slate-50 rounded-xl p-2 border border-slate-200 text-slate-600 font-bold"></div>
           </div>
 
-          <!-- [개선 완료] 다가오는 메모 일정(D-Day) & 전체 메모 통합 검색 (내부 스크롤 제거 + 더보기 토글 + 달력 하이라이트 이동) -->
+          <!-- 다가오는 메모 일정(D-Day) & 전체 메모 통합 검색 -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-amber-300 space-y-2">
             <div class="flex items-center justify-between gap-1 nowrap">
               <span class="text-[11.5px] font-black text-slate-900">📌 다가오는 일정(D-Day) & 메모 검색</span>
@@ -257,7 +257,7 @@
           </div>
         </div>
 
-        <!-- 임금협상 소급금 자동 계산기 -->
+        <!-- 임금협상 소급금 자동 계산기 (조회 전용) -->
         <div id="retro_calc_card" class="bg-white rounded-2xl p-3 shadow-sm border-2 border-emerald-500 space-y-2.5">
           <div class="flex items-center justify-between nowrap">
             <div>
@@ -300,7 +300,6 @@
             <summary class="cursor-pointer font-extrabold text-emerald-800 flex justify-between py-0.5"><span>📋 월별 소급금 산출 상세 내역 보기</span><span>펼치기 ▼</span></summary>
             <div id="retro_month_detail_list" class="mt-1.5 pt-1.5 border-t border-slate-200 space-y-1 tnum"></div>
           </details>
-          <button onclick="App.applyRetroToActiveMonth()" class="w-full py-2 bg-emerald-600 active:bg-emerald-700 text-white font-black rounded-xl text-xs shadow-sm">📥 현재 선택월 특이사항(성과·소급 칸)에 바로 반영하기</button>
         </div>
 
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200">
@@ -756,9 +755,7 @@
       stampMode:false,
       activeStampId:'OT4',
       targetNetPay:0,
-      lastCalculatedRetroGross:0,
 
-      // D-Day 허브 펼침 상태 및 포커스 날짜
       memoHubExpanded:false,
       focusedDateKey:null,
       focusClearTimer:null,
@@ -900,7 +897,6 @@
             <strong class="text-emerald-700 font-black">+${mDiff.toLocaleString()}원</strong>
           </div>`);
         }
-        this.lastCalculatedRetroGross=totalDiffGross;
         const estNet=Math.round(totalDiffGross*0.88);
         const gEl=document.getElementById('retro_total_gross');
         const nEl=document.getElementById('retro_total_net');
@@ -908,16 +904,6 @@
         if(gEl) gEl.innerText=`+${totalDiffGross.toLocaleString()}원`;
         if(nEl) nEl.innerText=`약 +${estNet.toLocaleString()}원`;
         if(lEl) lEl.innerHTML=rows.join('');
-      },
-      applyRetroToActiveMonth(){
-        if(this.lastCalculatedRetroGross<=0) return alert('계산된 소급금이 0원입니다. 인상 전·후 기본급을 확인해 주세요.');
-        const ap=this.getActivePayYM();
-        const ex=this.getMonthExtra(ap.y,ap.m);
-        delete ex.exactGross; delete ex.exactDed;
-        ex.retroPay=this.lastCalculatedRetroGross;
-        this.save();
-        this.switchTab('home');
-        alert(`📥 ${ap.m}월 급여 특이사항(성과·소급 칸)에 +${this.lastCalculatedRetroGross.toLocaleString()}원이 반영되었습니다!`);
       },
 
       addTargetNet(delta){
@@ -979,7 +965,6 @@
           </div>`;
       },
 
-      // [개선 완료] 내부 스크롤 없는 D-Day 일정 허브 + 더보기/접기 + 달력 해당 날짜 하이라이트 이동
       toggleMemoHubExpand(){
         this.memoHubExpanded=!this.memoHubExpanded;
         this.renderMemoHub();
@@ -1059,7 +1044,6 @@
           <span class="text-[9.5px] text-blue-600 font-black shrink-0">달력이동 ➔</span>
         </div>`;
       },
-      // 메모 입력창을 띄우지 않고 해당 월 달력으로 이동 후 날짜 칸만 반짝이게 강조
       jumpToDateOnCalendar(y,m,d){
         this.memoYear=y;
         this.memoMonth=m;
@@ -1276,7 +1260,7 @@
       },
 
       getExportPayload(inc=true){
-        const p={version:'7.5',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9_v4:this.seeded5to9_v4,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
+        const p={version:'7.6',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9_v4:this.seeded5to9_v4,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
         if(inc) p.ghToken=this.ghToken;
         return p;
       },
