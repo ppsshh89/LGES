@@ -1,7 +1,7 @@
 {
-  "name": "LGES 월급계산기",
+  "name": "스마트 월급계산기",
   "short_name": "월급계산기",
-  "description": "LGES 교대근무 달력 메모 및 급여·퇴직금 계산기",
+  "description": "교대근무 달력 메모 및 급여·퇴직금 계산기",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -12,25 +12,13 @@
       "src": "./icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icon.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icon.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
