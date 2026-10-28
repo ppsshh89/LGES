@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v7.6</title>
+  <title>스마트 월급·퇴직금 계산기 v7.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
   <style>
@@ -67,7 +67,7 @@
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴남은연차</span>
-            <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">11일(88h)</strong>
+            <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">21일(168h)</strong>
           </div>
           <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300 tracking-tighter tnum">미사용시 +0만원</div>
         </button>
@@ -433,8 +433,8 @@
           </div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
-              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11일</strong></div>
-              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">10일</strong></div></div>
+              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">21일</strong></div>
+              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">0일</strong></div></div>
             </div>
             <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
               <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
@@ -496,11 +496,12 @@
         </div>
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드 백업 (보조용)</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드 백업 및 전체 초기화</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
           <div class="grid grid-cols-2 gap-2 text-xs pt-1">
             <button onclick="App.copyBackupCode()" class="py-2 px-3 bg-slate-800 text-white font-black rounded-xl nowrap">📋 백업코드 복사</button>
             <button onclick="App.toggleRestoreBox()" class="py-2 px-3 bg-slate-200 text-slate-800 font-black rounded-xl nowrap">📥 코드 붙여넣어 복원</button>
           </div>
+          <button onclick="App.clearJanToOctWorkAndPay(true)" class="w-full py-2 px-3 bg-rose-50 border border-rose-200 text-rose-700 font-black rounded-xl text-xs nowrap">🧹 1~10월 근태·급여 기록 전체 비우기 (메모 유지)</button>
           <div id="restore_code_box" class="hidden pt-2 space-y-2">
             <textarea id="textarea_restore_code" rows="3" placeholder="백업코드를 붙여넣으세요..." class="w-full p-2.5 border border-blue-300 rounded-xl text-[11px] font-mono bg-slate-50"></textarea>
             <button onclick="App.restoreFromCode()" class="w-full py-2.5 bg-emerald-600 text-white font-black rounded-xl text-xs nowrap">✔️ 이 백업코드로 데이터 즉시 복원하기</button>
@@ -602,58 +603,6 @@
       { id:'CLEAR', label:'🧹지우개', cls:'bg-slate-800 text-white', type:'DEFAULT', hours:0 }
     ];
 
-    const VERIFIED_RECORDS_5_TO_9 = {
-      '2026-04-22':{type:'OT',hours:4,shift:'NIGHT'},'2026-04-24':{type:'OT',hours:2,shift:'NIGHT'},
-      '2026-04-25':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-04-27':{type:'LEAVE',hours:0,vacDays:1,shift:'MID'},
-      '2026-04-30':{type:'OT',hours:5,shift:'MID'},'2026-05-01':{type:'HOLIDAY',hours:8,holKind:'DAY',shift:'EARLY'},
-      '2026-05-04':{type:'OT',hours:2,shift:'EARLY'},'2026-05-05':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
-      '2026-05-07':{type:'LEAVE',hours:0,vacDays:1,shift:'EARLY'},'2026-05-15':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT',compHol:true},
-      '2026-05-16':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-
-      '2026-05-25':{type:'HOLIDAY',hours:8,holKind:'DAY',shift:'EARLY'},'2026-05-27':{type:'OT',hours:4,shift:'EARLY'},
-      '2026-05-28':{type:'OT',hours:4,shift:'EARLY'},'2026-05-30':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
-      '2026-06-03':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-06-04':{type:'OT',hours:4,shift:'NIGHT'},
-      '2026-06-05':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-06':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-06-09':{type:'OT',hours:5,shift:'MID'},'2026-06-10':{type:'OT',hours:4,shift:'NIGHT'},
-      '2026-06-11':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-12':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},
-      '2026-06-15':{type:'GONGGA',hours:0,vacDays:0,shift:'EARLY'},
-      '2026-06-18':{type:'OT',hours:2,shift:'EARLY'},'2026-06-19':{type:'OT',hours:4,shift:'EARLY'},
-      '2026-06-20':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
-
-      '2026-06-21':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-06-24':{type:'OT',hours:4,shift:'NIGHT'},
-      '2026-06-25':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-27':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-06-30':{type:'OT',hours:4,shift:'MID'},'2026-07-01':{type:'OT',hours:4,shift:'NIGHT'},
-      '2026-07-03':{type:'OT',hours:4,shift:'NIGHT'},'2026-07-04':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-07-06':{type:'OT',hours:4,shift:'EARLY'},'2026-07-09':{type:'OT',hours:4,shift:'EARLY'},
-      '2026-07-11':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},'2026-07-12':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-07-14':{type:'OT',hours:4,shift:'NIGHT'},'2026-07-16':{type:'OT',hours:4,shift:'NIGHT'},
-      '2026-07-17':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},'2026-07-18':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-07-20':{type:'OT',hours:4,shift:'EARLY'},
-
-      '2026-07-22':{type:'OT',hours:5,shift:'MID'},'2026-07-23':{type:'LEAVE',hours:0,vacDays:1,shift:'MID'},
-      '2026-07-24':{type:'LEAVE',hours:0,vacDays:1,shift:'MID'},'2026-07-31':{type:'OT',hours:4,shift:'EARLY'},
-      '2026-08-01':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},'2026-08-03':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT',compHol:true},
-      '2026-08-04':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},'2026-08-05':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},
-      '2026-08-06':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},'2026-08-07':{type:'HOLIDAY',hours:8,holKind:'NIGHT',shift:'NIGHT',compHol:true},
-      '2026-08-08':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-08-13':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},
-      '2026-08-14':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},'2026-08-17':{type:'HOLIDAY',hours:8,holKind:'DAY',shift:'EARLY'},
-      '2026-08-19':{type:'OT',hours:4,shift:'EARLY'},'2026-08-20':{type:'OT',hours:4,shift:'EARLY'},
-
-      '2026-08-21':{type:'OT',hours:4,shift:'EARLY'},'2026-08-22':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
-      '2026-08-23':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},'2026-08-24':{type:'OT',hours:4,shift:'NIGHT'},
-      '2026-08-27':{type:'OT',hours:4,shift:'NIGHT'},'2026-08-29':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-09-12':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},'2026-09-13':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
-      '2026-09-18':{type:'OT',hours:4,shift:'NIGHT'},'2026-09-19':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'}
-    };
-
-    const VERIFIED_EXTRAS_5_TO_9 = {
-      '2026-05':{eduHours:0,foodDed:0,manualHolBonus:null},
-      '2026-06':{eduHours:4,foodDed:0,manualHolBonus:null},
-      '2026-07':{eduHours:0,foodDed:0,manualHolBonus:null},
-      '2026-08':{eduHours:0,foodDed:0,manualHolBonus:null},
-      '2026-09':{eduHours:4,foodDed:0,manualHolBonus:true}
-    };
-
     const KoreanHolidayEngine = {
       cache:{},
       LUNAR_TABLE:{
@@ -750,7 +699,7 @@
       basePay:3005500,totalVacation:21,priorUsedVacation:0,shiftOffset:0,
       calibGrossOffset:0,calibDedRatio:1.0,
       records:{},monthExtras:{},
-      seeded5to9_v4:false,
+      cleanedJanToOct_v1:false,
 
       stampMode:false,
       activeStampId:'OT4',
@@ -779,14 +728,43 @@
           const vd=await DualVault.loadSnapshot();
           if(vd){this.loadStateObject(vd);localStorage.setItem(this.STORAGE_KEY,JSON.stringify(vd));}
         }
-        if(!this.seeded5to9_v4){
-          this.applyVerifiedAttendance(false);
+        // 1~10월 근태·급여 데이터 최초 1회 자동 비우기 실행
+        if(!this.cleanedJanToOct_v1){
+          this.clearJanToOctWorkAndPay(false);
         }
         this.checkPinLockOnStart();
         this.resetBothViewsToToday();
         this.syncSettingsInputs();
         this.updateGithubUiStatus();
         this.render();
+      },
+
+      // 1월~10월 근태 및 급여 데이터 전체 초기화 (개인 텍스트 메모는 보존)
+      clearJanToOctWorkAndPay(askConfirm=false){
+        if(askConfirm && !confirm('1월~10월의 모든 근태 기록(잔업·특근·연차·공가)과 급여 특이사항을 비우시겠습니까?\n(달력에 적어둔 개인 텍스트 메모는 유지됩니다.)')) return;
+        const start=new Date(2025,11,21,12,0,0), end=new Date(2026,9,31,12,0,0);
+        for(let dt=new Date(start); dt<=end; dt.setDate(dt.getDate()+1)){
+          const k=this.formatKey(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
+          const prev=this.records[k];
+          if(prev){
+            if(prev.memo && prev.memo.trim()){
+              this.records[k]={memo:prev.memo.trim(), memoColor:prev.memoColor};
+            }else{
+              delete this.records[k];
+            }
+          }
+        }
+        for(let m=1;m<=10;m++){
+          delete this.monthExtras[`2026-${String(m).padStart(2,'0')}`];
+        }
+        this.calibGrossOffset=0;
+        this.calibDedRatio=1.0;
+        this.priorUsedVacation=0;
+        this.cleanedJanToOct_v1=true;
+        this.save(true);
+        this.syncSettingsInputs();
+        this.render();
+        if(askConfirm) alert('🧹 1~10월 근태 및 급여 데이터가 모두 깨끗하게 비워졌습니다!');
       },
 
       initStampPalette(){
@@ -1067,39 +1045,6 @@
         document.body.scrollTop=0;
       },
 
-      applyVerifiedAttendance(showMsg=false){
-        const start=new Date(2026,3,21,12,0,0), end=new Date(2026,8,20,12,0,0);
-        for(let dt=new Date(start); dt<=end; dt.setDate(dt.getDate()+1)){
-          const k=this.formatKey(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
-          const prev=this.records[k]||{};
-          const ver=VERIFIED_RECORDS_5_TO_9[k];
-          if(ver){
-            this.records[k]={...ver, memo:prev.memo||'', memoColor:prev.memoColor};
-          }else{
-            if(prev.memo) this.records[k]={memo:prev.memo, memoColor:prev.memoColor};
-            else delete this.records[k];
-          }
-        }
-        Object.keys(this.records).forEach(k=>{
-          const r=this.records[k];
-          if(r && r.hours && !Number.isInteger(Number(r.hours)) && Math.abs(r.hours-9.6667)<0.1){
-            r.hours = 8;
-          }
-        });
-        Object.entries(VERIFIED_EXTRAS_5_TO_9).forEach(([mk,ex])=>{
-          const prevEx=this.monthExtras[mk]||{};
-          this.monthExtras[mk]={...prevEx, eduHours:ex.eduHours, manualHolBonus:ex.manualHolBonus};
-        });
-        this.totalVacation=21;
-        this.priorUsedVacation=0;
-        if(!this.basePay || this.basePay<=0) this.basePay=3005500;
-        this.seeded5to9_v4=true;
-        this.save(true);
-        this.syncSettingsInputs();
-        this.render();
-        if(showMsg) alert('✔ 5~9월 실근태(6/15 공가 포함) 반영 및 초기화 완료!');
-      },
-
       removeLeaveRecord(dateKey){
         const r=this.records[dateKey];if(!r) return;
         if(r.memo || r.compHol) this.records[dateKey]={memo:r.memo||'', memoColor:r.memoColor, compHol:r.compHol};
@@ -1251,7 +1196,7 @@
         if(p.calibDedRatio!==undefined) this.calibDedRatio=Number(p.calibDedRatio);
         if(p.records&&typeof p.records==='object') this.records=p.records;
         if(p.monthExtras&&typeof p.monthExtras==='object') this.monthExtras=p.monthExtras;
-        if(p.seeded5to9_v4!==undefined) this.seeded5to9_v4=Boolean(p.seeded5to9_v4);
+        if(p.cleanedJanToOct_v1!==undefined) this.cleanedJanToOct_v1=Boolean(p.cleanedJanToOct_v1);
         if(p.ghToken!==undefined) this.ghToken=p.ghToken;
         if(p.ghGistId!==undefined) this.ghGistId=p.ghGistId;
         if(p.ghAutoSync!==undefined) this.ghAutoSync=Boolean(p.ghAutoSync);
@@ -1260,7 +1205,7 @@
       },
 
       getExportPayload(inc=true){
-        const p={version:'7.6',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9_v4:this.seeded5to9_v4,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
+        const p={version:'7.7',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,cleanedJanToOct_v1:this.cleanedJanToOct_v1,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
         if(inc) p.ghToken=this.ghToken;
         return p;
       },
