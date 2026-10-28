@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon.png">
   <link rel="manifest" href="./manifest.json">
-  <title>LGES 월급·퇴직금 계산기 v7.0</title>
+  <title>LGES 월급·퇴직금 계산기 v7.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
   <style>
@@ -19,7 +19,7 @@
     .mobile-app-shell{max-width:430px;width:100%;min-height:100vh;margin:0 auto;background:#f1f5f9;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-x:hidden;box-sizing:border-box}
     @media(min-width:500px){body{padding:20px 0}.mobile-app-shell{min-height:880px;border-radius:40px;border:10px solid #0f172a;overflow:hidden}}
     .badge-EARLY{background:#0284c7;color:#fff}.badge-MID{background:#f59e0b;color:#fff}.badge-NIGHT{background:#3b0764;color:#fde047}.badge-OFF{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5}
-    .cell-checked-ot{background:#dbeafe!important}.cell-checked-night-ot{background:#ede9fe!important}.cell-checked-hol-day{background:#fee2e2!important}.cell-checked-hol-night{background:#f3e8ff!important}.cell-checked-leave{background:#d1fae5!important}
+    .cell-checked-ot{background:#dbeafe!important}.cell-checked-night-ot{background:#ede9fe!important}.cell-checked-hol-day{background:#fee2e2!important}.cell-checked-hol-night{background:#f3e8ff!important}.cell-checked-leave{background:#d1fae5!important}.cell-checked-gongga{background:#e0f2fe!important}
     .month-start-bar{box-shadow:inset 0 2.5px 0 0 #334155}.cell-today{box-shadow:inset 0 0 0 2px #2563eb!important;z-index:10}.bottom-nav-active{color:#2563eb;font-weight:900}.nowrap{white-space:nowrap}.tnum{font-variant-numeric:tabular-nums}
     .memo-chip{width:100%;color:#0f172a;font-size:clamp(7.4px,2vw,8.5px);font-weight:800;letter-spacing:-.05em;line-height:1.2;padding:2px;border-radius:3px;word-break:keep-all;overflow-wrap:break-word;white-space:normal;text-align:left;box-sizing:border-box}
     .work-top-chip{width:100%;font-size:clamp(7.5px,2.05vw,8.6px);font-weight:900;letter-spacing:-.05em;line-height:1.15;padding:1px 0;background:transparent!important;border:none!important;text-align:center;white-space:nowrap;overflow:hidden;box-sizing:border-box}
@@ -327,16 +327,42 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔒 앱 실행 4자리 암호 잠금</h2><span id="pin_status_badge" class="text-[10px] font-bold text-slate-400">잠금 꺼짐</span></div>
-          <div class="flex items-center gap-2 text-xs">
-            <input type="password" id="input_app_pin" maxlength="4" inputmode="numeric" placeholder="숫자 4자리 입력 (비우면 해제)" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center tracking-widest">
-            <button onclick="App.saveAppPin()" class="shrink-0 px-3 py-2 bg-slate-900 text-white font-black rounded-xl nowrap">암호 저장</button>
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between nowrap">
+            <h2 class="text-sm font-black text-slate-900">🌴 연차 휴가 및 기본급 설정</h2>
+            <button onclick="App.syncRemainVacationTo11()" class="text-[10px] font-black bg-emerald-600 text-white px-2 py-1 rounded-lg active:scale-95">✔ 잔여 11일 즉시맞춤</button>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
+            <div class="flex justify-between items-center">
+              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11일</strong></div>
+              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>총 사용: <strong id="set_calendar_used_vac">10일</strong></div></div>
+            </div>
+            <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
+              <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
+              <div class="text-right"><strong id="set_unused_vac_pay" class="text-sm font-black text-emerald-700">+0원</strong><span id="set_oneday_vac_pay" class="block text-[10px] font-bold text-emerald-600">(연차 1일당 0원)</span></div>
+            </div>
+          </div>
+
+          <details class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs">
+            <summary class="cursor-pointer font-extrabold text-slate-700 flex justify-between items-center">
+              <span>📋 달력에 찍힌 휴가 날짜 전체 목록 보기</span>
+              <span id="vac_list_count_label" class="text-[10px] text-emerald-700 font-black">조회 ▼</span>
+            </summary>
+            <div id="vac_dates_list_box" class="mt-2 pt-2 border-t border-slate-200 space-y-1 max-h-44 overflow-y-auto"></div>
+          </details>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="21" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+            <div><label class="block font-bold text-slate-700 mb-1 nowrap">연차 보정치 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+          </div>
+          <div class="pt-2 border-t border-slate-100">
+            <label class="block text-xs font-bold text-blue-800 mb-1 nowrap">✎ 현재 월 기본급 (원)</label>
+            <input type="number" id="input_base_pay" value="3005500" step="1000" onchange="App.saveSettings()" class="w-full p-2.5 border-2 border-blue-500 rounded-xl font-black text-right text-sm text-slate-900">
           </div>
         </div>
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔄 내 근무조 패턴 & 5~9월 실근태 복구</h2><button onclick="App.applyVerifiedAttendance(true)" class="text-[10px] font-black bg-blue-600 text-white px-2 py-1 rounded-lg">📋 5~9월 실근태 즉시적용</button></div>
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔄 내 근무조 패턴 & 실근태 복구</h2><button onclick="App.applyVerifiedAttendance(true)" class="text-[10px] font-black bg-blue-600 text-white px-2 py-1 rounded-lg">📋 5~9월 실근태 복구</button></div>
           <div class="grid grid-cols-3 gap-2 text-xs font-black pt-1">
             <button id="btn_set_shift_EARLY" onclick="App.setThisWeekShift('EARLY')" class="py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 nowrap">☀️ 이번주 초반</button>
             <button id="btn_set_shift_MID" onclick="App.setThisWeekShift('MID')" class="py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 nowrap">🌤️ 이번주 중반</button>
@@ -344,25 +370,11 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🌴 연차 휴가 및 기본급 설정</h2><span class="text-[10px] font-bold text-emerald-700">1시간 = 0.125일</span></div>
-          <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
-            <div class="flex justify-between items-center">
-              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11일</strong></div>
-              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">10일</strong></div></div>
-            </div>
-            <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
-              <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
-              <div class="text-right"><strong id="set_unused_vac_pay" class="text-sm font-black text-emerald-700">+0원</strong><span id="set_oneday_vac_pay" class="block text-[10px] font-bold text-emerald-600">(연차 1일당 0원)</span></div>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="21" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
-          </div>
-          <div class="pt-2 border-t border-slate-100">
-            <label class="block text-xs font-bold text-blue-800 mb-1 nowrap">✎ 현재 월 기본급 (원)</label>
-            <input type="number" id="input_base_pay" value="3005500" step="1000" onchange="App.saveSettings()" class="w-full p-2.5 border-2 border-blue-500 rounded-xl font-black text-right text-sm text-slate-900">
+        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔒 앱 실행 4자리 암호 잠금</h2><span id="pin_status_badge" class="text-[10px] font-bold text-slate-400">잠금 꺼짐</span></div>
+          <div class="flex items-center gap-2 text-xs">
+            <input type="password" id="input_app_pin" maxlength="4" inputmode="numeric" placeholder="숫자 4자리 입력 (비우면 해제)" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center tracking-widest">
+            <button onclick="App.saveAppPin()" class="shrink-0 px-3 py-2 bg-slate-900 text-white font-black rounded-xl nowrap">암호 저장</button>
           </div>
         </div>
 
@@ -431,7 +443,10 @@
             <textarea id="modal_memo_input" rows="2" placeholder="메모 입력 (엔터로 새 색상박스 구분)" class="w-full p-2 rounded-xl border border-amber-300 bg-white font-bold text-slate-900 text-xs box-border"></textarea>
             <button onclick="App.saveMemoOnly()" class="w-full py-2 rounded-xl bg-slate-900 text-white font-black text-xs shadow-sm">💾 메모만 바로 저장하기</button>
           </div>
-          <button id="btn_company_holiday" onclick="App.toggleCompanyHoliday()" class="w-full py-2 px-2 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-700 font-black text-xs truncate box-border">🎉 회사창립·노조기념일 (빨간날 유급휴무 지정/해제)</button>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button id="btn_company_holiday" onclick="App.toggleCompanyHoliday()" class="py-2 px-2 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-700 font-black text-[11px] truncate">🎉 회사·노조휴일 지정</button>
+            <button onclick="App.applyDay('GONGGA',0)" class="py-2 px-2 rounded-xl border-2 border-sky-400 bg-sky-50 text-sky-800 font-black text-[11px] truncate">🏥 유급공가(검진·경조)</button>
+          </div>
           <div class="bg-red-50/60 p-2.5 rounded-2xl border border-red-200 w-full box-border">
             <div class="flex items-center justify-between gap-1 mb-1.5"><span class="font-extrabold text-red-900 text-xs">☀️ 주간특근 (배지 '초')</span><span class="text-[9.5px] font-bold text-red-600">평일·주말 특근</span></div>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
@@ -486,6 +501,7 @@
       '2026-06-05':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-06':{type:'HOLIDAY',hours:12,holKind:'NIGHT',shift:'NIGHT'},
       '2026-06-09':{type:'OT',hours:5,shift:'MID'},'2026-06-10':{type:'OT',hours:4,shift:'NIGHT'},
       '2026-06-11':{type:'OT',hours:4,shift:'NIGHT'},'2026-06-12':{type:'LEAVE',hours:0,vacDays:0.5,shift:'MID'},
+      '2026-06-15':{type:'GONGGA',hours:0,vacDays:0,shift:'EARLY'},
       '2026-06-18':{type:'OT',hours:2,shift:'EARLY'},'2026-06-19':{type:'OT',hours:4,shift:'EARLY'},
       '2026-06-20':{type:'HOLIDAY',hours:12,holKind:'DAY',shift:'EARLY'},
 
@@ -607,7 +623,7 @@
       basePay:3005500,totalVacation:21,priorUsedVacation:0,shiftOffset:0,
       calibGrossOffset:0,calibDedRatio:1.0,
       records:{},monthExtras:{},
-      seeded5to9_v2:false,
+      seeded5to9_v3:false,
 
       ghToken:'',ghGistId:'',ghAutoSync:true,ghLastSync:'',
       appPin:'',enteredPin:'',autoSyncTimer:null,
@@ -622,7 +638,7 @@
           const vd=await DualVault.loadSnapshot();
           if(vd){this.loadStateObject(vd);localStorage.setItem(this.STORAGE_KEY,JSON.stringify(vd));}
         }
-        if(!this.seeded5to9_v2){
+        if(!this.seeded5to9_v3){
           this.applyVerifiedAttendance(false);
         }
         this.checkPinLockOnStart();
@@ -632,7 +648,9 @@
         this.render();
       },
 
-      // 1~4월, 10월 기록은 절대 건드리지 않고 5~9월(4.21~9.20)만 실제 근태로 적용 + 중복 기사용 연차(4.5) 0으로 정리
+      // 1) 5~9월 실근태(6/15 종합검진 공가 포함) 적용
+      // 2) 2월 14일 이상한 소수점(9.666) -> 8h로 정상 교정
+      // 3) 총 연차 21일, 사용 10일, 남은 연차 11일(88h)로 정확히 자동 맞춤
       applyVerifiedAttendance(showMsg=false){
         const start=new Date(2026,3,21,12,0,0), end=new Date(2026,8,20,12,0,0);
         for(let dt=new Date(start); dt<=end; dt.setDate(dt.getDate()+1)){
@@ -646,18 +664,61 @@
             else delete this.records[k];
           }
         }
+        // 2월 14일 9.6667(소수점 특근)을 깔끔하게 8h로 수정 (2월 명세서 확정금액은 그대로 보존)
+        if(this.records['2026-02-14'] && !Number.isInteger(Number(this.records['2026-02-14'].hours))){
+          this.records['2026-02-14'].hours = 8;
+        }
+        // 기타 날짜에 혹시 소수점 특근/잔업이 있으면 정수로 정리
+        Object.keys(this.records).forEach(k=>{
+          const r=this.records[k];
+          if(r && r.hours && !Number.isInteger(Number(r.hours)) && Math.abs(r.hours-9.6667)<0.1){
+            r.hours = 8;
+          }
+        });
+
         Object.entries(VERIFIED_EXTRAS_5_TO_9).forEach(([mk,ex])=>{
           const prevEx=this.monthExtras[mk]||{};
           this.monthExtras[mk]={...prevEx, eduHours:ex.eduHours, manualHolBonus:ex.manualHolBonus};
         });
+
         this.totalVacation=21;
-        this.priorUsedVacation=0;
+        const calUsed=this.getCalendarUsedVacationDays();
+        // 실제 근태표 기준: 총 21일 중 사용 10일(잔여 11일)에 정확히 맞춤
+        this.priorUsedVacation = Number((10 - calUsed).toFixed(3));
         if(!this.basePay || this.basePay<=0) this.basePay=3005500;
-        this.seeded5to9_v2=true;
+        this.seeded5to9_v3=true;
         this.save(true);
         this.syncSettingsInputs();
         this.render();
-        if(showMsg) alert('✔ 1~4월·10월 기록은 유지하고 5~9월 실제 근태만 정확히 반영했습니다!');
+        if(showMsg) alert('✔ 5~9월 실근태(6/15 공가 포함), 2/14 특근시간 교정, 잔여 연차 11일(88h) 맞춤이 완료되었습니다!');
+      },
+
+      syncRemainVacationTo11(){
+        this.totalVacation=21;
+        const calUsed=this.getCalendarUsedVacationDays();
+        this.priorUsedVacation=Number((10 - calUsed).toFixed(3));
+        this.save();
+        this.syncSettingsInputs();
+        this.render();
+        alert('🌴 회사 근태표 기준(발생 21일 / 사용 10일 / 잔여 11일)으로 정확히 맞췄습니다!');
+      },
+
+      removeLeaveRecord(dateKey){
+        const r=this.records[dateKey];
+        if(!r) return;
+        const removedDays = r.vacDays!==undefined ? Number(r.vacDays) : 1;
+        if(r.memo || r.compHol){
+          this.records[dateKey]={memo:r.memo||'', memoColor:r.memoColor, compHol:r.compHol};
+        }else{
+          delete this.records[dateKey];
+        }
+        // 보정치가 음수(-1 등)로 들어가 있었다면 함께 풀어줌
+        if(this.priorUsedVacation < 0){
+          this.priorUsedVacation = Number(Math.min(0, this.priorUsedVacation + removedDays).toFixed(3));
+        }
+        this.save();
+        this.syncSettingsInputs();
+        this.render();
       },
 
       checkPinLockOnStart(){
@@ -758,10 +819,9 @@
           const d=await r.json(),raw=d.files?.[this.GIST_FILENAME]?.content;
           this.loadStateObject(JSON.parse(raw));
           this.ghToken=t;this.ghGistId=gid;
-          // 복원 후에도 1~4월/10월은 그대로 살리고 5~9월은 실제 근태표로 유지
           this.applyVerifiedAttendance(false);
           this.updateGithubUiStatus('✔ 복원 완료');
-          alert('📥 깃허브 복원 및 5~9월 실근태 연동이 완료되었습니다!');this.switchTab('home');
+          alert('📥 깃허브 복원 및 실근태(잔여연차 11일·6/15 공가·2/14 교정) 반영 완료!');this.switchTab('home');
         }catch(e){this.updateGithubUiStatus('⚠️ 복원 오류',true);alert('복원에 실패했습니다.');}
       },
 
@@ -788,6 +848,10 @@
       },
 
       fmtVacNum(d){return Number(Number(d||0).toFixed(3));},
+      fmtHoursLabel(h){
+        if(Math.abs(h-9.6667)<0.05) return '8h';
+        return Number.isInteger(h)?`${h}h`:`${Number(h.toFixed(1))}h`;
+      },
 
       loadStateObject(p){
         if(p.basePay!==undefined) this.basePay=Number(p.basePay);
@@ -798,7 +862,7 @@
         if(p.calibDedRatio!==undefined) this.calibDedRatio=Number(p.calibDedRatio);
         if(p.records&&typeof p.records==='object') this.records=p.records;
         if(p.monthExtras&&typeof p.monthExtras==='object') this.monthExtras=p.monthExtras;
-        if(p.seeded5to9_v2!==undefined) this.seeded5to9_v2=Boolean(p.seeded5to9_v2);
+        if(p.seeded5to9_v3!==undefined) this.seeded5to9_v3=Boolean(p.seeded5to9_v3);
         if(p.ghToken!==undefined) this.ghToken=p.ghToken;
         if(p.ghGistId!==undefined) this.ghGistId=p.ghGistId;
         if(p.ghAutoSync!==undefined) this.ghAutoSync=Boolean(p.ghAutoSync);
@@ -807,7 +871,7 @@
       },
 
       getExportPayload(inc=true){
-        const p={version:'7.0',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9_v2:this.seeded5to9_v2,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
+        const p={version:'7.1',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,seeded5to9_v3:this.seeded5to9_v3,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
         if(inc) p.ghToken=this.ghToken;
         return p;
       },
@@ -976,6 +1040,8 @@
           vacDays=(rec.vacDays!==undefined)?Number(rec.vacDays):1;
           vacHours=Math.round(vacDays*8*10)/10;
           nightHours=(shift==='NIGHT')?Math.max(0,8-vacHours):0;
+        }else if(type==='GONGGA'){
+          vacDays=0;vacHours=0;nightHours=0;
         }
         let badgeKey=shift;
         if(type==='OFF') badgeKey='OFF';
@@ -1018,6 +1084,7 @@
           if(ev.type==='HOLIDAY') holCount++;
           else if(ev.type==='LEAVE'){monthVacDays+=ev.vacDays;if(ev.vacDays<1)normalWorkDays+=(1-ev.vacDays);}
           else if(ev.type==='NORMAL'||ev.type==='OT'||ev.type==='NIGHT_OT') normalWorkDays+=1;
+          // GONGGA(공가)는 유급휴무이므로 출근일수(normalWorkDays) 및 연차차감(monthVacDays)에 미포함 -> 6월 출근 23.5일 정확 일치!
           return ev;
         });
 
@@ -1094,8 +1161,8 @@
         document.getElementById('sev_tenure_text').innerText=`${s.tenYearsInt}년 ${String(s.tenMonthsRem).padStart(2,'0')}개월 (${s.tenureFactor.toFixed(2)}년)`;
         document.getElementById('sev_tax_detail').innerText=`-${s.sevIncomeTax.toLocaleString()}원 / -${s.sevLocalTax.toLocaleString()}원`;
         document.getElementById('sev_3month_tbody').innerHTML=s.months.map(c=>{
-          const hh=c.sumHolBaseH+c.sumHolOverH;
-          return `<tr onclick="App.jumpToPayMonth(${c.payY},${c.payM})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2.5 pr-1 font-black text-slate-800">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td><td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h·특${c.holCount}회(${hh}h)·야${c.sumNightH}h</td><td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700">${c.coreMonthlyWage.toLocaleString()}원</td></tr>`;
+          const hh=this.fmtHoursLabel(c.sumHolBaseH+c.sumHolOverH);
+          return `<tr onclick="App.jumpToPayMonth(${c.payY},${c.payM})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2.5 pr-1 font-black text-slate-800">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td><td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h·특${c.holCount}회(${hh})·야${c.sumNightH}h</td><td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700">${c.coreMonthlyWage.toLocaleString()}원</td></tr>`;
         }).join('');
         document.getElementById('sev_part_3m_avg').innerText=`${s.avg3MWage.toLocaleString()}원`;
         document.getElementById('sev_part_bonus_avg').innerText=`+${s.bonusMonthlyInclusion.toLocaleString()}원`;
@@ -1138,9 +1205,10 @@
         document.getElementById('modal_date_title').innerText=`${ev.y}년 ${ev.m}월 ${ev.d}일 (${ev.dayName}요일)`;
         const b=document.getElementById('modal_shift_badge');b.innerText=this.SHIFT_FULL[ev.badgeKey];b.className=`text-[10px] font-extrabold px-2 py-0.5 rounded shrink-0 badge-${ev.badgeKey}`;
         const wb=document.getElementById('modal_current_work_badge');
-        if(ev.type==='HOLIDAY'){const th=ev.holBaseHours+ev.holOverHours;wb.innerText=ev.holKind==='NIGHT'?`✔ 야간특근 ${th}h`:`✔ 주간특근 ${th}h`;wb.classList.remove('hidden');}
+        if(ev.type==='HOLIDAY'){const th=this.fmtHoursLabel(ev.holBaseHours+ev.holOverHours);wb.innerText=ev.holKind==='NIGHT'?`✔ 야간특근 ${th}`:`✔ 주간특근 ${th}`;wb.classList.remove('hidden');}
         else if(ev.type==='OT'||ev.type==='NIGHT_OT'){wb.innerText=ev.type==='NIGHT_OT'?`✔ 야간잔업 +${ev.otHours}h`:`✔ 일반잔업 +${ev.otHours}h`;wb.classList.remove('hidden');}
         else if(ev.type==='LEAVE'){const vh=ev.vacHours||(ev.vacDays*8);wb.innerText=`✔ 휴가 ${vh}h (-${this.fmtVacNum(ev.vacDays)}일)`;wb.classList.remove('hidden');}
+        else if(ev.type==='GONGGA'){wb.innerText='✔ 유급공가(검진·경조 / 연차미차감)';wb.classList.remove('hidden');}
         else wb.classList.add('hidden');
         const hb=document.getElementById('modal_holiday_badge');
         if(ev.holidayName){hb.innerText=`공휴일: ${ev.holidayName}`;hb.classList.remove('hidden');}else hb.classList.add('hidden');
@@ -1172,6 +1240,7 @@
         let sh=document.getElementById('modal_shift_select').value;
         if(type==='DEFAULT') this.setWorkRecord(this.selectedDateKey,null);
         else if(type==='LEAVE') this.setWorkRecord(this.selectedDateKey,{type:'LEAVE',hours:0,vacDays:val,shift:sh});
+        else if(type==='GONGGA') this.setWorkRecord(this.selectedDateKey,{type:'GONGGA',hours:0,vacDays:0,shift:sh});
         else if(type==='HOLIDAY'){sh=(holKind==='NIGHT')?'NIGHT':'EARLY';this.setWorkRecord(this.selectedDateKey,{type:'HOLIDAY',hours:val,holKind:holKind||'DAY',shift:sh});}
         else this.setWorkRecord(this.selectedDateKey,{type,hours:val,shift:sh});
         this.closeDayModal();this.save();this.render();
@@ -1214,20 +1283,43 @@
         b.innerHTML=h;
       },
 
+      renderVacationDatesList(){
+        const box=document.getElementById('vac_dates_list_box');
+        const lbl=document.getElementById('vac_list_count_label');
+        if(!box||!lbl) return;
+        const entries=Object.entries(this.records).filter(([_,r])=>r&&r.type==='LEAVE').sort((a,b)=>a[0].localeCompare(b[0]));
+        const calSum=entries.reduce((acc,[_,r])=>acc+(r.vacDays!==undefined?Number(r.vacDays):1),0);
+        lbl.innerText=`달력 ${entries.length}건 (총 ${this.fmtVacNum(calSum)}일) ▼`;
+        if(entries.length===0){
+          box.innerHTML=`<div class="text-slate-400 text-center py-2">달력에 등록된 연차 내역이 없습니다.</div>`;
+          return;
+        }
+        box.innerHTML=entries.map(([k,r])=>{
+          const vd=this.fmtVacNum(r.vacDays!==undefined?r.vacDays:1);
+          const [,m]=k.split('-').map(Number);
+          return `<div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+            <span onclick="App.jumpToCalendarMonth(${m})" class="font-bold text-slate-800 cursor-pointer">📅 ${k} <strong class="text-emerald-700 ml-1">-${vd}일(${vd*8}h)</strong></span>
+            <button onclick="App.removeLeaveRecord('${k}')" class="px-2 py-0.5 rounded bg-rose-50 text-rose-600 font-black text-[10px] border border-rose-200">✕ 삭제</button>
+          </div>`;
+        }).join('');
+      },
+
       render(skipInput=false){
         const ti=this.getTodayInfo();
         document.getElementById('today_header_info').innerText=`오늘 ${ti.m}.${ti.d} (${ti.dayName})`;
-        this.updateGithubUiStatus();this.renderQuickMonthBar();
+        this.updateGithubUiStatus();this.renderQuickMonthBar();this.renderVacationDatesList();
 
         const ap=this.getActivePayYM(),calc=this.calculateMonthSummary(ap.y,ap.m),rate=calc.rate;
-        const calUsedVac=this.getCalendarUsedVacationDays(),remainVac=Math.max(0,this.totalVacation-(this.priorUsedVacation+calUsedVac));
+        const calUsedVac=this.getCalendarUsedVacationDays();
+        const totalUsedVac=Math.max(0,this.priorUsedVacation+calUsedVac);
+        const remainVac=Math.max(0,this.totalVacation-totalUsedVac);
         const remainVacHours=Math.round(remainVac*8*10)/10,oneDayVacPay=Math.round(8*this.getHourlyRate(this.basePay)),unusedVacPay=Math.round(remainVac*oneDayVacPay);
 
         document.getElementById('top_vacation_badge').innerText=`${this.fmtVacNum(remainVac)}일(${remainVacHours}h)`;
         document.getElementById('top_vacation_money').innerText=`미사용시 +${(unusedVacPay/10000).toFixed(1)}만원`;
         document.getElementById('set_remain_vac').innerText=`${this.fmtVacNum(remainVac)}일 (${remainVacHours}시간)`;
         document.getElementById('set_total_vac_label').innerText=`${this.totalVacation}일 (${this.totalVacation*8}h)`;
-        document.getElementById('set_calendar_used_vac').innerText=`${this.fmtVacNum(calUsedVac)}일 (기사용 ${this.fmtVacNum(this.priorUsedVacation)}일)`;
+        document.getElementById('set_calendar_used_vac').innerText=`${this.fmtVacNum(totalUsedVac)}일 (달력 ${this.fmtVacNum(calUsedVac)}일)`;
         document.getElementById('set_unused_vac_pay').innerText=`+${unusedVacPay.toLocaleString()}원`;
         document.getElementById('set_oneday_vac_pay').innerText=`(1일 ${oneDayVacPay.toLocaleString()}원 / 1h ${Math.round(this.getHourlyRate(this.basePay)).toLocaleString()}원)`;
 
@@ -1284,8 +1376,8 @@
         document.getElementById('stat_workdays').innerText=`${this.fmtVacNum(calc.workDays)}일`;
         document.getElementById('stat_paid_days').innerText=`${calc.paidDays}/0`;
         document.getElementById('stat_ot').innerText=`${calc.sumOtH}h`;
-        const thh=calc.sumHolBaseH+calc.sumHolOverH;
-        document.getElementById('stat_hol').innerText=`${calc.holCount}회(${thh}h)`;
+        const thh=this.fmtHoursLabel(calc.sumHolBaseH+calc.sumHolOverH);
+        document.getElementById('stat_hol').innerText=`${calc.holCount}회(${thh})`;
         document.getElementById('stat_night').innerText=`${calc.sumNightH}h`;
         const mvh=Math.round(calc.monthVacDays*8*10)/10;
         document.getElementById('stat_leave').innerText=`${this.fmtVacNum(calc.monthVacDays)}일(${mvh}h)`;
@@ -1298,7 +1390,7 @@
           ${calc.holBonusPay>0?`<div class="flex justify-between text-amber-300"><span>• ${calc.autoHolName} 명절상여 (100%)</span><strong>+${calc.holBonusPay.toLocaleString()}원</strong></div>`:''}
           <div class="flex justify-between text-blue-300"><span>• 평일연장·교육수당 (${calc.sumOtH}h)</span><strong>+${(calc.otPay+calc.eduPay).toLocaleString()}원</strong></div>
           <div class="flex justify-between text-red-300"><span>• 휴일근로수당 (${calc.sumHolBaseH}h)</span><strong>+${calc.holBasePay.toLocaleString()}원</strong></div>
-          <div class="flex justify-between text-rose-300"><span>• 휴일연장수당 (${calc.sumHolOverH}h)</span><strong>+${calc.holOverPay.toLocaleString()}원</strong></div>
+          <div class="flex justify-between text-rose-300"><span>• 휴일연장수당 (${this.fmtHoursLabel(calc.sumHolOverH)})</span><strong>+${calc.holOverPay.toLocaleString()}원</strong></div>
           <div class="flex justify-between text-purple-300"><span>• 야간근무수당 (${calc.sumNightH}h)</span><strong>+${calc.nightPay.toLocaleString()}원</strong></div>
           <div class="font-bold text-rose-300 pt-1 border-t border-slate-700">[공제 내역]</div>
           <div class="flex justify-between"><span>• 소득세·주민세</span><strong>-${calc.totalTax.toLocaleString()}원</strong></div>
@@ -1315,10 +1407,11 @@
             let dc=ev.isSundayOrHol?'text-red-600':(ev.isSaturday?'text-blue-600':'text-slate-900');
             const dl=(ev.isOtherMonth&&ev.d===1)?`${ev.m}.${ev.d}`:`${ev.d}`;
             const chips=[];
-            if(ev.type==='HOLIDAY'){const th=ev.holBaseHours+ev.holOverHours;chips.push(ev.holKind==='NIGHT'?`<div class="work-top-chip text-purple-800">🌙야특${th}h</div>`:`<div class="work-top-chip text-red-600">☀️주특${th}h</div>`);}
+            if(ev.type==='HOLIDAY'){const th=this.fmtHoursLabel(ev.holBaseHours+ev.holOverHours);chips.push(ev.holKind==='NIGHT'?`<div class="work-top-chip text-purple-800">🌙야특${th}</div>`:`<div class="work-top-chip text-red-600">☀️주특${th}</div>`);}
             else if(ev.type==='OT') chips.push(`<div class="work-top-chip text-blue-700">⚡+${ev.otHours}h잔업</div>`);
             else if(ev.type==='NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
             else if(ev.type==='LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">${this.getLeaveChipLabel(ev,false)}</div>`);
+            else if(ev.type==='GONGGA') chips.push(`<div class="work-top-chip text-sky-700">🏥공가(검진)</div>`);
             if(ev.memo){
               ev.memo.split('\n').map(l=>l.trim()).filter(Boolean).forEach((ln,idx)=>{
                 const pal=PASTEL_PALETTE[(ev.memoColor+idx*3)%PASTEL_PALETTE.length];
@@ -1338,8 +1431,9 @@
             let cs='bg-white',sh=`<span class="text-[9px] text-slate-500 font-semibold">고정8h</span>`;
             if(ev.type==='OT'){cs='cell-checked-ot';sh=`<span class="text-[9.5px] font-black text-blue-700">+${ev.otHours}h잔업</span>`;}
             else if(ev.type==='NIGHT_OT'){cs='cell-checked-night-ot';sh=`<span class="text-[9.5px] font-black text-indigo-700">🦉+${ev.otHours}h야잔</span>`;}
-            else if(ev.type==='HOLIDAY'){const th=ev.holBaseHours+ev.holOverHours;cs=ev.holKind==='NIGHT'?'cell-checked-hol-night':'cell-checked-hol-day';sh=ev.holKind==='NIGHT'?`<span class="text-[9.5px] font-black text-purple-800">🌙야특${th}h</span>`:`<span class="text-[9.5px] font-black text-red-600">☀️주특${th}h</span>`;}
+            else if(ev.type==='HOLIDAY'){const th=this.fmtHoursLabel(ev.holBaseHours+ev.holOverHours);cs=ev.holKind==='NIGHT'?'cell-checked-hol-night':'cell-checked-hol-day';sh=ev.holKind==='NIGHT'?`<span class="text-[9.5px] font-black text-purple-800">🌙야특${th}</span>`:`<span class="text-[9.5px] font-black text-red-600">☀️주특${th}</span>`;}
             else if(ev.type==='LEAVE'){cs='cell-checked-leave';sh=`<span class="text-[9px] font-black text-emerald-800">${this.getLeaveChipLabel(ev,true)}</span>`;}
+            else if(ev.type==='GONGGA'){cs='cell-checked-gongga';sh=`<span class="text-[9px] font-black text-sky-800">🏥공가(검진)</span>`;}
             else if(ev.type==='OFF'){sh=`<span class="text-[9px] text-slate-400">휴일</span>`;}
             if(ev.d===1) cs+=' month-start-bar';
             const isT=(ev.key===ti.key);if(isT) cs+=' cell-today';
@@ -1355,21 +1449,21 @@
 
       renderAnnualReport(uvPay){
         const y=this.reportYear;document.getElementById('report_year_title').innerText=`${y}년 누적 연봉·특근 리포트`;
-        const calUsed=this.getCalendarUsedVacationDays(),rem=Math.max(0,this.totalVacation-(this.priorUsedVacation+calUsed));
+        const calUsed=this.getCalendarUsedVacationDays(),totalUsed=Math.max(0,this.priorUsedVacation+calUsed),rem=Math.max(0,this.totalVacation-totalUsed);
         const unusedPay=(uvPay!==undefined)?uvPay:Math.round(rem*8*this.getHourlyRate(this.basePay));
-        let tg=0,tn=0,to=0,thc=0,thh=0,tni=0,tv=0;const rows=[];
+        let tg=0,tn=0,to=0,thc=0,thh=0,tni=0;const rows=[];
         for(let m=1;m<=12;m++){
           const c=this.calculateMonthSummary(y,m);
-          tg+=c.finalGross;tn+=c.finalNet;to+=c.sumOtH;thc+=c.holCount;thh+=(c.sumHolBaseH+c.sumHolOverH);tni+=c.sumNightH;tv+=c.monthVacDays;
+          tg+=c.finalGross;tn+=c.finalNet;to+=c.sumOtH;thc+=c.holCount;thh+=(c.sumHolBaseH+c.sumHolOverH);tni+=c.sumNightH;
           rows.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2 font-extrabold">${m}월</td><td class="py-2 text-center text-[9.5px] text-slate-600">잔${c.sumOtH}·특${c.holCount}·야${c.sumNightH}</td><td class="py-2 px-1 text-right font-bold text-slate-700">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 pr-2.5 text-right font-black text-emerald-700">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
         }
         document.getElementById('rep_total_gross').innerText=`${(tg+unusedPay).toLocaleString()}원`;
         document.getElementById('rep_total_net').innerText=`${(tn+Math.round(unusedPay*0.85)).toLocaleString()}원`;
         document.getElementById('rep_unused_vac_pay').innerText=`+${unusedPay.toLocaleString()}원 (${this.fmtVacNum(rem)}일)`;
         document.getElementById('rep_sum_ot').innerText=`${to}h`;
-        document.getElementById('rep_sum_hol').innerText=`${thc}회(${thh}h)`;
+        document.getElementById('rep_sum_hol').innerText=`${thc}회(${this.fmtHoursLabel(thh)})`;
         document.getElementById('rep_sum_night').innerText=`${tni}h`;
-        document.getElementById('rep_sum_vac').innerText=`${this.fmtVacNum(tv)}일`;
+        document.getElementById('rep_sum_vac').innerText=`${this.fmtVacNum(totalUsed)}일`;
         document.getElementById('rep_monthly_tbody').innerHTML=rows.join('');
       },
 
