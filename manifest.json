@@ -1,21 +1,24 @@
 {
-  "name": "LGES 월급·퇴직금 계산기",
+  "name": "LGES 월급계산기",
   "short_name": "월급계산기",
-  "start_url": "./index.html",
+  "description": "LGES 교대근무 달력 메모 및 급여·퇴직금 계산기",
+  "start_url": "/LGES/",
+  "scope": "/LGES/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "./icon.jpg",
+      "src": "https://ppsshh89.github.io/LGES/icon.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon.jpg",
+      "src": "https://ppsshh89.github.io/LGES/icon.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
