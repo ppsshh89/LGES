@@ -2265,7 +2265,7 @@
       renderRateTable(base, rate) {
         setText('rate_tab_base', `${base.toLocaleString()}원`);
         setText('rate_tab_hourly', `${Math.round(rate).toLocaleString()}원/h`);
-        const nU = this.getNightHourlyRate(base), d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nUnit), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8;
+        const nU = this.getNightHourlyRate(base), d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nU), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8;
         const netFactor = 0.86;
         setText('price_day_hol12', `${d12.toLocaleString()}원`);
         setText('net_day_hol12', `세후 약 ${(d12 * netFactor / 10000).toFixed(1)}만`);
