@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v7.7</title>
+  <title>스마트 월급·퇴직금 계산기 v7.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -28,6 +28,8 @@
     .cell-checked-hol-night { background: #f3e8ff !important; }
     .cell-checked-leave { background: #d1fae5 !important; }
     .cell-checked-gongga { background: #e0f2fe !important; }
+    .cell-checked-edu { background: #fef3c7 !important; }
+    .cell-checked-req-edu { background: #ccfbf1 !important; }
     .month-start-bar { box-shadow: inset 0 2.5px 0 0 #334155; }
     .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
@@ -85,7 +87,7 @@
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴남은연차</span>
-            <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">21일(168h)</strong>
+            <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">11일(88h)</strong>
           </div>
           <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300 tracking-tighter tnum">미사용시 +0만원</div>
         </button>
@@ -119,7 +121,7 @@
               <span>⚡ 도장 선택 후 날짜를 톡톡 터치하세요 (같은 도장 재터치 시 해제)</span>
               <button onclick="App.toggleStampMode()" class="text-rose-600 font-black">닫기 ✕</button>
             </div>
-            <div id="stamp_btns_grid" class="grid grid-cols-5 gap-1 text-[10px] font-black"></div>
+            <div id="stamp_btns_grid" class="grid grid-cols-6 gap-1 text-[9.5px] font-black"></div>
           </div>
 
           <div class="grid grid-cols-7 text-center text-[10px] font-extrabold py-0.5 border-t border-b border-slate-200 bg-slate-50/70 w-full">
@@ -453,8 +455,8 @@
           </div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
-              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">21일</strong></div>
-              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">0일</strong></div></div>
+              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11일</strong></div>
+              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">10일</strong></div></div>
             </div>
             <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
               <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
@@ -516,12 +518,12 @@
         </div>
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드 백업 및 전체 초기화</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드 백업 및 실데이터 복구</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
           <div class="grid grid-cols-2 gap-2 text-xs pt-1">
             <button onclick="App.copyBackupCode()" class="py-2 px-3 bg-slate-800 text-white font-black rounded-xl nowrap">📋 백업코드 복사</button>
             <button onclick="App.toggleRestoreBox()" class="py-2 px-3 bg-slate-200 text-slate-800 font-black rounded-xl nowrap">📥 코드 붙여넣어 복원</button>
           </div>
-          <button onclick="App.clearJanToOctWorkAndPay(true)" class="w-full py-2 px-3 bg-rose-50 border border-rose-200 text-rose-700 font-black rounded-xl text-xs nowrap">🧹 1~10월 근태·급여 기록 전체 비우기 (메모 유지)</button>
+          <button onclick="App.applyVerifiedJanToOctData(true)" class="w-full py-2 px-3 bg-emerald-50 border border-emerald-300 text-emerald-800 font-black rounded-xl text-xs nowrap">🔄 1~10월 실제 근태·급여 내장데이터 다시 불러오기 (메모 유지)</button>
           <div id="restore_code_box" class="hidden pt-2 space-y-2">
             <textarea id="textarea_restore_code" rows="3" placeholder="백업코드를 붙여넣으세요..." class="w-full p-2.5 border border-blue-300 rounded-xl text-[11px] font-mono bg-slate-50"></textarea>
             <button onclick="App.restoreFromCode()" class="w-full py-2.5 bg-emerald-600 text-white font-black rounded-xl text-xs nowrap">✔️ 이 백업코드로 데이터 즉시 복원하기</button>
@@ -565,10 +567,15 @@
             <textarea id="modal_memo_input" rows="2" placeholder="메모 입력 (엔터로 새 색상박스 구분)" class="w-full p-2 rounded-xl border border-amber-300 bg-white font-bold text-slate-900 text-xs box-border"></textarea>
             <button onclick="App.saveMemoOnly()" class="w-full py-2 rounded-xl bg-slate-900 text-white font-black text-xs shadow-sm">💾 메모만 바로 저장하기</button>
           </div>
+
+          <!-- 특수 근태·휴일·공가·교육 정식 배지 지정 (메모 오염 없음) -->
           <div class="grid grid-cols-2 gap-1.5">
             <button id="btn_company_holiday" onclick="App.toggleCompanyHoliday()" class="py-2 px-2 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-700 font-black text-[11px] truncate">🎉 약정·노조휴일 지정</button>
             <button onclick="App.applyDay('GONGGA',0)" class="py-2 px-2 rounded-xl border-2 border-sky-400 bg-sky-50 text-sky-800 font-black text-[11px] truncate">🏥 유급공가(검진·경조)</button>
+            <button onclick="App.applyDay('EDU_ALLOW',0)" class="py-2 px-2 rounded-xl border-2 border-amber-400 bg-amber-50 text-amber-900 font-black text-[11px] truncate">🎓 교육수당(150%) 배지</button>
+            <button onclick="App.applyDay('REQ_EDU',0)" class="py-2 px-2 rounded-xl border-2 border-teal-400 bg-teal-50 text-teal-900 font-black text-[11px] truncate">🏫 필수교육(09~18시)</button>
           </div>
+
           <div class="bg-red-50/60 p-2.5 rounded-2xl border border-red-200 w-full box-border">
             <div class="flex items-center justify-between gap-1 mb-1.5"><span class="font-extrabold text-red-900 text-xs">☀️ 주간특근 (배지 '초')</span><span class="text-[9.5px] font-bold text-red-600">평일·주말 특근</span></div>
             <div class="grid grid-cols-2 gap-1.5 mb-1.5">
@@ -607,7 +614,6 @@
       </div>
     </div>
   </div>
-
   <script>
     const $ = id => document.getElementById(id);
     const setText = (id, txt) => { const el = $(id); if (el && el.innerText !== String(txt)) el.innerText = txt; };
@@ -626,8 +632,191 @@
       { id: 'LV1', label: '🌴연차1일', cls: 'bg-emerald-600 text-white', type: 'LEAVE', hours: 0, vacDays: 1 },
       { id: 'LV05', label: '🌴반차4h', cls: 'bg-emerald-100 text-emerald-900 border border-emerald-400', type: 'LEAVE', hours: 0, vacDays: 0.5 },
       { id: 'GONGGA', label: '🏥유급공가', cls: 'bg-sky-100 text-sky-900 border border-sky-400', type: 'GONGGA', hours: 0, vacDays: 0 },
+      { id: 'EDU', label: '🎓교육수당', cls: 'bg-amber-100 text-amber-900 border border-amber-400', type: 'EDU_ALLOW', hours: 0 },
+      { id: 'REQ_EDU', label: '🏫필수교육', cls: 'bg-teal-100 text-teal-900 border border-teal-400', type: 'REQ_EDU', hours: 0 },
       { id: 'CLEAR', label: '🧹지우개', cls: 'bg-slate-800 text-white', type: 'DEFAULT', hours: 0 }
     ];
+
+    // 1~10월 실제 근태표 검증 데이터 (메모 오염 없이 정식 근태 타입으로 내장)
+    const VERIFIED_RECORDS_1_TO_10 = {
+      // 1월 급여 (2025.12.21 ~ 2026.01.20)
+      '2025-12-22': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2025-12-23': { type: 'OT', hours: 3, shift: 'EARLY' },
+      '2025-12-24': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2025-12-25': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'MID' },
+      '2025-12-26': { type: 'NORMAL', hours: 0, shift: 'MID' },
+      '2025-12-30': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2025-12-31': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'EARLY', compHol: true },
+      '2026-01-02': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'EARLY' },
+      '2026-01-07': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-01-10': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-01-14': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-01-18': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-01-20': { type: 'OT', hours: 4, shift: 'EARLY' },
+
+      // 2월 급여 (2026.01.21 ~ 2026.02.20)
+      '2026-01-24': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-01-25': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-01-26': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'NIGHT' },
+      '2026-01-30': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-01-31': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-02-04': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-02-06': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-02-08': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-02-12': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-02-14': { type: 'HOLIDAY', hours: 9.6667, holKind: 'DAY', shift: 'EARLY' },
+      '2026-02-19': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+
+      // 3월 급여 (2026.02.21 ~ 2026.03.20)
+      '2026-02-21': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-02-25': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-02-26': { type: 'OT', hours: 4, shift: 'MID' },
+      '2026-03-01': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-03-02': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-03-04': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-03-05': { type: 'OT', hours: 2, shift: 'EARLY' },
+      '2026-03-07': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-03-10': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'NIGHT' },
+      '2026-03-11': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'NIGHT' },
+      '2026-03-12': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-03-13': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-03-14': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-03-18': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-03-19': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-03-20': { type: 'OT', hours: 4, shift: 'NIGHT' },
+
+      // 4월 급여 (2026.03.21 ~ 2026.04.20)
+      '2026-03-23': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-03-25': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-03-26': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-03-28': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-03-29': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-04-01': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-04-02': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-04-04': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-04-06': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-04-09': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-04-10': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'MID', compHol: true },
+      '2026-04-14': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-04-15': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-04-16': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-04-18': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-04-19': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-04-20': { type: 'OT', hours: 4, shift: 'NIGHT' },
+
+      // 5월 급여 (2026.04.21 ~ 2026.05.20)
+      '2026-04-22': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-04-25': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-04-27': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'MID' },
+      '2026-04-30': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-05-01': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'MID' },
+      '2026-05-04': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-05-05': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-05-07': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'EARLY' },
+      '2026-05-15': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-05-16': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-05-19': { type: 'REQ_EDU', hours: 0, shift: 'MID' },
+      '2026-05-20': { type: 'REQ_EDU', hours: 0, shift: 'MID' },
+
+      // 6월 급여 (2026.05.21 ~ 2026.06.20)
+      '2026-05-25': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'EARLY' },
+      '2026-05-26': { type: 'EDU_ALLOW', hours: 0, shift: 'EARLY' },
+      '2026-05-27': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-05-28': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-05-29': { type: 'EDU_ALLOW', hours: 0, shift: 'EARLY' },
+      '2026-05-30': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-06-01': { type: 'EDU_ALLOW', hours: 0, shift: 'NIGHT' },
+      '2026-06-03': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-06-04': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-06-05': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-06-06': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-06-09': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-06-10': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-06-11': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-06-12': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
+      '2026-06-15': { type: 'GONGGA', hours: 0, vacDays: 0, shift: 'EARLY' },
+      '2026-06-18': { type: 'OT', hours: 2, shift: 'EARLY' },
+      '2026-06-19': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-06-20': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+
+      // 7월 급여 (2026.06.21 ~ 2026.07.20)
+      '2026-06-21': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-06-24': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-06-25': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-06-27': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-06-30': { type: 'OT', hours: 4, shift: 'MID' },
+      '2026-07-01': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-07-03': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-07-04': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-07-06': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-07-09': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-07-11': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-07-12': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-07-14': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-07-17': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-07-18': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-07-20': { type: 'OT', hours: 4, shift: 'EARLY' },
+
+      // 8월 급여 (2026.07.21 ~ 2026.08.20)
+      '2026-07-21': { type: 'NORMAL', hours: 0, shift: 'MID' },
+      '2026-07-22': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-07-23': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'MID' },
+      '2026-07-24': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'MID' },
+      '2026-07-31': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-08-01': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-08-03': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-08-04': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-08-05': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-08-06': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-08-07': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-08-08': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-08-13': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
+      '2026-08-14': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
+      '2026-08-17': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'EARLY' },
+      '2026-08-19': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-08-20': { type: 'OT', hours: 4, shift: 'EARLY' },
+
+      // 9월 급여 (2026.08.21 ~ 2026.09.20)
+      '2026-08-21': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-08-22': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-08-23': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-08-24': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-08-27': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-08-29': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-09-09': { type: 'EDU_ALLOW', hours: 0, shift: 'EARLY' },
+      '2026-09-12': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-09-13': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-09-18': { type: 'OT', hours: 4, shift: 'NIGHT' },
+      '2026-09-19': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+
+      // 10월 급여 (2026.09.21 ~ 2026.10.20)
+      '2026-09-23': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
+      '2026-09-30': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-10-01': { type: 'OT', hours: 4, shift: 'EARLY' },
+      '2026-10-03': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
+      '2026-10-04': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-10-05': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
+      '2026-10-09': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-10-10': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
+      '2026-10-14': { type: 'OT', hours: 5, shift: 'MID' },
+      '2026-10-18': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' }
+    };
+
+    // 1~10월 실제 급여명세서 10장 데이터
+    const VERIFIED_EXTRAS_1_TO_10 = {
+      '2026-01': { customBasePay: 2882000, eduHours: 0, retroPay: 0, housingAllow: 31200, housingDed: 372119, foodDed: 7000, exactTax: 446610, exactIns: 638330, exactGross: 6233901, exactDed: 1521699, manualHolBonus: null },
+      '2026-02': { customBasePay: 2882000, eduHours: 0, retroPay: 2172060, housingAllow: 30086, housingDed: 370722, foodDed: 0, exactTax: 2794030, exactIns: 558640, exactGross: 15151993, exactDed: 3781032, manualHolBonus: true },
+      '2026-03': { customBasePay: 2882000, eduHours: 0, retroPay: 2640, housingAllow: 26168, housingDed: 365810, foodDed: 0, exactTax: 731000, exactIns: 558640, exactGross: 7333072, exactDed: 1713090, manualHolBonus: null },
+      '2026-04': { customBasePay: 2882000, eduHours: 0, retroPay: 0, housingAllow: 27858, housingDed: 367928, foodDed: 50000, exactTax: 1613660, exactIns: 1096900, exactGross: 11074719, exactDed: 3186128, manualHolBonus: null },
+      '2026-05': { customBasePay: 2882000, eduHours: 0, retroPay: 0, housingAllow: 25683, housingDed: 365252, foodDed: 6000, exactTax: 519210, exactIns: 757650, exactGross: 6721792, exactDed: 1705752, manualHolBonus: null },
+      '2026-06': { customBasePay: 2882000, eduHours: 4, retroPay: 275392, housingAllow: 25505, housingDed: 365028, foodDed: 5300, exactTax: 1388750, exactIns: 757650, exactGross: 10498636, exactDed: 2574368, manualHolBonus: null },
+      '2026-07': { customBasePay: 2882000, eduHours: 0, retroPay: 0, housingAllow: 23543, housingDed: 362564, foodDed: 21600, exactTax: 1045270, exactIns: 768100, exactGross: 8980153, exactDed: 2255174, manualHolBonus: null },
+      '2026-08': { customBasePay: 3005500, eduHours: 0, retroPay: 1832125, housingAllow: 23222, housingDed: 362161, foodDed: 3500, exactTax: 1826370, exactIns: 768100, exactGross: 12165301, exactDed: 3020241, manualHolBonus: null },
+      '2026-09': { customBasePay: 3005500, eduHours: 3.58, retroPay: 0, housingAllow: 3567, housingDed: 0, foodDed: 19500, exactTax: 849570, exactIns: 768100, exactGross: 11170730, exactDed: 1697280, manualHolBonus: true },
+      '2026-10': { customBasePay: 3005500, eduHours: 0, retroPay: 5280, housingAllow: 0, housingDed: 0, foodDed: 54200, exactTax: 2259290, exactIns: 768100, exactGross: 10076258, exactDed: 3141700, manualHolBonus: null }
+    };
+
+    const AUTO_MEMO_GARBAGE = new Set(['필수교육(09~18시)', '교육수당(150%)', '공가(종합검진)']);
 
     const PASTEL_PALETTE = [
       { bg: '#fef08a', border: '#eab308' }, { bg: '#fecdd3', border: '#fb7185' },
@@ -743,7 +932,7 @@
       basePay: 3005500, totalVacation: 21, priorUsedVacation: 0, shiftOffset: 0,
       calibGrossOffset: 0, calibDedRatio: 1.0,
       records: {}, monthExtras: {},
-      cleanedJanToOct_v1: false,
+      seededJanToOct_v78: false,
 
       stampMode: false,
       activeStampId: 'OT4',
@@ -758,7 +947,6 @@
       calendarView: 'MEMO', selectedDateKey: null, selectedDayInfo: null,
       lastRawGross: 0, lastRawDed: 0, swipeAnimClass: '',
 
-      // 캐시 저장소 (렌더링 최적화용)
       summaryCache: {},
       currentGridCells: [],
 
@@ -783,8 +971,9 @@
           const vd = await DualVault.loadSnapshot();
           if (vd) { this.loadStateObject(vd); localStorage.setItem(this.STORAGE_KEY, JSON.stringify(vd)); }
         }
-        if (!this.cleanedJanToOct_v1) {
-          this.clearJanToOctWorkAndPay(false);
+        // v7.8 최초 실행 시 1~10월 실제 근태·급여 자동 내장 및 임시 교육메모 정리
+        if (!this.seededJanToOct_v78) {
+          this.applyVerifiedJanToOctData(false);
         }
         this.checkPinLockOnStart();
         this.resetBothViewsToToday();
@@ -804,30 +993,41 @@
         });
       },
 
-      clearJanToOctWorkAndPay(askConfirm = false) {
-        if (askConfirm && !confirm('1월~10월의 모든 근태 기록(잔업·특근·연차·공가)과 급여 특이사항을 비우시겠습니까?\n(달력에 적어둔 개인 텍스트 메모는 유지됩니다.)')) return;
-        const start = new Date(2025, 11, 21, 12, 0, 0), end = new Date(2026, 9, 31, 12, 0, 0);
+      // 1월~10월 실제 근태표 10장 + 급여명세서 10장 내장 데이터 즉시 반영 (개인 메모 보존, 구버전 교육/공가 임시메모 자동 제거)
+      applyVerifiedJanToOctData(askConfirm = false) {
+        if (askConfirm && !confirm('1월~10월의 실제 근태표 및 급여명세서 내장 데이터를 적용하시겠습니까?\n(직접 적어둔 개인 스케줄 메모는 그대로 유지됩니다.)')) return;
+        const start = new Date(2025, 11, 21, 12, 0, 0), end = new Date(2026, 9, 20, 12, 0, 0);
         for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
           const k = this.formatKey(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
-          const prev = this.records[k];
-          if (prev) {
-            if (prev.memo && prev.memo.trim()) this.records[k] = { memo: prev.memo.trim(), memoColor: prev.memoColor };
-            else delete this.records[k];
+          const prev = this.records[k] || {};
+          const rawMemo = (prev.memo || '').trim();
+          const cleanMemo = AUTO_MEMO_GARBAGE.has(rawMemo) ? '' : rawMemo;
+          const ver = VERIFIED_RECORDS_1_TO_10[k];
+          if (ver) {
+            this.records[k] = { ...ver, memo: cleanMemo, memoColor: prev.memoColor };
+          } else if (cleanMemo) {
+            this.records[k] = { memo: cleanMemo, memoColor: prev.memoColor };
+          } else {
+            delete this.records[k];
           }
         }
-        for (let m = 1; m <= 10; m++) delete this.monthExtras[`2026-${String(m).padStart(2, '0')}`];
+        Object.entries(VERIFIED_EXTRAS_1_TO_10).forEach(([mk, ex]) => {
+          this.monthExtras[mk] = { ...ex };
+        });
+        this.basePay = 3005500;
+        this.totalVacation = 21;
+        this.priorUsedVacation = 0;
         this.calibGrossOffset = 0;
         this.calibDedRatio = 1.0;
-        this.priorUsedVacation = 0;
-        this.cleanedJanToOct_v1 = true;
+        this.seededJanToOct_v78 = true;
         this.save(true);
         this.syncSettingsInputs();
         this.render();
-        if (askConfirm) alert('🧹 1~10월 근태 및 급여 데이터가 모두 깨끗하게 비워졌습니다!');
+        if (askConfirm) alert('✔ 1~10월 실제 근태표(필수교육·교육수당·공가 정식 배지 포함) 및 급여명세서 데이터가 100% 반영되었습니다!');
       },
 
       initStampPalette() {
-        setHtml('stamp_btns_grid', STAMP_PRESETS.map(s => `<button id="stamp_item_${s.id}" onclick="App.selectStamp('${s.id}')" class="py-1.5 px-1 rounded-lg truncate transition ${s.cls}">${s.label}</button>`).join(''));
+        setHtml('stamp_btns_grid', STAMP_PRESETS.map(s => `<button id="stamp_item_${s.id}" onclick="App.selectStamp('${s.id}')" class="py-1.5 px-0.5 rounded-lg truncate transition ${s.cls}">${s.label}</button>`).join(''));
         this.updateStampUI();
       },
       toggleStampMode() {
@@ -876,8 +1076,8 @@
             this.setWorkRecord(k, { type: 'HOLIDAY', hours: preset.hours, holKind: preset.holKind, shift: preset.holKind === 'NIGHT' ? 'NIGHT' : 'EARLY' });
           } else if (preset.type === 'LEAVE') {
             this.setWorkRecord(k, { type: 'LEAVE', hours: 0, vacDays: preset.vacDays, shift: ev.shift });
-          } else if (preset.type === 'GONGGA') {
-            this.setWorkRecord(k, { type: 'GONGGA', hours: 0, vacDays: 0, shift: ev.shift });
+          } else if (preset.type === 'GONGGA' || preset.type === 'EDU_ALLOW' || preset.type === 'REQ_EDU') {
+            this.setWorkRecord(k, { type: preset.type, hours: 0, vacDays: 0, shift: ev.shift });
           } else {
             this.setWorkRecord(k, { type: preset.type, hours: preset.hours, shift: ev.shift });
           }
@@ -892,7 +1092,7 @@
         let hS = '', hE = '';
         for (let m = 1; m <= 12; m++) {
           hS += `<option value="${m}" ${m === 3 ? 'selected' : ''}>${m}월 급여부터</option>`;
-          hE += `<option value="${m}" ${m === 9 ? 'selected' : ''}>${m}월 급여까지</option>`;
+          hE += `<option value="${m}" ${m === 7 ? 'selected' : ''}>${m}월 급여까지</option>`;
         }
         sm.innerHTML = hS; em.innerHTML = hE;
       },
@@ -904,7 +1104,7 @@
         const oldB = Number($('retro_old_base')?.value) || 0;
         const newB = Number($('retro_new_base')?.value) || this.basePay;
         let sm = Number($('retro_start_m')?.value) || 3;
-        let em = Number($('retro_end_m')?.value) || 9;
+        let em = Number($('retro_end_m')?.value) || 7;
         if (sm > em) [sm, em] = [em, sm];
 
         const oldRate = this.getHourlyRate(oldB), newRate = this.getHourlyRate(newB);
@@ -1000,7 +1200,7 @@
         const allMemoItems = [];
         for (const [k, r] of Object.entries(this.records)) {
           const memo = (r?.memo || '').trim();
-          if (!memo) continue;
+          if (!memo || AUTO_MEMO_GARBAGE.has(memo)) continue;
           const [y, m, d] = k.split('-').map(Number);
           const dtMs = new Date(y, m - 1, d, 12, 0, 0).getTime();
           allMemoItems.push({ k, y, m, d, memo, diffDays: Math.round((dtMs - todayMs) / 86400000) });
@@ -1234,8 +1434,9 @@
 
       fmtVacNum(d) { return Number(Number(d || 0).toFixed(3)); },
       fmtHoursLabel(h) {
-        if (Math.abs(h - 9.6667) < 0.05) return '8h';
-        return Number.isInteger(h) ? `${h}h` : `${Number(h.toFixed(1))}h`;
+        if (Math.abs(h - 9.6667) < 0.05) return '9h40m';
+        if (Math.abs(h - 1.6667) < 0.05) return '1h40m';
+        return Number.isInteger(h) ? `${h}h` : `${Number(h.toFixed(2))}h`;
       },
 
       loadStateObject(p) {
@@ -1245,9 +1446,19 @@
         if (p.shiftOffset !== undefined) this.shiftOffset = Number(p.shiftOffset) || 0;
         if (p.calibGrossOffset !== undefined) this.calibGrossOffset = Number(p.calibGrossOffset);
         if (p.calibDedRatio !== undefined) this.calibDedRatio = Number(p.calibDedRatio);
-        if (p.records && typeof p.records === 'object') this.records = p.records;
+        if (p.records && typeof p.records === 'object') {
+          this.records = p.records;
+          // 만약 이전 백업코드에서 들어온 교육·공가 메모가 있다면 자동으로 정식 근태 타입으로 변환 후 메모 삭제
+          Object.entries(this.records).forEach(([k, r]) => {
+            if (!r) return;
+            const m = (r.memo || '').trim();
+            if (m === '필수교육(09~18시)') { r.type = 'REQ_EDU'; delete r.memo; }
+            else if (m === '교육수당(150%)') { r.type = 'EDU_ALLOW'; delete r.memo; }
+            else if (m === '공가(종합검진)') { r.type = 'GONGGA'; delete r.memo; }
+          });
+        }
         if (p.monthExtras && typeof p.monthExtras === 'object') this.monthExtras = p.monthExtras;
-        if (p.cleanedJanToOct_v1 !== undefined) this.cleanedJanToOct_v1 = Boolean(p.cleanedJanToOct_v1);
+        if (p.seededJanToOct_v78 !== undefined) this.seededJanToOct_v78 = Boolean(p.seededJanToOct_v78);
         if (p.ghToken !== undefined) this.ghToken = p.ghToken;
         if (p.ghGistId !== undefined) this.ghGistId = p.ghGistId;
         if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
@@ -1258,10 +1469,10 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '7.7', exportedAt: new Date().toISOString(),
+          version: '7.8', exportedAt: new Date().toISOString(),
           basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio,
-          records: this.records, monthExtras: this.monthExtras, cleanedJanToOct_v1: this.cleanedJanToOct_v1,
+          records: this.records, monthExtras: this.monthExtras, seededJanToOct_v78: this.seededJanToOct_v78,
           ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync, appPin: this.appPin
         };
         if (inc) p.ghToken = this.ghToken;
@@ -1450,12 +1661,21 @@
         const defaultShift = this.getDefaultShift(y, m, d);
         let shift = rec.shift || defaultShift, type = rec.type || (isRedOffDay ? 'OFF' : 'NORMAL'), holKind = rec.holKind || null;
         let otHours = 0, holBaseHours = 0, holOverHours = 0, nightHours = 0, vacDays = 0, vacHours = 0;
-        const memo = (rec.memo || '').trim(), memoColor = (rec.memoColor !== undefined) ? Number(rec.memoColor) : ((y * 37 + m * 13 + d * 7) % PASTEL_PALETTE.length);
+        const rawMemo = (rec.memo || '').trim();
+        const memo = AUTO_MEMO_GARBAGE.has(rawMemo) ? '' : rawMemo;
+        const memoColor = (rec.memoColor !== undefined) ? Number(rec.memoColor) : ((y * 37 + m * 13 + d * 7) % PASTEL_PALETTE.length);
 
-        if (type === 'NORMAL') nightHours = (shift === 'NIGHT') ? 8 : 0;
-        else if (type === 'OT') { otHours = Number(rec.hours) || 0; nightHours = (shift === 'NIGHT') ? 8 : 0; }
-        else if (type === 'NIGHT_OT') { otHours = Number(rec.hours) || 0; nightHours = ((shift === 'NIGHT') ? 8 : 0) + otHours; }
-        else if (type === 'HOLIDAY') {
+        if (type === 'NORMAL' || type === 'EDU_ALLOW') {
+          nightHours = (shift === 'NIGHT') ? 8 : 0;
+        } else if (type === 'REQ_EDU' || type === 'GONGGA') {
+          nightHours = 0;
+        } else if (type === 'OT') {
+          otHours = Number(rec.hours) || 0;
+          nightHours = (shift === 'NIGHT') ? 8 : 0;
+        } else if (type === 'NIGHT_OT') {
+          otHours = Number(rec.hours) || 0;
+          nightHours = ((shift === 'NIGHT') ? 8 : 0) + otHours;
+        } else if (type === 'HOLIDAY') {
           const th = (rec.hours !== undefined) ? Number(rec.hours) : 12;
           holBaseHours = Math.min(8, th); holOverHours = Math.max(0, th - 8);
           if (holKind === 'NIGHT' || (!holKind && shift === 'NIGHT')) { holKind = 'NIGHT'; shift = 'NIGHT'; nightHours = Math.min(8, th); }
@@ -1508,17 +1728,17 @@
           sumOtH += ev.otHours; sumHolBaseH += ev.holBaseHours; sumHolOverH += ev.holOverHours; sumNightH += ev.nightHours;
           if (ev.type === 'HOLIDAY') holCount++;
           else if (ev.type === 'LEAVE') { monthVacDays += ev.vacDays; if (ev.vacDays < 1) normalWorkDays += (1 - ev.vacDays); }
-          else if (ev.type === 'NORMAL' || ev.type === 'OT' || ev.type === 'NIGHT_OT') normalWorkDays += 1;
+          else if (ev.type === 'NORMAL' || ev.type === 'OT' || ev.type === 'NIGHT_OT' || ev.type === 'EDU_ALLOW' || ev.type === 'REQ_EDU') normalWorkDays += 1;
           return ev;
         });
 
         const paidDays = cutoffDates.length, workDays = normalWorkDays + holCount, eduH = Number(ex.eduHours) || 0;
-        const totalPlainOtH = sumOtH + eduH;
-        const extraWeighted = (totalPlainOtH * 1.5) + (sumHolBaseH * 1.5) + (sumHolOverH * 2.0) + (sumNightH * 0.5);
+        const totalPlainOtH = sumOtH;
+        const extraWeighted = ((sumOtH + eduH) * 1.5) + (sumHolBaseH * 1.5) + (sumHolOverH * 2.0) + (sumNightH * 0.5);
         const extraGongsu = extraWeighted / 8;
         const timeGongsu = hasBase ? (paidDays + extraGongsu) : 0;
         const moneyGongsu = hasBase ? (paidDays + (extraGongsu * 1.0909)) : 0;
-        const actualWorkHours = (normalWorkDays * 8) + totalPlainOtH + sumHolBaseH + sumHolOverH;
+        const actualWorkHours = (normalWorkDays * 8) + sumOtH + eduH + sumHolBaseH + sumHolOverH;
         const weeklyAvgHours = hasBase ? (actualWorkHours / (paidDays / 7)) : 0;
 
         const fest = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
@@ -1552,7 +1772,7 @@
 
         return (this.summaryCache[cacheKey] = {
           payY, payM, appliedBase, rate, cutoffDates, evaluated, autoHolName, isEven, ex, isVerifiedSlip, prevHadHolBonus,
-          sumOtH: totalPlainOtH, sumHolBaseH, sumHolOverH, sumNightH, holCount, monthVacDays, paidDays, workDays,
+          sumOtH: totalPlainOtH, eduH, sumHolBaseH, sumHolOverH, sumNightH, holCount, monthVacDays, paidDays, workDays,
           timeGongsu, moneyGongsu, weeklyAvgHours, fixedBaseTotal, coreMonthlyWage, lmsPay, housingAllow, housingDed,
           retroPay, regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay, totalTax,
           fixedInsurances, unionFee, foodDed, rawGross, rawDed, finalGross, finalDed, finalNet
@@ -1682,6 +1902,12 @@
         } else if (ev.type === 'GONGGA') {
           wb.innerText = '✔ 유급공가(검진·경조 / 연차미차감)';
           wb.classList.remove('hidden');
+        } else if (ev.type === 'EDU_ALLOW') {
+          wb.innerText = '✔ 교육수당(150%) 배지 지정됨';
+          wb.classList.remove('hidden');
+        } else if (ev.type === 'REQ_EDU') {
+          wb.innerText = '✔ 필수교육(09~18시 / 정상출근)';
+          wb.classList.remove('hidden');
         } else wb.classList.add('hidden');
 
         const hb = $('modal_holiday_badge');
@@ -1726,7 +1952,7 @@
         let sh = $('modal_shift_select').value;
         if (type === 'DEFAULT') this.setWorkRecord(this.selectedDateKey, null);
         else if (type === 'LEAVE') this.setWorkRecord(this.selectedDateKey, { type: 'LEAVE', hours: 0, vacDays: val, shift: sh });
-        else if (type === 'GONGGA') this.setWorkRecord(this.selectedDateKey, { type: 'GONGGA', hours: 0, vacDays: 0, shift: sh });
+        else if (type === 'GONGGA' || type === 'EDU_ALLOW' || type === 'REQ_EDU') this.setWorkRecord(this.selectedDateKey, { type, hours: 0, vacDays: 0, shift: sh });
         else if (type === 'HOLIDAY') { sh = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY'; this.setWorkRecord(this.selectedDateKey, { type: 'HOLIDAY', hours: val, holKind: holKind || 'DAY', shift: sh }); }
         else this.setWorkRecord(this.selectedDateKey, { type, hours: val, shift: sh });
         this.closeDayModal(); this.save(); this.render();
@@ -1817,14 +2043,12 @@
         const oneDayVacPay = Math.round(8 * this.getHourlyRate(this.basePay));
         const unusedVacPay = Math.round(remainVac * oneDayVacPay);
 
-        // 상단 헤더 연차 배지 (항상 업데이트)
         setText('top_vacation_badge', `${this.fmtVacNum(remainVac)}일(${remainVacHours}h)`);
         setText('top_vacation_money', `미사용시 +${(unusedVacPay / 10000).toFixed(1)}만원`);
 
         this.lastRawGross = calc.rawGross;
         this.lastRawDed = calc.rawDed;
 
-        // 활성 탭별 지연 렌더링 (성능 핵심)
         if (this.activeTab === 'report') {
           this.renderAnnualReport(unusedVacPay);
           this.renderRetroSimulator();
@@ -1862,7 +2086,6 @@
           return;
         }
 
-        // TAB 1: 홈 & 달력 렌더링
         this.renderQuickMonthBar();
         this.updateStampUI();
         this.renderTargetSimulator(calc);
@@ -1935,20 +2158,21 @@
         setHtml('payslip_detail_box', `
           <div class="font-bold text-sky-300">[지급 내역 · 기본급 ${calc.appliedBase.toLocaleString()}원]</div>
           <div class="flex justify-between"><span>• 기본급·교대·장려·역량(${calc.lmsPay.toLocaleString()})</span><strong>${(calc.appliedBase + (calc.appliedBase > 0 ? 180000 : 0) + calc.lmsPay).toLocaleString()}원</strong></div>
+          ${calc.housingAllow > 0 ? `<div class="flex justify-between text-sky-200"><span>• 주택자금이자 지원액</span><strong>+${calc.housingAllow.toLocaleString()}원</strong></div>` : ''}
           ${calc.retroPay > 0 ? `<div class="flex justify-between text-emerald-300"><span>• 성과·소급·기타수당(퇴직금제외)</span><strong>+${calc.retroPay.toLocaleString()}원</strong></div>` : ''}
           ${calc.regBonusPay > 0 ? `<div class="flex justify-between text-indigo-300"><span>• 짝수달 정기상여 (100%)</span><strong>+${calc.regBonusPay.toLocaleString()}원</strong></div>` : ''}
           ${calc.holBonusPay > 0 ? `<div class="flex justify-between text-amber-300"><span>• ${calc.autoHolName} 명절상여 (100%)</span><strong>+${calc.holBonusPay.toLocaleString()}원</strong></div>` : ''}
-          <div class="flex justify-between text-blue-300"><span>• 평일연장·교육수당 (${calc.sumOtH}h)</span><strong>+${(calc.otPay + calc.eduPay).toLocaleString()}원</strong></div>
+          <div class="flex justify-between text-blue-300"><span>• 평일연장수당 (${calc.sumOtH}h)${calc.eduH > 0 ? ` + 교육(${calc.eduH}h)` : ''}</span><strong>+${(calc.otPay + calc.eduPay).toLocaleString()}원</strong></div>
           <div class="flex justify-between text-red-300"><span>• 휴일근로수당 (${calc.sumHolBaseH}h)</span><strong>+${calc.holBasePay.toLocaleString()}원</strong></div>
           <div class="flex justify-between text-rose-300"><span>• 휴일연장수당 (${this.fmtHoursLabel(calc.sumHolOverH)})</span><strong>+${calc.holOverPay.toLocaleString()}원</strong></div>
           <div class="flex justify-between text-purple-300"><span>• 야간근무수당 (${calc.sumNightH}h)</span><strong>+${calc.nightPay.toLocaleString()}원</strong></div>
           <div class="font-bold text-rose-300 pt-1 border-t border-slate-700">[공제 내역]</div>
-          <div class="flex justify-between"><span>• 소득세·주민세</span><strong>-${calc.totalTax.toLocaleString()}원</strong></div>
+          <div class="flex justify-between"><span>• 소득세·주민세(정산포함)</span><strong>-${calc.totalTax.toLocaleString()}원</strong></div>
           <div class="flex justify-between"><span>• 4대보험·조합비(${calc.unionFee.toLocaleString()})</span><strong>-${(calc.fixedInsurances + calc.unionFee).toLocaleString()}원</strong></div>
-          ${calc.foodDed > 0 ? `<div class="flex justify-between"><span>• 기타공제</span><strong>-${calc.foodDed.toLocaleString()}원</strong></div>` : ''}
+          ${calc.housingDed > 0 ? `<div class="flex justify-between"><span>• 주택자금 상환·이자</span><strong>-${calc.housingDed.toLocaleString()}원</strong></div>` : ''}
+          ${calc.foodDed > 0 ? `<div class="flex justify-between"><span>• 푸드트럭·경조·기타공제</span><strong>-${calc.foodDed.toLocaleString()}원</strong></div>` : ''}
         `);
 
-        // 달력 그리드 단일 패스 HTML 생성
         const grid = $('calendar_grid');
         this.currentGridCells = [];
         const htmlParts = [];
@@ -1973,7 +2197,9 @@
             } else if (ev.type === 'OT') chips.push(`<div class="work-top-chip text-blue-700">⚡+${ev.otHours}h잔업</div>`);
             else if (ev.type === 'NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
             else if (ev.type === 'LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">${this.getLeaveChipLabel(ev, false)}</div>`);
-            else if (ev.type === 'GONGGA') chips.push(`<div class="work-top-chip text-sky-700">🏥공가(검진)</div>`);
+            else if (ev.type === 'GONGGA') chips.push(`<div class="work-top-chip text-sky-700">🏥유급공가</div>`);
+            else if (ev.type === 'EDU_ALLOW') chips.push(`<div class="work-top-chip text-amber-700">🎓교육수당</div>`);
+            else if (ev.type === 'REQ_EDU') chips.push(`<div class="work-top-chip text-teal-700">🏫필수교육</div>`);
             if (ev.memo) {
               ev.memo.split('\n').map(l => l.trim()).filter(Boolean).forEach((ln, mIdx) => {
                 const pal = PASTEL_PALETTE[(ev.memoColor + mIdx * 3) % PASTEL_PALETTE.length];
@@ -1995,7 +2221,9 @@
               cs = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
               sh = ev.holKind === 'NIGHT' ? `<span class="text-[9.5px] font-black text-purple-800">🌙야특${th}</span>` : `<span class="text-[9.5px] font-black text-red-600">☀️주특${th}</span>`;
             } else if (ev.type === 'LEAVE') { cs = 'cell-checked-leave'; sh = `<span class="text-[9px] font-black text-emerald-800">${this.getLeaveChipLabel(ev, true)}</span>`; }
-            else if (ev.type === 'GONGGA') { cs = 'cell-checked-gongga'; sh = `<span class="text-[9px] font-black text-sky-800">🏥공가(검진)</span>`; }
+            else if (ev.type === 'GONGGA') { cs = 'cell-checked-gongga'; sh = `<span class="text-[9px] font-black text-sky-800">🏥유급공가</span>`; }
+            else if (ev.type === 'EDU_ALLOW') { cs = 'cell-checked-edu'; sh = `<span class="text-[9px] font-black text-amber-800">🎓교육수당</span>`; }
+            else if (ev.type === 'REQ_EDU') { cs = 'cell-checked-req-edu'; sh = `<span class="text-[9px] font-black text-teal-800">🏫필수교육</span>`; }
             else if (ev.type === 'OFF') { sh = `<span class="text-[9px] text-slate-400">휴일</span>`; }
             if (ev.d === 1) cs += ' month-start-bar';
             const isT = (ev.key === ti.key), isF = (ev.key === this.focusedDateKey);
@@ -2037,7 +2265,7 @@
       renderRateTable(base, rate) {
         setText('rate_tab_base', `${base.toLocaleString()}원`);
         setText('rate_tab_hourly', `${Math.round(rate).toLocaleString()}원/h`);
-        const nU = this.getNightHourlyRate(base), d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nU), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8;
+        const nU = this.getNightHourlyRate(base), d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nUnit), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8;
         const netFactor = 0.86;
         setText('price_day_hol12', `${d12.toLocaleString()}원`);
         setText('net_day_hol12', `세후 약 ${(d12 * netFactor / 10000).toFixed(1)}만`);
