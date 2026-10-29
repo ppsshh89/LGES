@@ -47,35 +47,6 @@
 </head>
 <body>
   <div class="mobile-app-shell">
-    <!-- PIN 잠금 오버레이 -->
-    <div id="pin_lock_overlay" class="fixed inset-0 bg-slate-950 text-white z-[100] hidden flex-col items-center justify-center p-6">
-      <div class="text-center space-y-2 mb-6">
-        <span class="text-xs font-black bg-blue-600 px-2 py-0.5 rounded">APP SECURITY</span>
-        <h2 class="text-lg font-black">🔒 암호 4자리를 입력해 주세요</h2>
-        <p id="pin_lock_msg" class="text-xs text-slate-400">설정한 4자리 숫자를 누르면 열립니다</p>
-      </div>
-      <div id="pin_dots" class="flex gap-3 mb-8">
-        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
-        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
-        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
-        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
-      </div>
-      <div class="grid grid-cols-3 gap-3 w-full max-w-[260px] text-lg font-black">
-        <button onclick="App.pressPin('1')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">1</button>
-        <button onclick="App.pressPin('2')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">2</button>
-        <button onclick="App.pressPin('3')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">3</button>
-        <button onclick="App.pressPin('4')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">4</button>
-        <button onclick="App.pressPin('5')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">5</button>
-        <button onclick="App.pressPin('6')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">6</button>
-        <button onclick="App.pressPin('7')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">7</button>
-        <button onclick="App.pressPin('8')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">8</button>
-        <button onclick="App.pressPin('9')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">9</button>
-        <button onclick="App.pressPin('CLR')" class="h-14 rounded-2xl bg-slate-900 text-xs text-slate-400">초기화</button>
-        <button onclick="App.pressPin('0')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">0</button>
-        <button onclick="App.pressPin('DEL')" class="h-14 rounded-2xl bg-slate-900 text-sm text-rose-400">⌫</button>
-      </div>
-    </div>
-
     <!-- 상단 헤더 -->
     <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30 w-full box-border">
       <div class="flex items-center justify-between gap-1.5">
@@ -172,24 +143,6 @@
               <summary class="cursor-pointer text-slate-300 font-bold flex justify-between items-center py-0.5 text-[11px] nowrap"><span>🧾 지급·공제 명세서 상세 내역</span><span class="text-[10px] text-emerald-400">펼치기 ▼</span></summary>
               <div id="payslip_detail_box" class="mt-1.5 pt-1.5 border-t border-slate-700 space-y-1 text-[10.5px] text-slate-200"></div>
             </details>
-          </div>
-
-          <!-- 목표 월급 역산 시뮬레이터 -->
-          <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-indigo-200 space-y-2">
-            <div class="flex items-center justify-between gap-1 nowrap">
-              <span class="text-[11.5px] font-black text-indigo-950">🎯 이번 달 목표 실수령액 역산기</span>
-              <div class="flex items-center gap-1 text-[9.5px] font-black">
-                <button onclick="App.addTargetNet(100000)" class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">+10만</button>
-                <button onclick="App.addTargetNet(300000)" class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">+30만</button>
-                <button onclick="App.addTargetNet(500000)" class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">+50만</button>
-                <button onclick="App.addTargetNet(0)" class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">초기화</button>
-              </div>
-            </div>
-            <div class="flex items-center gap-1.5 text-xs">
-              <input type="number" id="input_target_net" step="50000" placeholder="목표 세후 금액 입력 (예: 4500000)" oninput="App.onTargetNetInput()" class="w-full p-1.5 border border-indigo-300 rounded-xl font-black text-right text-indigo-900 bg-indigo-50/40">
-              <span class="text-[10.5px] font-extrabold text-slate-600 shrink-0">원</span>
-            </div>
-            <div id="target_net_result_box" class="text-[10.5px] bg-slate-50 rounded-xl p-2 border border-slate-200 text-slate-600 font-bold"></div>
           </div>
 
           <!-- 다가오는 메모 일정(D-Day) & 전체 메모 통합 검색 -->
@@ -491,14 +444,6 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔒 앱 실행 4자리 암호 잠금</h2><span id="pin_status_badge" class="text-[10px] font-bold text-slate-400">잠금 꺼짐</span></div>
-          <div class="flex items-center gap-2 text-xs">
-            <input type="password" id="input_app_pin" maxlength="4" inputmode="numeric" placeholder="숫자 4자리 입력 (비우면 해제)" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center tracking-widest">
-            <button onclick="App.saveAppPin()" class="shrink-0 px-3 py-2 bg-slate-900 text-white font-black rounded-xl nowrap">암호 저장</button>
-          </div>
-        </div>
-
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border-2 border-indigo-500">
           <div class="flex items-center justify-between mb-1 nowrap"><span class="text-[10px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full">SMART CALIBRATION</span><button onclick="App.resetCalibration()" class="text-[11px] text-slate-400 hover:text-red-600 font-bold">보정 초기화</button></div>
           <h2 class="text-sm font-black text-slate-900 mt-1 nowrap">🎯 실급여 세전·세후 자동 보정</h2>
@@ -637,7 +582,7 @@
       { id: 'CLEAR', label: '🧹지우개', cls: 'bg-slate-800 text-white', type: 'DEFAULT', hours: 0 }
     ];
 
-    // 1~10월 실제 근태표 검증 데이터 (메모 오염 없이 정식 근태 타입으로 내장)
+    // 1~10월 실제 근태표 검증 데이터
     const VERIFIED_RECORDS_1_TO_10 = {
       // 1월 급여 (2025.12.21 ~ 2026.01.20)
       '2025-12-22': { type: 'OT', hours: 4, shift: 'EARLY' },
@@ -936,14 +881,13 @@
 
       stampMode: false,
       activeStampId: 'OT4',
-      targetNetPay: 0,
 
       memoHubExpanded: false,
       focusedDateKey: null,
       focusClearTimer: null,
 
       ghToken: '', ghGistId: '', ghAutoSync: true, ghLastSync: '',
-      appPin: '', enteredPin: '', autoSyncTimer: null,
+      autoSyncTimer: null,
       calendarView: 'MEMO', selectedDateKey: null, selectedDayInfo: null,
       lastRawGross: 0, lastRawDed: 0, swipeAnimClass: '',
 
@@ -975,7 +919,6 @@
         if (!this.seededJanToOct_v78) {
           this.applyVerifiedJanToOctData(false);
         }
-        this.checkPinLockOnStart();
         this.resetBothViewsToToday();
         this.syncSettingsInputs();
         this.updateGithubUiStatus();
@@ -993,7 +936,7 @@
         });
       },
 
-      // 1월~10월 실제 근태표 10장 + 급여명세서 10장 내장 데이터 즉시 반영 (개인 메모 보존, 구버전 교육/공가 임시메모 자동 제거)
+      // 1월~10월 실제 근태표 10장 + 급여명세서 10장 내장 데이터 즉시 반영
       applyVerifiedJanToOctData(askConfirm = false) {
         if (askConfirm && !confirm('1월~10월의 실제 근태표 및 급여명세서 내장 데이터를 적용하시겠습니까?\n(직접 적어둔 개인 스케줄 메모는 그대로 유지됩니다.)')) return;
         const start = new Date(2025, 11, 21, 12, 0, 0), end = new Date(2026, 9, 20, 12, 0, 0);
@@ -1133,58 +1076,6 @@
         setHtml('retro_month_detail_list', rows.join(''));
       },
 
-      addTargetNet(delta) {
-        const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m);
-        if (delta === 0) {
-          this.targetNetPay = 0;
-          $('input_target_net').value = '';
-        } else {
-          const baseVal = this.targetNetPay > 0 ? this.targetNetPay : Math.ceil(calc.finalNet / 100000) * 100000;
-          this.targetNetPay = baseVal + delta;
-          $('input_target_net').value = this.targetNetPay;
-        }
-        this.renderTargetSimulator(calc);
-      },
-      onTargetNetInput() {
-        this.targetNetPay = Number($('input_target_net').value) || 0;
-        const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m);
-        this.renderTargetSimulator(calc);
-      },
-      renderTargetSimulator(calc) {
-        const box = $('target_net_result_box');
-        if (!box) return;
-        const rate = calc.rate, nU = this.getNightHourlyRate(calc.appliedBase), netFactor = 0.86;
-        const d12Net = Math.round(((8 * 1.5 + 4 * 2.0) * rate) * netFactor);
-        const n12Net = Math.round((((8 * 1.5 + 4 * 2.0) * rate) + (8 * nU)) * netFactor);
-        const ot4Net = Math.round((4 * 1.5 * rate) * netFactor);
-
-        if (!this.targetNetPay || this.targetNetPay <= 0) {
-          box.innerHTML = `💡 위 버튼을 누르거나 목표 실수령액을 입력하면 필요한 <strong>특근·잔업 횟수</strong>를 계산해 드립니다. (현재 ${calc.payM}월 세후 <strong>${calc.finalNet.toLocaleString()}원</strong>)`;
-          return;
-        }
-        const diff = this.targetNetPay - calc.finalNet;
-        if (diff <= 0) {
-          box.innerHTML = `<div class="text-emerald-700 font-black">🎉 목표 달성 완료! 현재 예상 실수령액이 목표보다 <strong>+${Math.abs(diff).toLocaleString()}원</strong> 더 많습니다.</div>`;
-          return;
-        }
-        const n12Cnt = Math.floor(diff / n12Net), remAfterN12 = diff - (n12Cnt * n12Net), ot4ForN12 = remAfterN12 > 0 ? Math.ceil(remAfterN12 / ot4Net) : 0;
-        const d12Cnt = Math.floor(diff / d12Net), remAfterD12 = diff - (d12Cnt * d12Net), ot4ForD12 = remAfterD12 > 0 ? Math.ceil(remAfterD12 / ot4Net) : 0;
-        const onlyOt4Cnt = Math.ceil(diff / ot4Net);
-
-        box.innerHTML = `
-          <div class="space-y-1">
-            <div class="flex justify-between items-center text-indigo-950 font-black border-b border-slate-200 pb-1">
-              <span>목표까지 부족한 실수령액</span>
-              <span class="text-rose-600">+${diff.toLocaleString()}원</span>
-            </div>
-            <div class="text-[10px] space-y-0.5 pt-0.5 text-slate-700">
-              <div>• <strong>야특 조합:</strong> 🌙야간12h 특근 <strong>${n12Cnt}회</strong> ${ot4ForN12 > 0 ? `+ ⚡4h잔업 <strong>${ot4ForN12}회</strong>` : ''}</div>
-              <div>• <strong>주특 조합:</strong> ☀️주간12h 특근 <strong>${d12Cnt}회</strong> ${ot4ForD12 > 0 ? `+ ⚡4h잔업 <strong>${ot4ForD12}회</strong>` : ''}</div>
-              <div>• <strong>잔업만 할 때:</strong> ⚡평일 4h 잔업 <strong>${onlyOt4Cnt}회</strong> (총 ${onlyOt4Cnt * 4}시간)</div>
-            </div>
-          </div>`;
-      },
-
       toggleMemoHubExpand() {
         this.memoHubExpanded = !this.memoHubExpanded;
         this.renderMemoHub();
@@ -1275,49 +1166,6 @@
         if (r.memo || r.compHol) this.records[dateKey] = { memo: r.memo || '', memoColor: r.memoColor, compHol: r.compHol };
         else delete this.records[dateKey];
         this.save(); this.syncSettingsInputs(); this.render();
-      },
-
-      checkPinLockOnStart() {
-        const ov = $('pin_lock_overlay');
-        if (this.appPin && this.appPin.length === 4) {
-          this.enteredPin = '';
-          this.updatePinDots();
-          ov.classList.remove('hidden');
-          ov.classList.add('flex');
-        }
-      },
-      pressPin(k) {
-        if (k === 'CLR') this.enteredPin = '';
-        else if (k === 'DEL') this.enteredPin = this.enteredPin.slice(0, -1);
-        else if (this.enteredPin.length < 4) this.enteredPin += k;
-        this.updatePinDots();
-        if (this.enteredPin.length === 4) {
-          if (this.enteredPin === this.appPin) {
-            const ov = $('pin_lock_overlay');
-            ov.classList.add('hidden');
-            ov.classList.remove('flex');
-          } else {
-            const m = $('pin_lock_msg');
-            m.innerText = '❌ 암호가 일치하지 않습니다.';
-            m.className = 'text-xs text-rose-400 font-bold';
-            setTimeout(() => { this.enteredPin = ''; this.updatePinDots(); }, 300);
-          }
-        }
-      },
-      updatePinDots() {
-        const dots = $('pin_dots')?.children;
-        if (!dots) return;
-        for (let i = 0; i < 4; i++) {
-          dots[i].className = i < this.enteredPin.length
-            ? 'w-3.5 h-3.5 rounded-full bg-sky-400 border-2 border-sky-400'
-            : 'w-3.5 h-3.5 rounded-full border-2 border-slate-500';
-        }
-      },
-      saveAppPin() {
-        const v = ($('input_app_pin').value || '').trim();
-        if (v && !/^\d{4}$/.test(v)) return alert('숫자 4자리로 입력해 주세요.');
-        this.appPin = v; this.save(true); this.syncSettingsInputs();
-        alert(v ? `🔒 암호(${v})가 설정되었습니다.` : '🔓 암호 잠금이 해제되었습니다.');
       },
 
       initSwipeGesture() {
@@ -1448,7 +1296,6 @@
         if (p.calibDedRatio !== undefined) this.calibDedRatio = Number(p.calibDedRatio);
         if (p.records && typeof p.records === 'object') {
           this.records = p.records;
-          // 만약 이전 백업코드에서 들어온 교육·공가 메모가 있다면 자동으로 정식 근태 타입으로 변환 후 메모 삭제
           Object.entries(this.records).forEach(([k, r]) => {
             if (!r) return;
             const m = (r.memo || '').trim();
@@ -1463,7 +1310,6 @@
         if (p.ghGistId !== undefined) this.ghGistId = p.ghGistId;
         if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
         if (p.ghLastSync !== undefined) this.ghLastSync = p.ghLastSync;
-        if (p.appPin !== undefined) this.appPin = p.appPin;
         this.invalidateSummaryCache();
       },
 
@@ -1473,7 +1319,7 @@
           basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio,
           records: this.records, monthExtras: this.monthExtras, seededJanToOct_v78: this.seededJanToOct_v78,
-          ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync, appPin: this.appPin
+          ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync
         };
         if (inc) p.ghToken = this.ghToken;
         return p;
@@ -1581,12 +1427,6 @@
         if ($('retro_new_base')) $('retro_new_base').value = this.basePay;
         if ($('input_gh_token')) $('input_gh_token').value = this.ghToken || '';
         if ($('chk_gh_auto_sync')) $('chk_gh_auto_sync').checked = this.ghAutoSync;
-        if ($('input_app_pin')) $('input_app_pin').value = this.appPin || '';
-        const pb = $('pin_status_badge');
-        if (pb) {
-          pb.innerText = this.appPin ? '🔒 잠금 켜짐' : '잠금 꺼짐';
-          pb.className = this.appPin ? 'text-[10px] font-black text-emerald-600' : 'text-[10px] font-bold text-slate-400';
-        }
       },
       saveSettings() {
         this.totalVacation = Number($('input_total_vac').value) || 0;
@@ -2088,7 +1928,6 @@
 
         this.renderQuickMonthBar();
         this.updateStampUI();
-        this.renderTargetSimulator(calc);
         this.renderMemoHub();
 
         setText('big_ym_title', this.calendarView === 'MEMO' ? `${this.memoYear}. ${String(this.memoMonth).padStart(2, '0')} 일정` : `${this.payViewYear}. ${String(this.payViewMonth).padStart(2, '0')} 급여`);
