@@ -13,24 +13,39 @@
   <link rel="manifest" href="./manifest.json">
   <title>스마트 월급·퇴직금 계산기 v7.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
+  <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
-    html,body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;background:#cbd5e1;color:#0f172a;-webkit-tap-highlight-color:transparent;user-select:none;width:100%;margin:0;padding:0;font-variant-numeric:tabular-nums}
-    .mobile-app-shell{max-width:430px;width:100%;min-height:100dvh;margin:0 auto;background:#f1f5f9;position:relative;box-shadow:0 25px 50px -12px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-x:hidden;box-sizing:border-box;padding-bottom:68px}
-    .fixed-bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:40;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 14px rgba(15,23,42,0.08)}
-    .badge-EARLY{background:#f7d600;color:#2b2b2b}.badge-MID{background:#788b91;color:#fff}.badge-NIGHT{background:#3c403f;color:#fff}.badge-OFF{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5}
-    .cell-checked-ot{background:#dbeafe!important}.cell-checked-night-ot{background:#ede9fe!important}.cell-checked-hol-day{background:#fee2e2!important}.cell-checked-hol-night{background:#f3e8ff!important}.cell-checked-leave{background:#d1fae5!important}.cell-checked-gongga{background:#e0f2fe!important}
-    .month-start-bar{box-shadow:inset 0 2.5px 0 0 #334155}.cell-today{box-shadow:inset 0 0 0 2px #2563eb!important;z-index:10}.bottom-nav-active{color:#2563eb;font-weight:900}.nowrap{white-space:nowrap}.tnum{font-variant-numeric:tabular-nums}
-    .memo-chip{width:100%;color:#0f172a;font-size:clamp(7.4px,2vw,8.5px);font-weight:800;letter-spacing:-.05em;line-height:1.2;padding:2px;border-radius:3px;word-break:keep-all;overflow-wrap:break-word;white-space:normal;text-align:left;box-sizing:border-box}
-    .work-top-chip{width:100%;font-size:clamp(7.5px,2.05vw,8.6px);font-weight:900;letter-spacing:-.05em;line-height:1.15;padding:1px 0;background:transparent!important;border:none!important;text-align:center;white-space:nowrap;overflow:hidden;box-sizing:border-box}
-    @keyframes focusPulse{0%,100%{box-shadow:inset 0 0 0 3px #f59e0b;background:#fef3c7}50%{box-shadow:inset 0 0 0 3px #ea580c;background:#fde68a}}
-    .cell-focused{animation:focusPulse .75s ease-in-out 3;box-shadow:inset 0 0 0 2.5px #f59e0b!important;z-index:20}
-    @keyframes slideL{from{opacity:.55;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}@keyframes slideR{from{opacity:.55;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
-    .swipe-left-anim{animation:slideL .18s ease-out}.swipe-right-anim{animation:slideR .18s ease-out}
+    html, body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; width: 100%; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
+    .mobile-app-shell { max-width: 430px; width: 100%; min-height: 100dvh; margin: 0 auto; background: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,.35); display: flex; flex-direction: column; overflow-x: hidden; box-sizing: border-box; padding-bottom: 68px; }
+    .fixed-bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 40; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 14px rgba(15,23,42,0.08); }
+    .badge-EARLY { background: #f7d600; color: #2b2b2b; }
+    .badge-MID { background: #788b91; color: #fff; }
+    .badge-NIGHT { background: #3c403f; color: #fff; }
+    .badge-OFF { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .cell-checked-ot { background: #dbeafe !important; }
+    .cell-checked-night-ot { background: #ede9fe !important; }
+    .cell-checked-hol-day { background: #fee2e2 !important; }
+    .cell-checked-hol-night { background: #f3e8ff !important; }
+    .cell-checked-leave { background: #d1fae5 !important; }
+    .cell-checked-gongga { background: #e0f2fe !important; }
+    .month-start-bar { box-shadow: inset 0 2.5px 0 0 #334155; }
+    .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
+    .bottom-nav-active { color: #2563eb; font-weight: 900; }
+    .nowrap { white-space: nowrap; }
+    .tnum { font-variant-numeric: tabular-nums; }
+    .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2vw, 8.5px); font-weight: 800; letter-spacing: -.05em; line-height: 1.2; padding: 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
+    .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+    @keyframes focusPulse { 0%, 100% { box-shadow: inset 0 0 0 3px #f59e0b; background: #fef3c7; } 50% { box-shadow: inset 0 0 0 3px #ea580c; background: #fde68a; } }
+    .cell-focused { animation: focusPulse .75s ease-in-out 3; box-shadow: inset 0 0 0 2.5px #f59e0b !important; z-index: 20; }
+    @keyframes slideL { from { opacity: .55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideR { from { opacity: .55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+    .swipe-left-anim { animation: slideL .18s ease-out; }
+    .swipe-right-anim { animation: slideR .18s ease-out; }
   </style>
 </head>
 <body>
   <div class="mobile-app-shell">
+    <!-- PIN 잠금 오버레이 -->
     <div id="pin_lock_overlay" class="fixed inset-0 bg-slate-950 text-white z-[100] hidden flex-col items-center justify-center p-6">
       <div class="text-center space-y-2 mb-6">
         <span class="text-xs font-black bg-blue-600 px-2 py-0.5 rounded">APP SECURITY</span>
@@ -38,8 +53,10 @@
         <p id="pin_lock_msg" class="text-xs text-slate-400">설정한 4자리 숫자를 누르면 열립니다</p>
       </div>
       <div id="pin_dots" class="flex gap-3 mb-8">
-        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div><div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
-        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div><div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-slate-500"></div>
       </div>
       <div class="grid grid-cols-3 gap-3 w-full max-w-[260px] text-lg font-black">
         <button onclick="App.pressPin('1')" class="h-14 rounded-2xl bg-slate-800 active:bg-blue-600">1</button>
@@ -57,6 +74,7 @@
       </div>
     </div>
 
+    <!-- 상단 헤더 -->
     <header class="bg-slate-900 text-white px-3 py-1.5 sticky top-0 z-30 w-full box-border">
       <div class="flex items-center justify-between gap-1.5">
         <div class="min-w-0 flex items-center gap-1.5">
@@ -186,6 +204,7 @@
             <button id="btn_memo_hub_more" onclick="App.toggleMemoHubExpand()" class="hidden w-full py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black text-[10.5px] border border-amber-200 transition"></button>
           </div>
 
+          <!-- 1~12월 원터치 조회 -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
             <div class="flex items-center justify-between nowrap">
               <span class="text-[11px] font-black text-slate-800">📅 1월~12월 일정 원터치 조회</span>
@@ -194,6 +213,7 @@
             <div id="quick_month_grid" class="grid grid-cols-6 gap-1 text-[10.5px] font-black tracking-tight"></div>
           </div>
 
+          <!-- 급여 특이사항 -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 space-y-1.5">
             <div class="flex items-center justify-between nowrap gap-1">
               <span id="extra_section_title" class="text-xs font-black text-slate-800 truncate">🎁 급여 특이사항</span>
@@ -257,7 +277,7 @@
           </div>
         </div>
 
-        <!-- 임금협상 소급금 자동 계산기 (조회 전용) -->
+        <!-- 임금협상 소급금 자동 계산기 -->
         <div id="retro_calc_card" class="bg-white rounded-2xl p-3 shadow-sm border-2 border-emerald-500 space-y-2.5">
           <div class="flex items-center justify-between nowrap">
             <div>
@@ -463,9 +483,9 @@
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
           <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">🔄 내 근무조 패턴 설정</h2><span class="text-[10px] font-bold text-blue-600">오늘이 속한 주 기준</span></div>
           <div class="grid grid-cols-3 gap-2 text-xs font-black pt-1">
-            <button id="btn_set_shift_EARLY" onclick="App.setThisWeekShift('EARLY')" class="py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 nowrap">☀️ 이번주 초반</button>
-            <button id="btn_set_shift_MID" onclick="App.setThisWeekShift('MID')" class="py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 nowrap">🌤️ 이번주 중반</button>
-            <button id="btn_set_shift_NIGHT" onclick="App.setThisWeekShift('NIGHT')" class="py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-900 nowrap">🌙 이번주 야간</button>
+            <button id="btn_set_shift_EARLY" onclick="App.setThisWeekShift('EARLY')" class="py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-sky-800 nowrap transition">☀️ 이번주 초반</button>
+            <button id="btn_set_shift_MID" onclick="App.setThisWeekShift('MID')" class="py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 nowrap transition">🌤️ 이번주 중반</button>
+            <button id="btn_set_shift_NIGHT" onclick="App.setThisWeekShift('NIGHT')" class="py-2.5 rounded-xl border border-purple-300 bg-purple-50 text-purple-900 nowrap transition">🌙 이번주 야간</button>
           </div>
         </div>
 
@@ -510,6 +530,7 @@
       </div>
     </main>
 
+    <!-- 하단 네비게이션 -->
     <nav class="fixed-bottom-nav bg-white/95 backdrop-blur border-t border-slate-300 px-0.5 py-2 grid grid-cols-5 text-center text-[10px] tracking-tighter font-bold text-slate-400 nowrap">
       <button id="nav_home" onclick="App.switchTab('home')" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report')" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
@@ -518,6 +539,7 @@
       <button id="nav_settings" onclick="App.switchTab('settings')" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition"><span class="text-base leading-none">🎯</span><span>보정·설정</span></button>
     </nav>
 
+    <!-- 일자별 상세 설정 모달 -->
     <div id="day_modal" class="fixed inset-0 bg-slate-900/60 hidden items-end justify-center z-50">
       <div class="bg-white rounded-t-3xl max-w-[430px] w-full p-3.5 max-h-[92vh] overflow-y-auto overflow-x-hidden box-border shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-100 pb-2 mb-2.5 gap-2">
@@ -587,149 +609,181 @@
   </div>
 
   <script>
-    const LEGACY_U = String.fromCharCode(76,71,69,83);
-    const LEGACY_L = String.fromCharCode(108,103,101,115);
+    const $ = id => document.getElementById(id);
+    const setText = (id, txt) => { const el = $(id); if (el && el.innerText !== String(txt)) el.innerText = txt; };
+    const setHtml = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+
+    const LEGACY_U = String.fromCharCode(76, 71, 69, 83);
+    const LEGACY_L = String.fromCharCode(108, 103, 101, 115);
 
     const STAMP_PRESETS = [
-      { id:'OT4', label:'⚡4h잔업', cls:'bg-blue-600 text-white', type:'OT', hours:4 },
-      { id:'OT2', label:'⚡2h잔업', cls:'bg-blue-100 text-blue-900 border border-blue-300', type:'OT', hours:2 },
-      { id:'HD12', label:'☀️12h주특', cls:'bg-red-600 text-white', type:'HOLIDAY', hours:12, holKind:'DAY' },
-      { id:'HN12', label:'🌙12h야특', cls:'bg-purple-800 text-yellow-200', type:'HOLIDAY', hours:12, holKind:'NIGHT' },
-      { id:'HD8', label:'☀️8h주특', cls:'bg-rose-500 text-white', type:'HOLIDAY', hours:8, holKind:'DAY' },
-      { id:'HN8', label:'🌙8h야특', cls:'bg-purple-600 text-white', type:'HOLIDAY', hours:8, holKind:'NIGHT' },
-      { id:'LV1', label:'🌴연차1일', cls:'bg-emerald-600 text-white', type:'LEAVE', hours:0, vacDays:1 },
-      { id:'LV05', label:'🌴반차4h', cls:'bg-emerald-100 text-emerald-900 border border-emerald-400', type:'LEAVE', hours:0, vacDays:0.5 },
-      { id:'GONGGA', label:'🏥유급공가', cls:'bg-sky-100 text-sky-900 border border-sky-400', type:'GONGGA', hours:0, vacDays:0 },
-      { id:'CLEAR', label:'🧹지우개', cls:'bg-slate-800 text-white', type:'DEFAULT', hours:0 }
+      { id: 'OT4', label: '⚡4h잔업', cls: 'bg-blue-600 text-white', type: 'OT', hours: 4 },
+      { id: 'OT2', label: '⚡2h잔업', cls: 'bg-blue-100 text-blue-900 border border-blue-300', type: 'OT', hours: 2 },
+      { id: 'HD12', label: '☀️12h주특', cls: 'bg-red-600 text-white', type: 'HOLIDAY', hours: 12, holKind: 'DAY' },
+      { id: 'HN12', label: '🌙12h야특', cls: 'bg-purple-800 text-yellow-200', type: 'HOLIDAY', hours: 12, holKind: 'NIGHT' },
+      { id: 'HD8', label: '☀️8h주특', cls: 'bg-rose-500 text-white', type: 'HOLIDAY', hours: 8, holKind: 'DAY' },
+      { id: 'HN8', label: '🌙8h야특', cls: 'bg-purple-600 text-white', type: 'HOLIDAY', hours: 8, holKind: 'NIGHT' },
+      { id: 'LV1', label: '🌴연차1일', cls: 'bg-emerald-600 text-white', type: 'LEAVE', hours: 0, vacDays: 1 },
+      { id: 'LV05', label: '🌴반차4h', cls: 'bg-emerald-100 text-emerald-900 border border-emerald-400', type: 'LEAVE', hours: 0, vacDays: 0.5 },
+      { id: 'GONGGA', label: '🏥유급공가', cls: 'bg-sky-100 text-sky-900 border border-sky-400', type: 'GONGGA', hours: 0, vacDays: 0 },
+      { id: 'CLEAR', label: '🧹지우개', cls: 'bg-slate-800 text-white', type: 'DEFAULT', hours: 0 }
+    ];
+
+    const PASTEL_PALETTE = [
+      { bg: '#fef08a', border: '#eab308' }, { bg: '#fecdd3', border: '#fb7185' },
+      { bg: '#bae6fd', border: '#38bdf8' }, { bg: '#bbf7d0', border: '#4ade80' },
+      { bg: '#e9d5ff', border: '#c084fc' }, { bg: '#fed7aa', border: '#fb923c' },
+      { bg: '#c7d2fe', border: '#818cf8' }, { bg: '#d9f99d', border: '#a3e635' },
+      { bg: '#f5d0fe', border: '#e879f9' }, { bg: '#a5f3fc', border: '#22d3ee' }
     ];
 
     const KoreanHolidayEngine = {
-      cache:{},
-      LUNAR_TABLE:{
-        2024:['02-10','05-15','09-17'],2025:['01-29','05-05','10-06'],2026:['02-17','05-24','09-25'],
-        2027:['02-07','05-13','09-15'],2028:['01-27','05-02','10-03'],2029:['02-13','05-20','09-22'],2030:['02-03','05-09','09-12']
+      cache: {},
+      LUNAR_TABLE: {
+        2024: ['02-10', '05-15', '09-17'], 2025: ['01-29', '05-05', '10-06'], 2026: ['02-17', '05-24', '09-25'],
+        2027: ['02-07', '05-13', '09-15'], 2028: ['01-27', '05-02', '10-03'], 2029: ['02-13', '05-20', '09-22'], 2030: ['02-03', '05-09', '09-12']
       },
-      fmt(y,m,d){return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;},
-      addDays(y,m,d,delta){
-        const dt=new Date(y,m-1,d+delta,12,0,0),ny=dt.getFullYear(),nm=dt.getMonth()+1,nd=dt.getDate();
-        return {y:ny,m:nm,d:nd,dow:dt.getDay(),key:this.fmt(ny,nm,nd)};
+      fmt(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; },
+      addDays(y, m, d, delta) {
+        const dt = new Date(y, m - 1, d + delta, 12, 0, 0), ny = dt.getFullYear(), nm = dt.getMonth() + 1, nd = dt.getDate();
+        return { y: ny, m: nm, d: nd, dow: dt.getDay(), key: this.fmt(ny, nm, nd) };
       },
-      buildYearHolidays(year){
-        if(this.cache[year]) return this.cache[year];
-        const map={},occ=new Set(),[sMD,bMD,cMD]=this.LUNAR_TABLE[year]||['02-17','05-24','09-25'];
-        const pMD=md=>{const[m,d]=md.split('-').map(Number);return{m,d};},s=pMD(sMD),b=pMD(bMD),c=pMD(cMD);
-        const groups=[
-          {days:[{...this.addDays(year,1,1,0),name:'신정'}],subRule:'NONE'},
-          {days:[{...this.addDays(year,s.m,s.d,-1),name:'설연휴'},{...this.addDays(year,s.m,s.d,0),name:'설날'},{...this.addDays(year,s.m,s.d,1),name:'설연휴'}],subRule:'SUN_ONLY'},
-          {days:[{...this.addDays(year,3,1,0),name:'삼일절'}],subRule:'SAT_SUN'},
-          {days:[{...this.addDays(year,5,5,0),name:'어린이날'}],subRule:'SAT_SUN'},
-          {days:[{...this.addDays(year,b.m,b.d,0),name:'부처님오신날'}],subRule:'SAT_SUN'},
-          {days:[{...this.addDays(year,6,6,0),name:'현충일'}],subRule:'NONE'},
-          {days:[{...this.addDays(year,8,15,0),name:'광복절'}],subRule:'SAT_SUN'},
-          {days:[{...this.addDays(year,c.m,c.d,-1),name:'추석연휴'},{...this.addDays(year,c.m,c.d,0),name:'추석'},{...this.addDays(year,c.m,c.d,1),name:'추석연휴'}],subRule:'SUN_ONLY'},
-          {days:[{...this.addDays(year,10,3,0),name:'개천절'}],subRule:'SAT_SUN'},
-          {days:[{...this.addDays(year,10,9,0),name:'한글날'}],subRule:'SAT_SUN'},
-          {days:[{...this.addDays(year,12,25,0),name:'성탄절'}],subRule:'SAT_SUN'}
+      buildYearHolidays(year) {
+        if (this.cache[year]) return this.cache[year];
+        const map = {}, occ = new Set(), [sMD, bMD, cMD] = this.LUNAR_TABLE[year] || ['02-17', '05-24', '09-25'];
+        const pMD = md => { const [m, d] = md.split('-').map(Number); return { m, d }; };
+        const s = pMD(sMD), b = pMD(bMD), c = pMD(cMD);
+        const groups = [
+          { days: [{ ...this.addDays(year, 1, 1, 0), name: '신정' }], subRule: 'NONE' },
+          { days: [{ ...this.addDays(year, s.m, s.d, -1), name: '설연휴' }, { ...this.addDays(year, s.m, s.d, 0), name: '설날' }, { ...this.addDays(year, s.m, s.d, 1), name: '설연휴' }], subRule: 'SUN_ONLY' },
+          { days: [{ ...this.addDays(year, 3, 1, 0), name: '삼일절' }], subRule: 'SAT_SUN' },
+          { days: [{ ...this.addDays(year, 5, 5, 0), name: '어린이날' }], subRule: 'SAT_SUN' },
+          { days: [{ ...this.addDays(year, b.m, b.d, 0), name: '부처님오신날' }], subRule: 'SAT_SUN' },
+          { days: [{ ...this.addDays(year, 6, 6, 0), name: '현충일' }], subRule: 'NONE' },
+          { days: [{ ...this.addDays(year, 8, 15, 0), name: '광복절' }], subRule: 'SAT_SUN' },
+          { days: [{ ...this.addDays(year, c.m, c.d, -1), name: '추석연휴' }, { ...this.addDays(year, c.m, c.d, 0), name: '추석' }, { ...this.addDays(year, c.m, c.d, 1), name: '추석연휴' }], subRule: 'SUN_ONLY' },
+          { days: [{ ...this.addDays(year, 10, 3, 0), name: '개천절' }], subRule: 'SAT_SUN' },
+          { days: [{ ...this.addDays(year, 10, 9, 0), name: '한글날' }], subRule: 'SAT_SUN' },
+          { days: [{ ...this.addDays(year, 12, 25, 0), name: '성탄절' }], subRule: 'SAT_SUN' }
         ];
-        groups.forEach(g=>{
-          g.subNeeded=0;
-          g.days.forEach(day=>{
-            const dup=occ.has(day.key);occ.add(day.key);
-            if(!map[day.key]||day.name==='설날'||day.name==='추석') map[day.key]=day.name;
-            if(g.subRule==='SAT_SUN'&&(day.dow===0||day.dow===6||dup)) g.subNeeded++;
-            else if(g.subRule==='SUN_ONLY'&&(day.dow===0||dup)) g.subNeeded++;
+        groups.forEach(g => {
+          g.subNeeded = 0;
+          g.days.forEach(day => {
+            const dup = occ.has(day.key); occ.add(day.key);
+            if (!map[day.key] || day.name === '설날' || day.name === '추석') map[day.key] = day.name;
+            if (g.subRule === 'SAT_SUN' && (day.dow === 0 || day.dow === 6 || dup)) g.subNeeded++;
+            else if (g.subRule === 'SUN_ONLY' && (day.dow === 0 || dup)) g.subNeeded++;
           });
         });
-        groups.forEach(g=>{
-          let cur=g.days[g.days.length-1];
-          while(g.subNeeded>0){
-            cur=this.addDays(cur.y,cur.m,cur.d,1);
-            if(cur.dow!==0&&cur.dow!==6&&!occ.has(cur.key)){occ.add(cur.key);map[cur.key]='대체공휴일';g.subNeeded--;}
+        groups.forEach(g => {
+          let cur = g.days[g.days.length - 1];
+          while (g.subNeeded > 0) {
+            cur = this.addDays(cur.y, cur.m, cur.d, 1);
+            if (cur.dow !== 0 && cur.dow !== 6 && !occ.has(cur.key)) { occ.add(cur.key); map[cur.key] = '대체공휴일'; g.subNeeded--; }
           }
         });
-        const mayKey=this.fmt(year,5,1);if(!map[mayKey]) map[mayKey]='근로자의날';
-        if(year===2026) map['2026-06-03']='지방선거';
-        this.cache[year]=map;return map;
+        const mayKey = this.fmt(year, 5, 1);
+        if (!map[mayKey]) map[mayKey] = '근로자의날';
+        if (year === 2026) map['2026-06-03'] = '지방선거';
+        return (this.cache[year] = map);
       },
-      getHolidayName(y,m,d){return this.buildYearHolidays(y)[this.fmt(y,m,d)]||null;},
-      getFestivalInCalendarMonth(year,month){
-        const map=this.buildYearHolidays(year),prefix=`${year}-${String(month).padStart(2,'0')}-`;
-        for(const[k,v] of Object.entries(map)){if(k.startsWith(prefix)&&(v==='설날'||v==='추석')) return{key:k,name:v};}
+      getHolidayName(y, m, d) { return this.buildYearHolidays(y)[this.fmt(y, m, d)] || null; },
+      getFestivalInCalendarMonth(year, month) {
+        const map = this.buildYearHolidays(year), prefix = `${year}-${String(month).padStart(2, '0')}-`;
+        for (const [k, v] of Object.entries(map)) {
+          if (k.startsWith(prefix) && (v === '설날' || v === '추석')) return { key: k, name: v };
+        }
         return null;
       }
     };
 
-    const PASTEL_PALETTE=[
-      {bg:'#fef08a',border:'#eab308'},{bg:'#fecdd3',border:'#fb7185'},{bg:'#bae6fd',border:'#38bdf8'},{bg:'#bbf7d0',border:'#4ade80'},{bg:'#e9d5ff',border:'#c084fc'},
-      {bg:'#fed7aa',border:'#fb923c'},{bg:'#c7d2fe',border:'#818cf8'},{bg:'#d9f99d',border:'#a3e635'},{bg:'#f5d0fe',border:'#e879f9'},{bg:'#a5f3fc',border:'#22d3ee'}
-    ];
-
-    const DualVault={
-      dbName:'SMART_PAY_VAULT_DB',
-      legacyDbName:`${LEGACY_U}_DUAL_VAULT_DB`,
-      storeName:'backup_store',
-      open(name=this.dbName){return new Promise((res,rej)=>{if(!window.indexedDB)return rej('No IDB');const req=indexedDB.open(name,1);req.onupgradeneeded=e=>e.target.result.createObjectStore(this.storeName);req.onsuccess=e=>res(e.target.result);req.onerror=e=>rej(e);});},
-      async saveSnapshot(d){try{const db=await this.open(this.dbName);db.transaction(this.storeName,'readwrite').objectStore(this.storeName).put(d,'latest');}catch(e){}},
-      async loadSnapshot(){
-        try{
-          const db=await this.open(this.dbName);
-          const cur=await new Promise(res=>{const r=db.transaction(this.storeName,'readonly').objectStore(this.storeName).get('latest');r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null);});
-          if(cur) return cur;
-          const ldb=await this.open(this.legacyDbName);
-          return await new Promise(res=>{const r=ldb.transaction(this.storeName,'readonly').objectStore(this.storeName).get('latest');r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null);});
-        }catch(e){return null;}
+    const DualVault = {
+      dbName: 'SMART_PAY_VAULT_DB',
+      legacyDbName: `${LEGACY_U}_DUAL_VAULT_DB`,
+      storeName: 'backup_store',
+      open(name = this.dbName) {
+        return new Promise((res, rej) => {
+          if (!window.indexedDB) return rej('No IDB');
+          const req = indexedDB.open(name, 1);
+          req.onupgradeneeded = e => e.target.result.createObjectStore(this.storeName);
+          req.onsuccess = e => res(e.target.result);
+          req.onerror = e => rej(e);
+        });
+      },
+      async saveSnapshot(d) {
+        try { const db = await this.open(this.dbName); db.transaction(this.storeName, 'readwrite').objectStore(this.storeName).put(d, 'latest'); } catch (e) {}
+      },
+      async loadSnapshot() {
+        try {
+          const db = await this.open(this.dbName);
+          const cur = await new Promise(res => { const r = db.transaction(this.storeName, 'readonly').objectStore(this.storeName).get('latest'); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); });
+          if (cur) return cur;
+          const ldb = await this.open(this.legacyDbName);
+          return await new Promise(res => { const r = ldb.transaction(this.storeName, 'readonly').objectStore(this.storeName).get('latest'); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); });
+        } catch (e) { return null; }
       }
     };
 
-    const App={
-      STORAGE_KEY:'SMART_PAY_APP_V1',
-      LEGACY_STORAGE_KEY:`${LEGACY_U}_FINAL_APP_V4`,
-      GIST_FILENAME:'smart_pay_backup.json',
-      LEGACY_GIST_FILENAME:`${LEGACY_L}_pay_backup.json`,
-      ANCHOR_MONDAY:new Date(2026,9,19,12,0,0),
-      SHIFT_ORDER:['EARLY','NIGHT','MID'],
-      SHIFT_CHAR:{EARLY:'초',NIGHT:'야',MID:'중',OFF:'휴'},
-      SHIFT_FULL:{EARLY:'초반(아침)',NIGHT:'야간(밤)',MID:'중반(낮)',OFF:'휴무일(유급/주말)'},
-      DAY_KOR:['일','월','화','수','목','금','토'],
+    const App = {
+      STORAGE_KEY: 'SMART_PAY_APP_V1',
+      LEGACY_STORAGE_KEY: `${LEGACY_U}_FINAL_APP_V4`,
+      GIST_FILENAME: 'smart_pay_backup.json',
+      LEGACY_GIST_FILENAME: `${LEGACY_L}_pay_backup.json`,
+      ANCHOR_MONDAY: new Date(2026, 9, 19, 12, 0, 0),
+      SHIFT_ORDER: ['EARLY', 'NIGHT', 'MID'],
+      SHIFT_CHAR: { EARLY: '초', NIGHT: '야', MID: '중', OFF: '휴' },
+      SHIFT_FULL: { EARLY: '초반(아침)', NIGHT: '야간(밤)', MID: '중반(낮)', OFF: '휴무일(유급/주말)' },
+      DAY_KOR: ['일', '월', '화', '수', '목', '금', '토'],
 
-      memoYear:2026,memoMonth:10,memoPayOffset:0,
-      payViewYear:2026,payViewMonth:11,
-      reportYear:2026,sevYear:2026,sevMonth:10,sevUseExactMonths:true,
+      activeTab: 'home',
+      memoYear: 2026, memoMonth: 10, memoPayOffset: 0,
+      payViewYear: 2026, payViewMonth: 11,
+      reportYear: 2026, sevYear: 2026, sevMonth: 10, sevUseExactMonths: true,
 
-      basePay:3005500,totalVacation:21,priorUsedVacation:0,shiftOffset:0,
-      calibGrossOffset:0,calibDedRatio:1.0,
-      records:{},monthExtras:{},
-      cleanedJanToOct_v1:false,
+      basePay: 3005500, totalVacation: 21, priorUsedVacation: 0, shiftOffset: 0,
+      calibGrossOffset: 0, calibDedRatio: 1.0,
+      records: {}, monthExtras: {},
+      cleanedJanToOct_v1: false,
 
-      stampMode:false,
-      activeStampId:'OT4',
-      targetNetPay:0,
+      stampMode: false,
+      activeStampId: 'OT4',
+      targetNetPay: 0,
 
-      memoHubExpanded:false,
-      focusedDateKey:null,
-      focusClearTimer:null,
+      memoHubExpanded: false,
+      focusedDateKey: null,
+      focusClearTimer: null,
 
-      ghToken:'',ghGistId:'',ghAutoSync:true,ghLastSync:'',
-      appPin:'',enteredPin:'',autoSyncTimer:null,
-      calendarView:'MEMO',selectedDateKey:null,selectedDayInfo:null,lastRawGross:0,lastRawDed:0,swipeAnimClass:'',
+      ghToken: '', ghGistId: '', ghAutoSync: true, ghLastSync: '',
+      appPin: '', enteredPin: '', autoSyncTimer: null,
+      calendarView: 'MEMO', selectedDateKey: null, selectedDayInfo: null,
+      lastRawGross: 0, lastRawDed: 0, swipeAnimClass: '',
 
-      async init(){
+      // 캐시 저장소 (렌더링 최적화용)
+      summaryCache: {},
+      currentGridCells: [],
+
+      invalidateSummaryCache() {
+        this.summaryCache = {};
+      },
+
+      async init() {
         this.initModalButtons();
         this.initStampPalette();
         this.initRetroSelectors();
         this.initSwipeGesture();
-        let saved=localStorage.getItem(this.STORAGE_KEY)||localStorage.getItem(this.LEGACY_STORAGE_KEY);
-        if(saved){
-          try{
+        this.initGridDelegation();
+
+        let saved = localStorage.getItem(this.STORAGE_KEY) || localStorage.getItem(this.LEGACY_STORAGE_KEY);
+        if (saved) {
+          try {
             this.loadStateObject(JSON.parse(saved));
-            localStorage.setItem(this.STORAGE_KEY,saved);
-          }catch(e){}
-        }else{
-          const vd=await DualVault.loadSnapshot();
-          if(vd){this.loadStateObject(vd);localStorage.setItem(this.STORAGE_KEY,JSON.stringify(vd));}
+            localStorage.setItem(this.STORAGE_KEY, saved);
+          } catch (e) {}
+        } else {
+          const vd = await DualVault.loadSnapshot();
+          if (vd) { this.loadStateObject(vd); localStorage.setItem(this.STORAGE_KEY, JSON.stringify(vd)); }
         }
-        // 1~10월 근태·급여 데이터 최초 1회 자동 비우기 실행
-        if(!this.cleanedJanToOct_v1){
+        if (!this.cleanedJanToOct_v1) {
           this.clearJanToOctWorkAndPay(false);
         }
         this.checkPinLockOnStart();
@@ -739,279 +793,251 @@
         this.render();
       },
 
-      // 1월~10월 근태 및 급여 데이터 전체 초기화 (개인 텍스트 메모는 보존)
-      clearJanToOctWorkAndPay(askConfirm=false){
-        if(askConfirm && !confirm('1월~10월의 모든 근태 기록(잔업·특근·연차·공가)과 급여 특이사항을 비우시겠습니까?\n(달력에 적어둔 개인 텍스트 메모는 유지됩니다.)')) return;
-        const start=new Date(2025,11,21,12,0,0), end=new Date(2026,9,31,12,0,0);
-        for(let dt=new Date(start); dt<=end; dt.setDate(dt.getDate()+1)){
-          const k=this.formatKey(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
-          const prev=this.records[k];
-          if(prev){
-            if(prev.memo && prev.memo.trim()){
-              this.records[k]={memo:prev.memo.trim(), memoColor:prev.memoColor};
-            }else{
-              delete this.records[k];
-            }
+      initGridDelegation() {
+        const grid = $('calendar_grid');
+        if (!grid) return;
+        grid.addEventListener('click', e => {
+          const cell = e.target.closest('[data-cell-idx]');
+          if (!cell) return;
+          const ev = this.currentGridCells[Number(cell.dataset.cellIdx)];
+          if (ev) this.onCellTap(ev);
+        });
+      },
+
+      clearJanToOctWorkAndPay(askConfirm = false) {
+        if (askConfirm && !confirm('1월~10월의 모든 근태 기록(잔업·특근·연차·공가)과 급여 특이사항을 비우시겠습니까?\n(달력에 적어둔 개인 텍스트 메모는 유지됩니다.)')) return;
+        const start = new Date(2025, 11, 21, 12, 0, 0), end = new Date(2026, 9, 31, 12, 0, 0);
+        for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
+          const k = this.formatKey(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
+          const prev = this.records[k];
+          if (prev) {
+            if (prev.memo && prev.memo.trim()) this.records[k] = { memo: prev.memo.trim(), memoColor: prev.memoColor };
+            else delete this.records[k];
           }
         }
-        for(let m=1;m<=10;m++){
-          delete this.monthExtras[`2026-${String(m).padStart(2,'0')}`];
-        }
-        this.calibGrossOffset=0;
-        this.calibDedRatio=1.0;
-        this.priorUsedVacation=0;
-        this.cleanedJanToOct_v1=true;
+        for (let m = 1; m <= 10; m++) delete this.monthExtras[`2026-${String(m).padStart(2, '0')}`];
+        this.calibGrossOffset = 0;
+        this.calibDedRatio = 1.0;
+        this.priorUsedVacation = 0;
+        this.cleanedJanToOct_v1 = true;
         this.save(true);
         this.syncSettingsInputs();
         this.render();
-        if(askConfirm) alert('🧹 1~10월 근태 및 급여 데이터가 모두 깨끗하게 비워졌습니다!');
+        if (askConfirm) alert('🧹 1~10월 근태 및 급여 데이터가 모두 깨끗하게 비워졌습니다!');
       },
 
-      initStampPalette(){
-        const grid=document.getElementById('stamp_btns_grid');
-        if(!grid) return;
-        grid.innerHTML=STAMP_PRESETS.map(s=>`<button id="stamp_item_${s.id}" onclick="App.selectStamp('${s.id}')" class="py-1.5 px-1 rounded-lg truncate transition ${s.cls}">${s.label}</button>`).join('');
+      initStampPalette() {
+        setHtml('stamp_btns_grid', STAMP_PRESETS.map(s => `<button id="stamp_item_${s.id}" onclick="App.selectStamp('${s.id}')" class="py-1.5 px-1 rounded-lg truncate transition ${s.cls}">${s.label}</button>`).join(''));
         this.updateStampUI();
       },
-      toggleStampMode(){
-        this.stampMode=!this.stampMode;
+      toggleStampMode() {
+        this.stampMode = !this.stampMode;
         this.updateStampUI();
       },
-      selectStamp(id){
-        this.activeStampId=id;
+      selectStamp(id) {
+        this.activeStampId = id;
         this.updateStampUI();
       },
-      updateStampUI(){
-        const btn=document.getElementById('btn_stamp_toggle');
-        const bar=document.getElementById('stamp_palette_bar');
-        if(!btn||!bar) return;
-        if(this.stampMode){
-          const cur=STAMP_PRESETS.find(s=>s.id===this.activeStampId)||STAMP_PRESETS[0];
-          btn.innerText=`🖌️ 도장ON: ${cur.label}`;
-          btn.className='shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-amber-500 bg-amber-400 text-slate-950 shadow-sm active:scale-95 transition';
+      updateStampUI() {
+        const btn = $('btn_stamp_toggle'), bar = $('stamp_palette_bar');
+        if (!btn || !bar) return;
+        if (this.stampMode) {
+          const cur = STAMP_PRESETS.find(s => s.id === this.activeStampId) || STAMP_PRESETS[0];
+          btn.innerText = `🖌️ 도장ON: ${cur.label}`;
+          btn.className = 'shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-amber-500 bg-amber-400 text-slate-950 shadow-sm active:scale-95 transition';
           bar.classList.remove('hidden');
-        }else{
-          btn.innerText='🖌️ 도장입력 OFF';
-          btn.className='shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-slate-300 bg-white text-slate-700 shadow-sm active:scale-95 transition';
+        } else {
+          btn.innerText = '🖌️ 도장입력 OFF';
+          btn.className = 'shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-slate-300 bg-white text-slate-700 shadow-sm active:scale-95 transition';
           bar.classList.add('hidden');
         }
-        STAMP_PRESETS.forEach(s=>{
-          const el=document.getElementById(`stamp_item_${s.id}`);
-          if(el){
-            el.style.outline=(this.activeStampId===s.id)?'2.5px solid #0f172a':'none';
-            el.style.opacity=(this.activeStampId===s.id)?'1':'0.78';
+        STAMP_PRESETS.forEach(s => {
+          const el = $(`stamp_item_${s.id}`);
+          if (el) {
+            const active = this.activeStampId === s.id;
+            el.style.outline = active ? '2.5px solid #0f172a' : 'none';
+            el.style.opacity = active ? '1' : '0.78';
           }
         });
       },
-      applyStampOnCell(ev){
-        const preset=STAMP_PRESETS.find(s=>s.id===this.activeStampId)||STAMP_PRESETS[0];
-        const k=ev.key;
-        const curRec=this.records[k]||{};
-        if(preset.type==='DEFAULT'){
-          this.setWorkRecord(k,null);
-        }else{
-          const isSame = curRec.type===preset.type &&
-            (preset.type!=='OT' || Number(curRec.hours)===preset.hours) &&
-            (preset.type!=='HOLIDAY' || (Number(curRec.hours)===preset.hours && curRec.holKind===preset.holKind)) &&
-            (preset.type!=='LEAVE' || Number(curRec.vacDays)===preset.vacDays);
-          if(isSame){
-            this.setWorkRecord(k,null);
-          }else if(preset.type==='HOLIDAY'){
-            const sh=(preset.holKind==='NIGHT')?'NIGHT':'EARLY';
-            this.setWorkRecord(k,{type:'HOLIDAY',hours:preset.hours,holKind:preset.holKind,shift:sh});
-          }else if(preset.type==='LEAVE'){
-            this.setWorkRecord(k,{type:'LEAVE',hours:0,vacDays:preset.vacDays,shift:ev.shift});
-          }else if(preset.type==='GONGGA'){
-            this.setWorkRecord(k,{type:'GONGGA',hours:0,vacDays:0,shift:ev.shift});
-          }else{
-            this.setWorkRecord(k,{type:preset.type,hours:preset.hours,shift:ev.shift});
+      applyStampOnCell(ev) {
+        const preset = STAMP_PRESETS.find(s => s.id === this.activeStampId) || STAMP_PRESETS[0];
+        const k = ev.key, curRec = this.records[k] || {};
+        if (preset.type === 'DEFAULT') {
+          this.setWorkRecord(k, null);
+        } else {
+          const isSame = curRec.type === preset.type &&
+            (preset.type !== 'OT' || Number(curRec.hours) === preset.hours) &&
+            (preset.type !== 'HOLIDAY' || (Number(curRec.hours) === preset.hours && curRec.holKind === preset.holKind)) &&
+            (preset.type !== 'LEAVE' || Number(curRec.vacDays) === preset.vacDays);
+          if (isSame) {
+            this.setWorkRecord(k, null);
+          } else if (preset.type === 'HOLIDAY') {
+            this.setWorkRecord(k, { type: 'HOLIDAY', hours: preset.hours, holKind: preset.holKind, shift: preset.holKind === 'NIGHT' ? 'NIGHT' : 'EARLY' });
+          } else if (preset.type === 'LEAVE') {
+            this.setWorkRecord(k, { type: 'LEAVE', hours: 0, vacDays: preset.vacDays, shift: ev.shift });
+          } else if (preset.type === 'GONGGA') {
+            this.setWorkRecord(k, { type: 'GONGGA', hours: 0, vacDays: 0, shift: ev.shift });
+          } else {
+            this.setWorkRecord(k, { type: preset.type, hours: preset.hours, shift: ev.shift });
           }
         }
         this.save();
         this.render(true);
       },
 
-      initRetroSelectors(){
-        const sm=document.getElementById('retro_start_m'), em=document.getElementById('retro_end_m');
-        if(!sm||!em) return;
-        let hS='', hE='';
-        for(let m=1;m<=12;m++){
-          hS+=`<option value="${m}" ${m===3?'selected':''}>${m}월 급여부터</option>`;
-          hE+=`<option value="${m}" ${m===9?'selected':''}>${m}월 급여까지</option>`;
+      initRetroSelectors() {
+        const sm = $('retro_start_m'), em = $('retro_end_m');
+        if (!sm || !em) return;
+        let hS = '', hE = '';
+        for (let m = 1; m <= 12; m++) {
+          hS += `<option value="${m}" ${m === 3 ? 'selected' : ''}>${m}월 급여부터</option>`;
+          hE += `<option value="${m}" ${m === 9 ? 'selected' : ''}>${m}월 급여까지</option>`;
         }
-        sm.innerHTML=hS; em.innerHTML=hE;
+        sm.innerHTML = hS; em.innerHTML = hE;
       },
-      openRetroCalcInReport(){
+      openRetroCalcInReport() {
         this.switchTab('report');
-        setTimeout(()=>{
-          document.getElementById('retro_calc_card')?.scrollIntoView({behavior:'smooth',block:'center'});
-        },80);
+        setTimeout(() => $('retro_calc_card')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
       },
-      renderRetroSimulator(){
-        const oldB=Number(document.getElementById('retro_old_base')?.value)||0;
-        const newB=Number(document.getElementById('retro_new_base')?.value)||this.basePay;
-        let sm=Number(document.getElementById('retro_start_m')?.value)||3;
-        let em=Number(document.getElementById('retro_end_m')?.value)||9;
-        if(sm>em){const tmp=sm;sm=em;em=tmp;}
+      renderRetroSimulator() {
+        const oldB = Number($('retro_old_base')?.value) || 0;
+        const newB = Number($('retro_new_base')?.value) || this.basePay;
+        let sm = Number($('retro_start_m')?.value) || 3;
+        let em = Number($('retro_end_m')?.value) || 9;
+        if (sm > em) [sm, em] = [em, sm];
 
-        const oldRate=this.getHourlyRate(oldB), newRate=this.getHourlyRate(newB);
-        const oldNightU=this.getNightHourlyRate(oldB), newNightU=this.getNightHourlyRate(newB);
-        const oldLms=this.getLmsAllowance(oldB), newLms=this.getLmsAllowance(newB);
+        const oldRate = this.getHourlyRate(oldB), newRate = this.getHourlyRate(newB);
+        const oldNightU = this.getNightHourlyRate(oldB), newNightU = this.getNightHourlyRate(newB);
+        const oldLms = this.getLmsAllowance(oldB), newLms = this.getLmsAllowance(newB);
 
-        let totalDiffGross=0;
-        const rows=[];
-        for(let m=sm;m<=em;m++){
-          const c=this.calculateMonthSummary(this.reportYear,m);
-          const dBase=(newB-oldB)+(newLms-oldLms);
-          const dBonus=(c.isEven?(newB-oldB):0)+(c.autoHolName?(newB-oldB):0);
-          const dOt=Math.round(c.sumOtH*1.5*newRate)-Math.round(c.sumOtH*1.5*oldRate);
-          const dHolB=Math.round(c.sumHolBaseH*1.5*newRate)-Math.round(c.sumHolBaseH*1.5*oldRate);
-          const dHolO=Math.round(c.sumHolOverH*2.0*newRate)-Math.round(c.sumHolOverH*2.0*oldRate);
-          const dNight=Math.round(c.sumNightH*newNightU)-Math.round(c.sumNightH*oldNightU);
-          const mDiff=Math.max(0,dBase+dBonus+dOt+dHolB+dHolO+dNight);
-          totalDiffGross+=mDiff;
+        let totalDiffGross = 0;
+        const rows = [];
+        for (let m = sm; m <= em; m++) {
+          const c = this.calculateMonthSummary(this.reportYear, m);
+          const dBase = (newB - oldB) + (newLms - oldLms);
+          const dBonus = (c.isEven ? (newB - oldB) : 0) + (c.autoHolName ? (newB - oldB) : 0);
+          const dOt = Math.round(c.sumOtH * 1.5 * newRate) - Math.round(c.sumOtH * 1.5 * oldRate);
+          const dHolB = Math.round(c.sumHolBaseH * 1.5 * newRate) - Math.round(c.sumHolBaseH * 1.5 * oldRate);
+          const dHolO = Math.round(c.sumHolOverH * 2.0 * newRate) - Math.round(c.sumHolOverH * 2.0 * oldRate);
+          const dNight = Math.round(c.sumNightH * newNightU) - Math.round(c.sumNightH * oldNightU);
+          const mDiff = Math.max(0, dBase + dBonus + dOt + dHolB + dHolO + dNight);
+          totalDiffGross += mDiff;
           rows.push(`<div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-200">
-            <span class="font-bold text-slate-700">${m}월 <span class="text-[9.5px] text-slate-500">(잔${c.sumOtH}h·특${c.holCount}회·야${c.sumNightH}h${c.isEven?'·상여':''})</span></span>
+            <span class="font-bold text-slate-700">${m}월 <span class="text-[9.5px] text-slate-500">(잔${c.sumOtH}h·특${c.holCount}회·야${c.sumNightH}h${c.isEven ? '·상여' : ''})</span></span>
             <strong class="text-emerald-700 font-black">+${mDiff.toLocaleString()}원</strong>
           </div>`);
         }
-        const estNet=Math.round(totalDiffGross*0.88);
-        const gEl=document.getElementById('retro_total_gross');
-        const nEl=document.getElementById('retro_total_net');
-        const lEl=document.getElementById('retro_month_detail_list');
-        if(gEl) gEl.innerText=`+${totalDiffGross.toLocaleString()}원`;
-        if(nEl) nEl.innerText=`약 +${estNet.toLocaleString()}원`;
-        if(lEl) lEl.innerHTML=rows.join('');
+        setText('retro_total_gross', `+${totalDiffGross.toLocaleString()}원`);
+        setText('retro_total_net', `약 +${Math.round(totalDiffGross * 0.88).toLocaleString()}원`);
+        setHtml('retro_month_detail_list', rows.join(''));
       },
 
-      addTargetNet(delta){
-        const ap=this.getActivePayYM(), calc=this.calculateMonthSummary(ap.y,ap.m);
-        if(delta===0){
-          this.targetNetPay=0;
-          document.getElementById('input_target_net').value='';
-        }else{
-          const baseVal=this.targetNetPay>0?this.targetNetPay:Math.ceil(calc.finalNet/100000)*100000;
-          this.targetNetPay=baseVal+delta;
-          document.getElementById('input_target_net').value=this.targetNetPay;
+      addTargetNet(delta) {
+        const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m);
+        if (delta === 0) {
+          this.targetNetPay = 0;
+          $('input_target_net').value = '';
+        } else {
+          const baseVal = this.targetNetPay > 0 ? this.targetNetPay : Math.ceil(calc.finalNet / 100000) * 100000;
+          this.targetNetPay = baseVal + delta;
+          $('input_target_net').value = this.targetNetPay;
         }
         this.renderTargetSimulator(calc);
       },
-      onTargetNetInput(){
-        this.targetNetPay=Number(document.getElementById('input_target_net').value)||0;
-        const ap=this.getActivePayYM(), calc=this.calculateMonthSummary(ap.y,ap.m);
+      onTargetNetInput() {
+        this.targetNetPay = Number($('input_target_net').value) || 0;
+        const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m);
         this.renderTargetSimulator(calc);
       },
-      renderTargetSimulator(calc){
-        const box=document.getElementById('target_net_result_box');
-        if(!box) return;
-        const rate=calc.rate, nU=this.getNightHourlyRate(calc.appliedBase);
-        const netFactor=0.86;
-        const d12Net=Math.round(((8*1.5+4*2.0)*rate)*netFactor);
-        const n12Net=Math.round((((8*1.5+4*2.0)*rate)+(8*nU))*netFactor);
-        const ot4Net=Math.round((4*1.5*rate)*netFactor);
+      renderTargetSimulator(calc) {
+        const box = $('target_net_result_box');
+        if (!box) return;
+        const rate = calc.rate, nU = this.getNightHourlyRate(calc.appliedBase), netFactor = 0.86;
+        const d12Net = Math.round(((8 * 1.5 + 4 * 2.0) * rate) * netFactor);
+        const n12Net = Math.round((((8 * 1.5 + 4 * 2.0) * rate) + (8 * nU)) * netFactor);
+        const ot4Net = Math.round((4 * 1.5 * rate) * netFactor);
 
-        if(!this.targetNetPay || this.targetNetPay<=0){
-          box.innerHTML=`💡 위 버튼을 누르거나 목표 실수령액을 입력하면 필요한 <strong>특근·잔업 횟수</strong>를 계산해 드립니다. (현재 ${calc.payM}월 세후 <strong>${calc.finalNet.toLocaleString()}원</strong>)`;
+        if (!this.targetNetPay || this.targetNetPay <= 0) {
+          box.innerHTML = `💡 위 버튼을 누르거나 목표 실수령액을 입력하면 필요한 <strong>특근·잔업 횟수</strong>를 계산해 드립니다. (현재 ${calc.payM}월 세후 <strong>${calc.finalNet.toLocaleString()}원</strong>)`;
           return;
         }
-        const diff=this.targetNetPay-calc.finalNet;
-        if(diff<=0){
-          box.innerHTML=`<div class="text-emerald-700 font-black">🎉 목표 달성 완료! 현재 예상 실수령액이 목표보다 <strong>+${Math.abs(diff).toLocaleString()}원</strong> 더 많습니다.</div>`;
+        const diff = this.targetNetPay - calc.finalNet;
+        if (diff <= 0) {
+          box.innerHTML = `<div class="text-emerald-700 font-black">🎉 목표 달성 완료! 현재 예상 실수령액이 목표보다 <strong>+${Math.abs(diff).toLocaleString()}원</strong> 더 많습니다.</div>`;
           return;
         }
-        const n12Cnt=Math.floor(diff/n12Net);
-        const remAfterN12=diff-(n12Cnt*n12Net);
-        const ot4ForN12=remAfterN12>0?Math.ceil(remAfterN12/ot4Net):0;
+        const n12Cnt = Math.floor(diff / n12Net), remAfterN12 = diff - (n12Cnt * n12Net), ot4ForN12 = remAfterN12 > 0 ? Math.ceil(remAfterN12 / ot4Net) : 0;
+        const d12Cnt = Math.floor(diff / d12Net), remAfterD12 = diff - (d12Cnt * d12Net), ot4ForD12 = remAfterD12 > 0 ? Math.ceil(remAfterD12 / ot4Net) : 0;
+        const onlyOt4Cnt = Math.ceil(diff / ot4Net);
 
-        const d12Cnt=Math.floor(diff/d12Net);
-        const remAfterD12=diff-(d12Cnt*d12Net);
-        const ot4ForD12=remAfterD12>0?Math.ceil(remAfterD12/ot4Net):0;
-
-        const onlyOt4Cnt=Math.ceil(diff/ot4Net);
-
-        box.innerHTML=`
+        box.innerHTML = `
           <div class="space-y-1">
             <div class="flex justify-between items-center text-indigo-950 font-black border-b border-slate-200 pb-1">
               <span>목표까지 부족한 실수령액</span>
               <span class="text-rose-600">+${diff.toLocaleString()}원</span>
             </div>
             <div class="text-[10px] space-y-0.5 pt-0.5 text-slate-700">
-              <div>• <strong>야특 조합:</strong> 🌙야간12h 특근 <strong>${n12Cnt}회</strong> ${ot4ForN12>0?`+ ⚡4h잔업 <strong>${ot4ForN12}회</strong>`:''}</div>
-              <div>• <strong>주특 조합:</strong> ☀️주간12h 특근 <strong>${d12Cnt}회</strong> ${ot4ForD12>0?`+ ⚡4h잔업 <strong>${ot4ForD12}회</strong>`:''}</div>
-              <div>• <strong>잔업만 할 때:</strong> ⚡평일 4h 잔업 <strong>${onlyOt4Cnt}회</strong> (총 ${onlyOt4Cnt*4}시간)</div>
+              <div>• <strong>야특 조합:</strong> 🌙야간12h 특근 <strong>${n12Cnt}회</strong> ${ot4ForN12 > 0 ? `+ ⚡4h잔업 <strong>${ot4ForN12}회</strong>` : ''}</div>
+              <div>• <strong>주특 조합:</strong> ☀️주간12h 특근 <strong>${d12Cnt}회</strong> ${ot4ForD12 > 0 ? `+ ⚡4h잔업 <strong>${ot4ForD12}회</strong>` : ''}</div>
+              <div>• <strong>잔업만 할 때:</strong> ⚡평일 4h 잔업 <strong>${onlyOt4Cnt}회</strong> (총 ${onlyOt4Cnt * 4}시간)</div>
             </div>
           </div>`;
       },
 
-      toggleMemoHubExpand(){
-        this.memoHubExpanded=!this.memoHubExpanded;
+      toggleMemoHubExpand() {
+        this.memoHubExpanded = !this.memoHubExpanded;
         this.renderMemoHub();
       },
-      renderMemoHub(){
-        const listEl=document.getElementById('memo_hub_list');
-        const badgeEl=document.getElementById('memo_hub_badge');
-        const moreBtn=document.getElementById('btn_memo_hub_more');
-        const q=(document.getElementById('input_memo_search')?.value||'').trim().toLowerCase();
-        if(!listEl||!badgeEl||!moreBtn) return;
+      renderMemoHub() {
+        const listEl = $('memo_hub_list'), badgeEl = $('memo_hub_badge'), moreBtn = $('btn_memo_hub_more');
+        const q = ($('input_memo_search')?.value || '').trim().toLowerCase();
+        if (!listEl || !badgeEl || !moreBtn) return;
 
-        const ti=this.getTodayInfo();
-        const todayMs=new Date(ti.y,ti.m-1,ti.d,12,0,0).getTime();
+        const ti = this.getTodayInfo();
+        const todayMs = new Date(ti.y, ti.m - 1, ti.d, 12, 0, 0).getTime();
 
-        const allMemoItems=[];
-        Object.entries(this.records).forEach(([k,r])=>{
-          const memo=(r?.memo||'').trim();
-          if(!memo) return;
-          const [y,m,d]=k.split('-').map(Number);
-          const dtMs=new Date(y,m-1,d,12,0,0).getTime();
-          const diffDays=Math.round((dtMs-todayMs)/86400000);
-          allMemoItems.push({k,y,m,d,memo,diffDays});
-        });
+        const allMemoItems = [];
+        for (const [k, r] of Object.entries(this.records)) {
+          const memo = (r?.memo || '').trim();
+          if (!memo) continue;
+          const [y, m, d] = k.split('-').map(Number);
+          const dtMs = new Date(y, m - 1, d, 12, 0, 0).getTime();
+          allMemoItems.push({ k, y, m, d, memo, diffDays: Math.round((dtMs - todayMs) / 86400000) });
+        }
 
         const DEFAULT_LIMIT = 3;
+        const targetList = q
+          ? allMemoItems.filter(it => it.memo.toLowerCase().includes(q) || it.k.includes(q)).sort((a, b) => a.k.localeCompare(b.k))
+          : allMemoItems.filter(it => it.diffDays >= 0).sort((a, b) => a.diffDays - b.diffDays);
 
-        if(q){
-          const matched=allMemoItems.filter(it=>it.memo.toLowerCase().includes(q)||it.k.includes(q)).sort((a,b)=>a.k.localeCompare(b.k));
-          badgeEl.innerText=`검색결과 ${matched.length}건`;
-          if(matched.length===0){
-            listEl.innerHTML=`<div class="text-center text-slate-400 py-2 font-bold">'${this.escapeHtml(q)}' 관련 메모가 없습니다.</div>`;
-            moreBtn.classList.add('hidden');
-            return;
-          }
-          const visibleList=this.memoHubExpanded?matched:matched.slice(0,DEFAULT_LIMIT);
-          listEl.innerHTML=visibleList.map(it=>this.buildMemoHubRowHtml(it)).join('');
-          if(matched.length>DEFAULT_LIMIT){
-            moreBtn.classList.remove('hidden');
-            moreBtn.innerText=this.memoHubExpanded?`접기 ▲`:`+ 검색결과 ${matched.length-DEFAULT_LIMIT}건 더보기 ▼`;
-          }else{
-            moreBtn.classList.add('hidden');
-          }
-        }else{
-          const upcoming=allMemoItems.filter(it=>it.diffDays>=0).sort((a,b)=>a.diffDays-b.diffDays);
-          badgeEl.innerText=`다가오는 일정 ${upcoming.length}건`;
-          if(upcoming.length===0){
-            listEl.innerHTML=`<div class="text-center text-slate-400 py-2 font-bold">오늘 이후 예정된 메모가 없습니다. 달력 날짜를 눌러 메모를 남겨보세요!</div>`;
-            moreBtn.classList.add('hidden');
-            return;
-          }
-          const visibleList=this.memoHubExpanded?upcoming:upcoming.slice(0,DEFAULT_LIMIT);
-          listEl.innerHTML=visibleList.map(it=>this.buildMemoHubRowHtml(it)).join('');
-          if(upcoming.length>DEFAULT_LIMIT){
-            moreBtn.classList.remove('hidden');
-            moreBtn.innerText=this.memoHubExpanded?`일정 목록 접기 ▲`:`+ 나머지 일정 ${upcoming.length-DEFAULT_LIMIT}건 더보기 ▼`;
-          }else{
-            moreBtn.classList.add('hidden');
-          }
+        badgeEl.innerText = q ? `검색결과 ${targetList.length}건` : `다가오는 일정 ${targetList.length}건`;
+
+        if (targetList.length === 0) {
+          listEl.innerHTML = `<div class="text-center text-slate-400 py-2 font-bold">${q ? `'${this.escapeHtml(q)}' 관련 메모가 없습니다.` : '오늘 이후 예정된 메모가 없습니다. 달력 날짜를 눌러 메모를 남겨보세요!'}</div>`;
+          moreBtn.classList.add('hidden');
+          return;
+        }
+
+        const visibleList = this.memoHubExpanded ? targetList : targetList.slice(0, DEFAULT_LIMIT);
+        listEl.innerHTML = visibleList.map(it => this.buildMemoHubRowHtml(it)).join('');
+
+        if (targetList.length > DEFAULT_LIMIT) {
+          moreBtn.classList.remove('hidden');
+          moreBtn.innerText = this.memoHubExpanded ? '접기 ▲' : `+ ${q ? '검색결과' : '나머지 일정'} ${targetList.length - DEFAULT_LIMIT}건 더보기 ▼`;
+        } else {
+          moreBtn.classList.add('hidden');
         }
       },
-      buildMemoHubRowHtml(it){
-        const ev=this.evaluateDay(it.y,it.m,it.d);
-        let dBadge='';
-        if(it.diffDays===0) dBadge=`<span class="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-black shrink-0">오늘</span>`;
-        else if(it.diffDays===1) dBadge=`<span class="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-black shrink-0">내일</span>`;
-        else if(it.diffDays>1) dBadge=`<span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[9px] font-black shrink-0">D-${it.diffDays}</span>`;
-        else dBadge=`<span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold shrink-0">${Math.abs(it.diffDays)}일전</span>`;
+      buildMemoHubRowHtml(it) {
+        const ev = this.evaluateDay(it.y, it.m, it.d);
+        let dBadge = '';
+        if (it.diffDays === 0) dBadge = `<span class="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-black shrink-0">오늘</span>`;
+        else if (it.diffDays === 1) dBadge = `<span class="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-black shrink-0">내일</span>`;
+        else if (it.diffDays > 1) dBadge = `<span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[9px] font-black shrink-0">D-${it.diffDays}</span>`;
+        else dBadge = `<span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[9px] font-bold shrink-0">${Math.abs(it.diffDays)}일전</span>`;
 
-        const oneLine=this.escapeHtml(it.memo.replace(/\n+/g,' · '));
+        const oneLine = this.escapeHtml(it.memo.replace(/\n+/g, ' · '));
         return `<div onclick="App.jumpToDateOnCalendar(${it.y},${it.m},${it.d})" class="flex items-center justify-between gap-1.5 bg-slate-50 hover:bg-amber-50/80 px-2.5 py-2 rounded-xl border border-slate-200 cursor-pointer active:scale-95 transition">
           <div class="flex items-center gap-1.5 min-w-0 flex-1">
             ${dBadge}
@@ -1022,812 +1048,1013 @@
           <span class="text-[9.5px] text-blue-600 font-black shrink-0">달력이동 ➔</span>
         </div>`;
       },
-      jumpToDateOnCalendar(y,m,d){
-        this.memoYear=y;
-        this.memoMonth=m;
-        this.memoPayOffset=0;
-        this.calendarView='MEMO';
-        document.getElementById('view_btn_MEMO').className='px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm';
-        document.getElementById('view_btn_PAY').className='px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
-        this.focusedDateKey=this.formatKey(y,m,d);
+      jumpToDateOnCalendar(y, m, d) {
+        this.memoYear = y;
+        this.memoMonth = m;
+        this.memoPayOffset = 0;
+        this.calendarView = 'MEMO';
+        $('view_btn_MEMO').className = 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm';
+        $('view_btn_PAY').className = 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
+        this.focusedDateKey = this.formatKey(y, m, d);
         this.render(false);
         this.scrollToTopClean();
         clearTimeout(this.focusClearTimer);
-        this.focusClearTimer=setTimeout(()=>{
-          this.focusedDateKey=null;
+        this.focusClearTimer = setTimeout(() => {
+          this.focusedDateKey = null;
           this.render(true);
-        },3500);
+        }, 3500);
       },
 
-      scrollToTopClean(){
-        window.scrollTo({top:0,left:0,behavior:'smooth'});
-        document.documentElement.scrollTop=0;
-        document.body.scrollTop=0;
+      scrollToTopClean() {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
       },
 
-      removeLeaveRecord(dateKey){
-        const r=this.records[dateKey];if(!r) return;
-        if(r.memo || r.compHol) this.records[dateKey]={memo:r.memo||'', memoColor:r.memoColor, compHol:r.compHol};
+      removeLeaveRecord(dateKey) {
+        const r = this.records[dateKey];
+        if (!r) return;
+        if (r.memo || r.compHol) this.records[dateKey] = { memo: r.memo || '', memoColor: r.memoColor, compHol: r.compHol };
         else delete this.records[dateKey];
-        this.save();this.syncSettingsInputs();this.render();
+        this.save(); this.syncSettingsInputs(); this.render();
       },
 
-      checkPinLockOnStart(){
-        const ov=document.getElementById('pin_lock_overlay');
-        if(this.appPin&&this.appPin.length===4){this.enteredPin='';this.updatePinDots();ov.classList.remove('hidden');ov.classList.add('flex');}
+      checkPinLockOnStart() {
+        const ov = $('pin_lock_overlay');
+        if (this.appPin && this.appPin.length === 4) {
+          this.enteredPin = '';
+          this.updatePinDots();
+          ov.classList.remove('hidden');
+          ov.classList.add('flex');
+        }
       },
-      pressPin(k){
-        if(k==='CLR') this.enteredPin='';
-        else if(k==='DEL') this.enteredPin=this.enteredPin.slice(0,-1);
-        else if(this.enteredPin.length<4) this.enteredPin+=k;
+      pressPin(k) {
+        if (k === 'CLR') this.enteredPin = '';
+        else if (k === 'DEL') this.enteredPin = this.enteredPin.slice(0, -1);
+        else if (this.enteredPin.length < 4) this.enteredPin += k;
         this.updatePinDots();
-        if(this.enteredPin.length===4){
-          if(this.enteredPin===this.appPin){
-            const ov=document.getElementById('pin_lock_overlay');ov.classList.add('hidden');ov.classList.remove('flex');
-          }else{
-            const m=document.getElementById('pin_lock_msg');m.innerText='❌ 암호가 일치하지 않습니다.';m.className='text-xs text-rose-400 font-bold';
-            setTimeout(()=>{this.enteredPin='';this.updatePinDots();},300);
+        if (this.enteredPin.length === 4) {
+          if (this.enteredPin === this.appPin) {
+            const ov = $('pin_lock_overlay');
+            ov.classList.add('hidden');
+            ov.classList.remove('flex');
+          } else {
+            const m = $('pin_lock_msg');
+            m.innerText = '❌ 암호가 일치하지 않습니다.';
+            m.className = 'text-xs text-rose-400 font-bold';
+            setTimeout(() => { this.enteredPin = ''; this.updatePinDots(); }, 300);
           }
         }
       },
-      updatePinDots(){
-        const dots=document.getElementById('pin_dots')?.children;if(!dots)return;
-        for(let i=0;i<4;i++) dots[i].className=i<this.enteredPin.length?'w-3.5 h-3.5 rounded-full bg-sky-400 border-2 border-sky-400':'w-3.5 h-3.5 rounded-full border-2 border-slate-500';
+      updatePinDots() {
+        const dots = $('pin_dots')?.children;
+        if (!dots) return;
+        for (let i = 0; i < 4; i++) {
+          dots[i].className = i < this.enteredPin.length
+            ? 'w-3.5 h-3.5 rounded-full bg-sky-400 border-2 border-sky-400'
+            : 'w-3.5 h-3.5 rounded-full border-2 border-slate-500';
+        }
       },
-      saveAppPin(){
-        const v=(document.getElementById('input_app_pin').value||'').trim();
-        if(v&&!/^\d{4}$/.test(v)) return alert('숫자 4자리로 입력해 주세요.');
-        this.appPin=v;this.save(true);this.syncSettingsInputs();
-        alert(v?`🔒 암호(${v})가 설정되었습니다.`:'🔓 암호 잠금이 해제되었습니다.');
-      },
-
-      initSwipeGesture(){
-        const z=document.getElementById('calendar_swipe_zone');if(!z)return;
-        let sx=0,sy=0;
-        z.addEventListener('touchstart',e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY;}},{passive:true});
-        z.addEventListener('touchend',e=>{
-          if(!e.changedTouches||e.changedTouches.length!==1)return;
-          const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
-          if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5) this.changeMonth(dx<0?1:-1);
-        },{passive:true});
+      saveAppPin() {
+        const v = ($('input_app_pin').value || '').trim();
+        if (v && !/^\d{4}$/.test(v)) return alert('숫자 4자리로 입력해 주세요.');
+        this.appPin = v; this.save(true); this.syncSettingsInputs();
+        alert(v ? `🔒 암호(${v})가 설정되었습니다.` : '🔓 암호 잠금이 해제되었습니다.');
       },
 
-      resetBothViewsToToday(){
-        const t=this.getTodayInfo();
-        this.memoYear=t.y;this.memoMonth=t.m;this.memoPayOffset=(t.d<=25)?0:1;
-        let py=t.y,pm=(t.d>=21)?(t.m+1):t.m;if(pm>12){pm=1;py+=1;}
-        this.payViewYear=py;this.payViewMonth=pm;this.reportYear=t.y;this.sevYear=t.y;this.sevMonth=t.m;
+      initSwipeGesture() {
+        const z = $('calendar_swipe_zone');
+        if (!z) return;
+        let sx = 0, sy = 0;
+        z.addEventListener('touchstart', e => { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+        z.addEventListener('touchend', e => {
+          if (!e.changedTouches || e.changedTouches.length !== 1) return;
+          const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) this.changeMonth(dx < 0 ? 1 : -1);
+        }, { passive: true });
       },
 
-      saveGithubToken(){
-        const v=(document.getElementById('input_gh_token').value||'').trim();
-        if(v!==this.ghToken){this.ghToken=v;this.ghGistId='';this.save(true);this.updateGithubUiStatus();}
+      resetBothViewsToToday() {
+        const t = this.getTodayInfo();
+        this.memoYear = t.y; this.memoMonth = t.m; this.memoPayOffset = (t.d <= 25) ? 0 : 1;
+        let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
+        if (pm > 12) { pm = 1; py += 1; }
+        this.payViewYear = py; this.payViewMonth = pm; this.reportYear = t.y; this.sevYear = t.y; this.sevMonth = t.m;
       },
-      toggleTokenVisibility(){const i=document.getElementById('input_gh_token');i.type=(i.type==='password')?'text':'password';},
-      toggleGithubAutoSync(){this.ghAutoSync=document.getElementById('chk_gh_auto_sync').checked;this.save(true);this.updateGithubUiStatus();},
-      updateGithubUiStatus(msg=null,isErr=false){
-        const b=document.getElementById('gh_sync_status_badge'),l=document.getElementById('gh_last_sync_time'),d=document.getElementById('top_cloud_Dot');
-        if(!b||!l)return;
-        if(!this.ghToken){b.innerText='열쇠 미등록';b.className='text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0';if(d)d.classList.add('hidden');}
-        else if(msg){b.innerText=msg;b.className=isErr?'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-rose-500 text-white shrink-0':'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 shrink-0';if(d)d.classList.remove('hidden');}
-        else{b.innerText=this.ghAutoSync?'✔ 자동백업 켜짐':'✔ 열쇠 등록됨';b.className='text-[9.5px] font-black px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 shrink-0';if(d)d.classList.remove('hidden');}
-        l.innerText=this.ghLastSync?`최근 백업: ${this.ghLastSync}`:'아직 서버 백업 전';
+
+      saveGithubToken() {
+        const v = ($('input_gh_token').value || '').trim();
+        if (v !== this.ghToken) { this.ghToken = v; this.ghGistId = ''; this.save(true); this.updateGithubUiStatus(); }
       },
-      getGithubHeaders(t){return{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};},
-      async findExistingGistId(t){
-        if(this.ghGistId) return this.ghGistId;
-        const r=await fetch(`https://api.github.com/gists?per_page=100&_t=${Date.now()}`,{headers:this.getGithubHeaders(t),cache:'no-store'});
-        if(!r.ok) throw new Error('ERR');
-        const list=await r.json();
-        const f=list.find(g=>g.files&&(g.files[this.GIST_FILENAME]||g.files[this.LEGACY_GIST_FILENAME]));
-        if(f){this.ghGistId=f.id;return f.id;}
+      toggleTokenVisibility() { const i = $('input_gh_token'); i.type = (i.type === 'password') ? 'text' : 'password'; },
+      toggleGithubAutoSync() { this.ghAutoSync = $('chk_gh_auto_sync').checked; this.save(true); this.updateGithubUiStatus(); },
+      updateGithubUiStatus(msg = null, isErr = false) {
+        const b = $('gh_sync_status_badge'), l = $('gh_last_sync_time'), d = $('top_cloud_Dot');
+        if (!b || !l) return;
+        if (!this.ghToken) {
+          b.innerText = '열쇠 미등록';
+          b.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0';
+          if (d) d.classList.add('hidden');
+        } else if (msg) {
+          b.innerText = msg;
+          b.className = isErr ? 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-rose-500 text-white shrink-0' : 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-sky-400 text-slate-950 shrink-0';
+          if (d) d.classList.remove('hidden');
+        } else {
+          b.innerText = this.ghAutoSync ? '✔ 자동백업 켜짐' : '✔ 열쇠 등록됨';
+          b.className = 'text-[9.5px] font-black px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 shrink-0';
+          if (d) d.classList.remove('hidden');
+        }
+        l.innerText = this.ghLastSync ? `최근 백업: ${this.ghLastSync}` : '아직 서버 백업 전';
+      },
+      getGithubHeaders(t) { return { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }; },
+      async findExistingGistId(t) {
+        if (this.ghGistId) return this.ghGistId;
+        const r = await fetch(`https://api.github.com/gists?per_page=100&_t=${Date.now()}`, { headers: this.getGithubHeaders(t), cache: 'no-store' });
+        if (!r.ok) throw new Error('ERR');
+        const list = await r.json();
+        const f = list.find(g => g.files && (g.files[this.GIST_FILENAME] || g.files[this.LEGACY_GIST_FILENAME]));
+        if (f) { this.ghGistId = f.id; return f.id; }
         return null;
       },
-      async cloudBackupToGithub(silent=false){
-        const t=(document.getElementById('input_gh_token')?.value||'').trim()||this.ghToken;
-        if(!t){if(!silent)alert('깃허브 열쇠 번호를 입력해 주세요.');return;}
-        this.ghToken=t;this.updateGithubUiStatus('⏳ 백업 중...');
-        try{
-          let gid=await this.findExistingGistId(t);
-          const body={description:'스마트 월급계산기 백업 금고',public:false,files:{[this.GIST_FILENAME]:{content:JSON.stringify(this.getExportPayload(false),null,2)}}};
-          let r=gid?await fetch(`https://api.github.com/gists/${gid}`,{method:'PATCH',headers:{...this.getGithubHeaders(t),'Content-Type':'application/json'},body:JSON.stringify(body)}):null;
-          if(r&&r.status===404){this.ghGistId='';gid=null;}
-          if(!gid) r=await fetch('https://api.github.com/gists',{method:'POST',headers:{...this.getGithubHeaders(t),'Content-Type':'application/json'},body:JSON.stringify(body)});
-          if(!r.ok) throw new Error('ERR');
-          const d=await r.json();this.ghGistId=d.id;
-          const now=new Date();this.ghLastSync=`${now.getMonth()+1}.${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-          this.save(true);this.updateGithubUiStatus('✔ 백업 완료');
-          if(!silent) alert('☁️ 깃허브 비공개 금고에 백업되었습니다!');
-        }catch(e){this.updateGithubUiStatus('⚠️ 열쇠 확인',true);if(!silent)alert('백업 실패: 열쇠 번호를 확인해 주세요.');}
+      async cloudBackupToGithub(silent = false) {
+        const t = ($('input_gh_token')?.value || '').trim() || this.ghToken;
+        if (!t) { if (!silent) alert('깃허브 열쇠 번호를 입력해 주세요.'); return; }
+        this.ghToken = t; this.updateGithubUiStatus('⏳ 백업 중...');
+        try {
+          let gid = await this.findExistingGistId(t);
+          const body = { description: '스마트 월급계산기 백업 금고', public: false, files: { [this.GIST_FILENAME]: { content: JSON.stringify(this.getExportPayload(false), null, 2) } } };
+          let r = gid ? await fetch(`https://api.github.com/gists/${gid}`, { method: 'PATCH', headers: { ...this.getGithubHeaders(t), 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) : null;
+          if (r && r.status === 404) { this.ghGistId = ''; gid = null; }
+          if (!gid) r = await fetch('https://api.github.com/gists', { method: 'POST', headers: { ...this.getGithubHeaders(t), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          if (!r.ok) throw new Error('ERR');
+          const d = await r.json(); this.ghGistId = d.id;
+          const now = new Date(); this.ghLastSync = `${now.getMonth() + 1}.${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          this.save(true); this.updateGithubUiStatus('✔ 백업 완료');
+          if (!silent) alert('☁️ 깃허브 비공개 금고에 백업되었습니다!');
+        } catch (e) { this.updateGithubUiStatus('⚠️ 열쇠 확인', true); if (!silent) alert('백업 실패: 열쇠 번호를 확인해 주세요.'); }
       },
-      async cloudRestoreFromGithub(){
-        const t=(document.getElementById('input_gh_token')?.value||'').trim()||this.ghToken;
-        if(!t) return alert('깃허브 열쇠 번호를 먼저 입력해 주세요.');
-        this.ghToken=t;this.updateGithubUiStatus('⏳ 복원 중...');
-        try{
-          this.ghGistId='';const gid=await this.findExistingGistId(t);
-          if(!gid){this.updateGithubUiStatus();return alert('백업 파일을 찾지 못했습니다.');}
-          const r=await fetch(`https://api.github.com/gists/${gid}?_t=${Date.now()}`,{headers:this.getGithubHeaders(t),cache:'no-store'});
-          const d=await r.json();
-          const raw=(d.files?.[this.GIST_FILENAME]||d.files?.[this.LEGACY_GIST_FILENAME])?.content;
+      async cloudRestoreFromGithub() {
+        const t = ($('input_gh_token')?.value || '').trim() || this.ghToken;
+        if (!t) return alert('깃허브 열쇠 번호를 먼저 입력해 주세요.');
+        this.ghToken = t; this.updateGithubUiStatus('⏳ 복원 중...');
+        try {
+          this.ghGistId = ''; const gid = await this.findExistingGistId(t);
+          if (!gid) { this.updateGithubUiStatus(); return alert('백업 파일을 찾지 못했습니다.'); }
+          const r = await fetch(`https://api.github.com/gists/${gid}?_t=${Date.now()}`, { headers: this.getGithubHeaders(t), cache: 'no-store' });
+          const d = await r.json();
+          const raw = (d.files?.[this.GIST_FILENAME] || d.files?.[this.LEGACY_GIST_FILENAME])?.content;
           this.loadStateObject(JSON.parse(raw));
-          this.ghToken=t;this.ghGistId=gid;
-          if(this.priorUsedVacation<0) this.priorUsedVacation=0;
-          this.save(true);this.syncSettingsInputs();this.render();
+          this.ghToken = t; this.ghGistId = gid;
+          if (this.priorUsedVacation < 0) this.priorUsedVacation = 0;
+          this.save(true); this.syncSettingsInputs(); this.render();
           this.updateGithubUiStatus('✔ 복원 완료');
-          alert('📥 깃허브 금고에서 데이터를 복원했습니다!');this.switchTab('home');
-        }catch(e){this.updateGithubUiStatus('⚠️ 복원 오류',true);alert('복원에 실패했습니다.');}
+          alert('📥 깃허브 금고에서 데이터를 복원했습니다!'); this.switchTab('home');
+        } catch (e) { this.updateGithubUiStatus('⚠️ 복원 오류', true); alert('복원에 실패했습니다.'); }
       },
 
-      jumpToCalendarMonth(m){
-        const ty=this.calendarView==='PAY'?this.payViewYear:this.memoYear;
-        this.memoYear=ty;this.memoMonth=m;this.memoPayOffset=0;this.payViewYear=ty;this.payViewMonth=m;
-        this.switchTab('home');this.setCalendarView('MEMO');
+      jumpToCalendarMonth(m) {
+        const ty = this.calendarView === 'PAY' ? this.payViewYear : this.memoYear;
+        this.memoYear = ty; this.memoMonth = m; this.memoPayOffset = 0; this.payViewYear = ty; this.payViewMonth = m;
+        this.switchTab('home'); this.setCalendarView('MEMO');
       },
-      jumpToPayMonth(y,m){this.payViewYear=y;this.payViewMonth=m;this.switchTab('home');this.setCalendarView('PAY');},
+      jumpToPayMonth(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
 
-      initModalButtons(){
-        const hs=[1,2,3,4,5,6,7,9,10,11];
-        document.getElementById('modal_day_hol_btns').innerHTML=hs.map(h=>`<button onclick="App.applyDay('HOLIDAY',${h},'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">${h}h</button>`).join('');
-        document.getElementById('modal_night_hol_btns').innerHTML=hs.map(h=>`<button onclick="App.applyDay('HOLIDAY',${h},'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">${h}h</button>`).join('');
-        const os=[1,2,3,4,5,6];
-        document.getElementById('modal_ot_btns').innerHTML=os.map(h=>`<button onclick="App.applyDay('OT',${h})" class="py-1.5 rounded-lg ${h===4?'bg-blue-600 text-white font-black':'bg-white border border-blue-200 text-blue-800 font-bold'}">+${h}h</button>`).join('');
-        document.getElementById('modal_night_ot_btns').innerHTML=os.map(h=>`<button onclick="App.applyDay('NIGHT_OT',${h})" class="py-1.5 rounded-lg ${h===4?'bg-indigo-600 text-white font-black':'bg-white border border-indigo-200 text-indigo-800 font-bold'}">+${h}h</button>`).join('');
-        const ls=[1,2,3,4,5,6,7,8];
-        document.getElementById('modal_leave_btns').innerHTML=ls.map(lh=>{
-          const wh=8-lh,isM=(lh===4||lh===8),tl=lh===8?'🌴8h연차':(lh===4?'🌴4h반차':`🌴${lh}h휴가`),sl=lh===8?'전일휴무':`${wh}h근무`;
-          const bs=lh===8?'bg-emerald-600 text-white border-emerald-700 font-black':(lh===4?'bg-emerald-500 text-white border-emerald-600 font-black':'bg-white text-emerald-900 border-emerald-300 font-bold');
-          return `<button onclick="App.applyDay('LEAVE',${lh/8})" class="py-1.5 px-1 rounded-xl border ${bs} flex flex-col items-center justify-center leading-tight"><span class="text-[10.5px]">${tl}</span><span class="text-[8.5px] ${isM?'text-emerald-100':'text-emerald-600'}">(${sl})</span></button>`;
-        }).join('');
-      },
-
-      fmtVacNum(d){return Number(Number(d||0).toFixed(3));},
-      fmtHoursLabel(h){
-        if(Math.abs(h-9.6667)<0.05) return '8h';
-        return Number.isInteger(h)?`${h}h`:`${Number(h.toFixed(1))}h`;
+      initModalButtons() {
+        const hs = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11];
+        setHtml('modal_day_hol_btns', hs.map(h => `<button onclick="App.applyDay('HOLIDAY',${h},'DAY')" class="py-1 rounded-lg bg-white border border-red-200 text-red-700 font-bold">${h}h</button>`).join(''));
+        setHtml('modal_night_hol_btns', hs.map(h => `<button onclick="App.applyDay('HOLIDAY',${h},'NIGHT')" class="py-1 rounded-lg bg-white border border-purple-200 text-purple-800 font-bold">${h}h</button>`).join(''));
+        const os = [1, 2, 3, 4, 5, 6];
+        setHtml('modal_ot_btns', os.map(h => `<button onclick="App.applyDay('OT',${h})" class="py-1.5 rounded-lg ${h === 4 ? 'bg-blue-600 text-white font-black' : 'bg-white border border-blue-200 text-blue-800 font-bold'}">+${h}h</button>`).join(''));
+        setHtml('modal_night_ot_btns', os.map(h => `<button onclick="App.applyDay('NIGHT_OT',${h})" class="py-1.5 rounded-lg ${h === 4 ? 'bg-indigo-600 text-white font-black' : 'bg-white border border-indigo-200 text-indigo-800 font-bold'}">+${h}h</button>`).join(''));
+        const ls = [1, 2, 3, 4, 5, 6, 7, 8];
+        setHtml('modal_leave_btns', ls.map(lh => {
+          const wh = 8 - lh, isM = (lh === 4 || lh === 8), tl = lh === 8 ? '🌴8h연차' : (lh === 4 ? '🌴4h반차' : `🌴${lh}h휴가`), sl = lh === 8 ? '전일휴무' : `${wh}h근무`;
+          const bs = lh === 8 ? 'bg-emerald-600 text-white border-emerald-700 font-black' : (lh === 4 ? 'bg-emerald-500 text-white border-emerald-600 font-black' : 'bg-white text-emerald-900 border-emerald-300 font-bold');
+          return `<button onclick="App.applyDay('LEAVE',${lh / 8})" class="py-1.5 px-1 rounded-xl border ${bs} flex flex-col items-center justify-center leading-tight"><span class="text-[10.5px]">${tl}</span><span class="text-[8.5px] ${isM ? 'text-emerald-100' : 'text-emerald-600'}">(${sl})</span></button>`;
+        }).join(''));
       },
 
-      loadStateObject(p){
-        if(p.basePay!==undefined) this.basePay=Number(p.basePay);
-        if(p.totalVacation!==undefined) this.totalVacation=Number(p.totalVacation);
-        if(p.priorUsedVacation!==undefined) this.priorUsedVacation=Math.max(0,Number(p.priorUsedVacation)||0);
-        if(p.shiftOffset!==undefined) this.shiftOffset=Number(p.shiftOffset)||0;
-        if(p.calibGrossOffset!==undefined) this.calibGrossOffset=Number(p.calibGrossOffset);
-        if(p.calibDedRatio!==undefined) this.calibDedRatio=Number(p.calibDedRatio);
-        if(p.records&&typeof p.records==='object') this.records=p.records;
-        if(p.monthExtras&&typeof p.monthExtras==='object') this.monthExtras=p.monthExtras;
-        if(p.cleanedJanToOct_v1!==undefined) this.cleanedJanToOct_v1=Boolean(p.cleanedJanToOct_v1);
-        if(p.ghToken!==undefined) this.ghToken=p.ghToken;
-        if(p.ghGistId!==undefined) this.ghGistId=p.ghGistId;
-        if(p.ghAutoSync!==undefined) this.ghAutoSync=Boolean(p.ghAutoSync);
-        if(p.ghLastSync!==undefined) this.ghLastSync=p.ghLastSync;
-        if(p.appPin!==undefined) this.appPin=p.appPin;
+      fmtVacNum(d) { return Number(Number(d || 0).toFixed(3)); },
+      fmtHoursLabel(h) {
+        if (Math.abs(h - 9.6667) < 0.05) return '8h';
+        return Number.isInteger(h) ? `${h}h` : `${Number(h.toFixed(1))}h`;
       },
 
-      getExportPayload(inc=true){
-        const p={version:'7.7',exportedAt:new Date().toISOString(),basePay:this.basePay,totalVacation:this.totalVacation,priorUsedVacation:this.priorUsedVacation,shiftOffset:this.shiftOffset,calibGrossOffset:this.calibGrossOffset,calibDedRatio:this.calibDedRatio,records:this.records,monthExtras:this.monthExtras,cleanedJanToOct_v1:this.cleanedJanToOct_v1,ghGistId:this.ghGistId,ghAutoSync:this.ghAutoSync,ghLastSync:this.ghLastSync,appPin:this.appPin};
-        if(inc) p.ghToken=this.ghToken;
+      loadStateObject(p) {
+        if (p.basePay !== undefined) this.basePay = Number(p.basePay);
+        if (p.totalVacation !== undefined) this.totalVacation = Number(p.totalVacation);
+        if (p.priorUsedVacation !== undefined) this.priorUsedVacation = Math.max(0, Number(p.priorUsedVacation) || 0);
+        if (p.shiftOffset !== undefined) this.shiftOffset = Number(p.shiftOffset) || 0;
+        if (p.calibGrossOffset !== undefined) this.calibGrossOffset = Number(p.calibGrossOffset);
+        if (p.calibDedRatio !== undefined) this.calibDedRatio = Number(p.calibDedRatio);
+        if (p.records && typeof p.records === 'object') this.records = p.records;
+        if (p.monthExtras && typeof p.monthExtras === 'object') this.monthExtras = p.monthExtras;
+        if (p.cleanedJanToOct_v1 !== undefined) this.cleanedJanToOct_v1 = Boolean(p.cleanedJanToOct_v1);
+        if (p.ghToken !== undefined) this.ghToken = p.ghToken;
+        if (p.ghGistId !== undefined) this.ghGistId = p.ghGistId;
+        if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
+        if (p.ghLastSync !== undefined) this.ghLastSync = p.ghLastSync;
+        if (p.appPin !== undefined) this.appPin = p.appPin;
+        this.invalidateSummaryCache();
+      },
+
+      getExportPayload(inc = true) {
+        const p = {
+          version: '7.7', exportedAt: new Date().toISOString(),
+          basePay: this.basePay, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
+          shiftOffset: this.shiftOffset, calibGrossOffset: this.calibGrossOffset, calibDedRatio: this.calibDedRatio,
+          records: this.records, monthExtras: this.monthExtras, cleanedJanToOct_v1: this.cleanedJanToOct_v1,
+          ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync, appPin: this.appPin
+        };
+        if (inc) p.ghToken = this.ghToken;
         return p;
       },
 
-      save(skipCloud=false){
-        const p=this.getExportPayload(true);
-        localStorage.setItem(this.STORAGE_KEY,JSON.stringify(p));
+      save(skipCloud = false) {
+        this.invalidateSummaryCache();
+        const p = this.getExportPayload(true);
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(p));
         DualVault.saveSnapshot(p);
-        if(!skipCloud&&this.ghToken&&this.ghAutoSync){clearTimeout(this.autoSyncTimer);this.autoSyncTimer=setTimeout(()=>this.cloudBackupToGithub(true),1800);}
+        if (!skipCloud && this.ghToken && this.ghAutoSync) {
+          clearTimeout(this.autoSyncTimer);
+          this.autoSyncTimer = setTimeout(() => this.cloudBackupToGithub(true), 1800);
+        }
       },
 
-      setCalendarView(v){
-        this.calendarView=v;
-        document.getElementById('view_btn_MEMO').className=v==='MEMO'?'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm':'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
-        document.getElementById('view_btn_PAY').className=v==='PAY'?'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-blue-600 text-white shadow-sm':'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
+      setCalendarView(v) {
+        this.calendarView = v;
+        $('view_btn_MEMO').className = v === 'MEMO' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
+        $('view_btn_PAY').className = v === 'PAY' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-blue-600 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
         this.render(false);
       },
 
-      getActivePayYM(){
-        if(this.calendarView==='MEMO'){let y=this.memoYear,m=this.memoMonth+this.memoPayOffset;if(m>12){m=1;y+=1;}return{y,m};}
-        return{y:this.payViewYear,m:this.payViewMonth};
+      getActivePayYM() {
+        if (this.calendarView === 'MEMO') {
+          let y = this.memoYear, m = this.memoMonth + this.memoPayOffset;
+          if (m > 12) { m = 1; y += 1; }
+          return { y, m };
+        }
+        return { y: this.payViewYear, m: this.payViewMonth };
       },
 
-      onPayTabClick(idx){
-        if(this.calendarView==='MEMO'){this.memoPayOffset=idx;this.render(false);}
-        else if(idx===0) this.changeMonth(-1);
+      onPayTabClick(idx) {
+        if (this.calendarView === 'MEMO') { this.memoPayOffset = idx; this.render(false); }
+        else if (idx === 0) this.changeMonth(-1);
       },
 
-      getBaseWeekDiff(y,m,d){
-        const dow=new Date(y,m-1,d,12,0,0).getDay(),mon=new Date(y,m-1,d+(dow===0?-6:1-dow),12,0,0);
-        return Math.round((mon.getTime()-this.ANCHOR_MONDAY.getTime())/(7*86400000));
+      getBaseWeekDiff(y, m, d) {
+        const dow = new Date(y, m - 1, d, 12, 0, 0).getDay(), mon = new Date(y, m - 1, d + (dow === 0 ? -6 : 1 - dow), 12, 0, 0);
+        return Math.round((mon.getTime() - this.ANCHOR_MONDAY.getTime()) / (7 * 86400000));
       },
-      getDefaultShift(y,m,d){return this.SHIFT_ORDER[(((this.getBaseWeekDiff(y,m,d)+this.shiftOffset)%3)+3)%3];},
-      setThisWeekShift(ts){
-        const t=this.getTodayInfo(),w=this.getBaseWeekDiff(t.y,t.m,t.d);
-        this.shiftOffset=(((this.SHIFT_ORDER.indexOf(ts)-(w%3))%3)+3)%3;this.save();this.render();
-      },
-
-      copyBackupCode(){
-        this.save(true);const s=JSON.stringify(this.getExportPayload(false));
-        if(navigator.clipboard?.writeText) navigator.clipboard.writeText(s).then(()=>alert('백업코드가 복사되었습니다!'));
-      },
-      toggleRestoreBox(){document.getElementById('restore_code_box').classList.toggle('hidden');},
-      restoreFromCode(){
-        const raw=document.getElementById('textarea_restore_code').value.trim();if(!raw)return;
-        try{this.loadStateObject(JSON.parse(raw));this.save();this.syncSettingsInputs();this.render();alert('복원 완료!');this.switchTab('home');}catch(e){alert('코드 형식 오류');}
-      },
-      getTodayInfo(){const n=new Date(),y=n.getFullYear(),m=n.getMonth()+1,d=n.getDate(),dow=n.getDay();return{y,m,d,dow,dayName:this.DAY_KOR[dow],key:this.formatKey(y,m,d)};},
-      goToTodayMonth(r=true){
-        const t=this.getTodayInfo();
-        if(this.calendarView==='MEMO'){this.memoYear=t.y;this.memoMonth=t.m;this.memoPayOffset=(t.d<=25)?0:1;}
-        else{let py=t.y,pm=(t.d>=21)?(t.m+1):t.m;if(pm>12){pm=1;py+=1;}this.payViewYear=py;this.payViewMonth=pm;}
-        if(r) this.render();
+      getDefaultShift(y, m, d) { return this.SHIFT_ORDER[(((this.getBaseWeekDiff(y, m, d) + this.shiftOffset) % 3) + 3) % 3]; },
+      setThisWeekShift(ts) {
+        const t = this.getTodayInfo(), w = this.getBaseWeekDiff(t.y, t.m, t.d);
+        this.shiftOffset = (((this.SHIFT_ORDER.indexOf(ts) - (w % 3)) % 3) + 3) % 3;
+        this.save(); this.render();
       },
 
-      getLmsAllowance(b=this.basePay){return(!b||b<=0)?0:Math.round(b/44);},
-      getHourlyRate(b=this.basePay){
-        if(!b||b<=0) return 0;
-        if(b===2882000) return 22949.2559;
-        if(b===3005500) return 23897.616;
-        return (b+(Math.ceil(b*(8/12))+1)+50000+130000+this.getLmsAllowance(b))/220;
+      copyBackupCode() {
+        this.save(true);
+        const s = JSON.stringify(this.getExportPayload(false));
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(s).then(() => alert('백업코드가 복사되었습니다!'));
       },
-      getNightHourlyRate(b=this.basePay){
-        if(!b||b<=0) return 0;
-        if(b===3005500) return 11948.82;
-        return 0.5*this.getHourlyRate(b);
+      toggleRestoreBox() { $('restore_code_box').classList.toggle('hidden'); },
+      restoreFromCode() {
+        const raw = $('textarea_restore_code').value.trim();
+        if (!raw) return;
+        try { this.loadStateObject(JSON.parse(raw)); this.save(); this.syncSettingsInputs(); this.render(); alert('복원 완료!'); this.switchTab('home'); } catch (e) { alert('코드 형식 오류'); }
       },
-      getCalendarUsedVacationDays(){
-        let u=0;Object.values(this.records).forEach(r=>{if(r&&r.type==='LEAVE') u+=(r.vacDays!==undefined?Number(r.vacDays):1);});return u;
+      getTodayInfo() {
+        const n = new Date(), y = n.getFullYear(), m = n.getMonth() + 1, d = n.getDate(), dow = n.getDay();
+        return { y, m, d, dow, dayName: this.DAY_KOR[dow], key: this.formatKey(y, m, d) };
+      },
+      goToTodayMonth(r = true) {
+        const t = this.getTodayInfo();
+        if (this.calendarView === 'MEMO') { this.memoYear = t.y; this.memoMonth = t.m; this.memoPayOffset = (t.d <= 25) ? 0 : 1; }
+        else { let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m; if (pm > 12) { pm = 1; py += 1; } this.payViewYear = py; this.payViewMonth = pm; }
+        if (r) this.render();
       },
 
-      switchTab(tab){
-        ['home','report','severance','rates','settings'].forEach(t=>{
-          document.getElementById(`tab_${t}`).classList.toggle('hidden',t!==tab);
-          document.getElementById(`nav_${t}`).classList.toggle('bottom-nav-active',t===tab);
+      getLmsAllowance(b = this.basePay) { return (!b || b <= 0) ? 0 : Math.round(b / 44); },
+      getHourlyRate(b = this.basePay) {
+        if (!b || b <= 0) return 0;
+        if (b === 2882000) return 22949.2559;
+        if (b === 3005500) return 23897.616;
+        return (b + (Math.ceil(b * (8 / 12)) + 1) + 50000 + 130000 + this.getLmsAllowance(b)) / 220;
+      },
+      getNightHourlyRate(b = this.basePay) {
+        if (!b || b <= 0) return 0;
+        if (b === 3005500) return 11948.82;
+        return 0.5 * this.getHourlyRate(b);
+      },
+      getCalendarUsedVacationDays() {
+        let u = 0;
+        for (const r of Object.values(this.records)) {
+          if (r && r.type === 'LEAVE') u += (r.vacDays !== undefined ? Number(r.vacDays) : 1);
+        }
+        return u;
+      },
+
+      switchTab(tab) {
+        this.activeTab = tab;
+        ['home', 'report', 'severance', 'rates', 'settings'].forEach(t => {
+          $(`tab_${t}`).classList.toggle('hidden', t !== tab);
+          $(`nav_${t}`).classList.toggle('bottom-nav-active', t === tab);
         });
         this.render();
-        window.scrollTo({top:0,left:0,behavior:'instant'});
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       },
 
-      syncSettingsInputs(){
-        document.getElementById('input_total_vac').value=this.totalVacation;
-        document.getElementById('input_prior_used_vac').value=this.priorUsedVacation;
-        document.getElementById('input_base_pay').value=this.basePay;
-        if(document.getElementById('retro_new_base')) document.getElementById('retro_new_base').value=this.basePay;
-        if(document.getElementById('input_gh_token')) document.getElementById('input_gh_token').value=this.ghToken||'';
-        if(document.getElementById('chk_gh_auto_sync')) document.getElementById('chk_gh_auto_sync').checked=this.ghAutoSync;
-        if(document.getElementById('input_app_pin')) document.getElementById('input_app_pin').value=this.appPin||'';
-        const pb=document.getElementById('pin_status_badge');
-        if(pb){pb.innerText=this.appPin?'🔒 잠금 켜짐':'잠금 꺼짐';pb.className=this.appPin?'text-[10px] font-black text-emerald-600':'text-[10px] font-bold text-slate-400';}
-      },
-      saveSettings(){
-        this.totalVacation=Number(document.getElementById('input_total_vac').value)||0;
-        this.priorUsedVacation=Number(document.getElementById('input_prior_used_vac').value)||0;
-        this.basePay=Number(document.getElementById('input_base_pay').value)||0;
-        if(document.getElementById('retro_new_base')) document.getElementById('retro_new_base').value=this.basePay;
-        this.save();this.render();
-      },
-      applyAutoCalibration(){
-        const ag=Number(document.getElementById('input_actual_gross').value)||0,an=Number(document.getElementById('input_actual_net').value)||0;
-        if(ag<=0||an<=0||an>ag) return alert('올바른 세전·세후 금액을 입력해 주세요.');
-        this.calibGrossOffset=ag-this.lastRawGross;
-        this.calibDedRatio=(this.lastRawDed>0)?((ag-an)/this.lastRawDed):1.0;
-        this.save();this.render();alert('⚡ 전체 고정 보정이 적용되었습니다!');this.switchTab('home');
-      },
-      lockCurrentMonthSlip(){
-        const ag=Number(document.getElementById('input_actual_gross').value)||0,an=Number(document.getElementById('input_actual_net').value)||0;
-        if(ag<=0||an<=0||an>ag) return alert('이번 달 확정 세전·세후 금액을 입력해 주세요.');
-        const pm=this.getActivePayYM(),ex=this.getMonthExtra(pm.y,pm.m);
-        ex.exactGross=ag;ex.exactDed=ag-an;
-        this.save();this.render();alert(`📌 ${pm.m}월 명세서 금액이 확정 박제되었습니다!`);this.switchTab('home');
-      },
-      resetCalibration(){
-        this.calibGrossOffset=0;this.calibDedRatio=1.0;
-        const pm=this.getActivePayYM(),ex=this.getMonthExtra(pm.y,pm.m);
-        delete ex.exactGross;delete ex.exactDed;
-        this.save();this.render();alert('보정이 초기화되었습니다.');
-      },
-      getMonthKey(y,m){return `${y}-${String(m).padStart(2,'0')}`;},
-      getMonthExtra(y,m){const k=this.getMonthKey(y,m);if(!this.monthExtras[k])this.monthExtras[k]={eduHours:0,retroPay:0,foodDed:0,manualHolBonus:null};return this.monthExtras[k];},
-      toggleManualHolBonus(){
-        const pm=this.getActivePayYM(),ex=this.getMonthExtra(pm.y,pm.m);
-        delete ex.exactGross;delete ex.exactDed;
-        ex.manualHolBonus=(ex.manualHolBonus===null||ex.manualHolBonus===undefined)?true:(ex.manualHolBonus===true?false:null);
-        this.save();this.render();
-      },
-      onExtraInput(){
-        const pm=this.getActivePayYM(),ex=this.getMonthExtra(pm.y,pm.m);
-        delete ex.exactGross;delete ex.exactDed;
-        ex.eduHours=Number(document.getElementById('input_edu_hours').value)||0;
-        ex.retroPay=Number(document.getElementById('input_retro_pay').value)||0;
-        ex.foodDed=Number(document.getElementById('input_food_ded').value)||0;
-        this.save();this.render(true);
-      },
-
-      getStandardMonthGridDates(y,m){
-        const fd=new Date(y,m-1,1,12,0,0).getDay(),dim=new Date(y,m,0).getDate(),l=[];
-        for(let i=fd-1;i>=0;i--){const dt=new Date(y,m-1,-i,12,0,0);l.push({y:dt.getFullYear(),m:dt.getMonth()+1,d:dt.getDate(),isOtherMonth:true});}
-        for(let d=1;d<=dim;d++) l.push({y,m,d,isOtherMonth:false});
-        const rem=(7-(l.length%7))%7;
-        for(let i=1;i<=rem;i++){const dt=new Date(y,m,i,12,0,0);l.push({y:dt.getFullYear(),m:dt.getMonth()+1,d:dt.getDate(),isOtherMonth:true});}
-        return l;
-      },
-      getCutoffDates(py,pm){
-        let y=py,m=pm-1;if(m<1){m=12;y-=1;}
-        const dim=new Date(y,m,0).getDate(),l=[];
-        for(let d=21;d<=dim;d++) l.push({y,m,d});
-        for(let d=1;d<=20;d++) l.push({y:py,m:pm,d});
-        return l;
-      },
-      formatKey(y,m,d){return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;},
-
-      evaluateDay(y,m,d,isOther=false){
-        const key=this.formatKey(y,m,d),dow=new Date(y,m-1,d,12,0,0).getDay(),rec=this.records[key]||{};
-        const compHol=Boolean(rec.compHol),sysHol=KoreanHolidayEngine.getHolidayName(y,m,d),holidayName=sysHol||(compHol?'약정휴일':null);
-        const isWeekend=(dow===0||dow===6),isRedOffDay=isWeekend||Boolean(holidayName),isSundayOrHol=(dow===0||Boolean(holidayName)),isSaturday=(dow===6&&!holidayName);
-        const defaultShift=this.getDefaultShift(y,m,d);
-        let shift=rec.shift||defaultShift,type=rec.type||(isRedOffDay?'OFF':'NORMAL'),holKind=rec.holKind||null;
-        let otHours=0,holBaseHours=0,holOverHours=0,nightHours=0,vacDays=0,vacHours=0;
-        const memo=(rec.memo||'').trim(),memoColor=(rec.memoColor!==undefined)?Number(rec.memoColor):((y*37+m*13+d*7)%PASTEL_PALETTE.length);
-
-        if(type==='NORMAL') nightHours=(shift==='NIGHT')?8:0;
-        else if(type==='OT'){otHours=Number(rec.hours)||0;nightHours=(shift==='NIGHT')?8:0;}
-        else if(type==='NIGHT_OT'){otHours=Number(rec.hours)||0;nightHours=((shift==='NIGHT')?8:0)+otHours;}
-        else if(type==='HOLIDAY'){
-          const th=(rec.hours!==undefined)?Number(rec.hours):12;
-          holBaseHours=Math.min(8,th);holOverHours=Math.max(0,th-8);
-          if(holKind==='NIGHT'||(!holKind&&shift==='NIGHT')){holKind='NIGHT';shift='NIGHT';nightHours=Math.min(8,th);}
-          else{holKind='DAY';shift='EARLY';nightHours=0;}
-        }else if(type==='LEAVE'){
-          vacDays=(rec.vacDays!==undefined)?Number(rec.vacDays):1;
-          vacHours=Math.round(vacDays*8*10)/10;
-          nightHours=(shift==='NIGHT')?Math.max(0,8-vacHours):0;
-        }else if(type==='GONGGA'){
-          vacDays=0;vacHours=0;nightHours=0;
+      syncSettingsInputs() {
+        $('input_total_vac').value = this.totalVacation;
+        $('input_prior_used_vac').value = this.priorUsedVacation;
+        $('input_base_pay').value = this.basePay;
+        if ($('retro_new_base')) $('retro_new_base').value = this.basePay;
+        if ($('input_gh_token')) $('input_gh_token').value = this.ghToken || '';
+        if ($('chk_gh_auto_sync')) $('chk_gh_auto_sync').checked = this.ghAutoSync;
+        if ($('input_app_pin')) $('input_app_pin').value = this.appPin || '';
+        const pb = $('pin_status_badge');
+        if (pb) {
+          pb.innerText = this.appPin ? '🔒 잠금 켜짐' : '잠금 꺼짐';
+          pb.className = this.appPin ? 'text-[10px] font-black text-emerald-600' : 'text-[10px] font-bold text-slate-400';
         }
-        let badgeKey=shift;
-        if(type==='OFF') badgeKey='OFF';
-        else if(type==='HOLIDAY') badgeKey=(holKind==='NIGHT')?'NIGHT':'EARLY';
-        return{y,m,d,key,dow,isWeekend,isRedOffDay,isSundayOrHol,isSaturday,holidayName,compHol,dayName:this.DAY_KOR[dow],defaultShift,shift,badgeKey,type,holKind,otHours,holBaseHours,holOverHours,nightHours,vacDays,vacHours,memo,memoColor,isOtherMonth:isOther};
+      },
+      saveSettings() {
+        this.totalVacation = Number($('input_total_vac').value) || 0;
+        this.priorUsedVacation = Number($('input_prior_used_vac').value) || 0;
+        this.basePay = Number($('input_base_pay').value) || 0;
+        if ($('retro_new_base')) $('retro_new_base').value = this.basePay;
+        this.save(); this.render();
+      },
+      applyAutoCalibration() {
+        const ag = Number($('input_actual_gross').value) || 0, an = Number($('input_actual_net').value) || 0;
+        if (ag <= 0 || an <= 0 || an > ag) return alert('올바른 세전·세후 금액을 입력해 주세요.');
+        this.calibGrossOffset = ag - this.lastRawGross;
+        this.calibDedRatio = (this.lastRawDed > 0) ? ((ag - an) / this.lastRawDed) : 1.0;
+        this.save(); this.render(); alert('⚡ 전체 고정 보정이 적용되었습니다!'); this.switchTab('home');
+      },
+      lockCurrentMonthSlip() {
+        const ag = Number($('input_actual_gross').value) || 0, an = Number($('input_actual_net').value) || 0;
+        if (ag <= 0 || an <= 0 || an > ag) return alert('이번 달 확정 세전·세후 금액을 입력해 주세요.');
+        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
+        ex.exactGross = ag; ex.exactDed = ag - an;
+        this.save(); this.render(); alert(`📌 ${pm.m}월 명세서 금액이 확정 박제되었습니다!`); this.switchTab('home');
+      },
+      resetCalibration() {
+        this.calibGrossOffset = 0; this.calibDedRatio = 1.0;
+        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
+        delete ex.exactGross; delete ex.exactDed;
+        this.save(); this.render(); alert('보정이 초기화되었습니다.');
+      },
+      getMonthKey(y, m) { return `${y}-${String(m).padStart(2, '0')}`; },
+      getMonthExtra(y, m) {
+        const k = this.getMonthKey(y, m);
+        if (!this.monthExtras[k]) this.monthExtras[k] = { eduHours: 0, retroPay: 0, foodDed: 0, manualHolBonus: null };
+        return this.monthExtras[k];
+      },
+      toggleManualHolBonus() {
+        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
+        delete ex.exactGross; delete ex.exactDed;
+        ex.manualHolBonus = (ex.manualHolBonus === null || ex.manualHolBonus === undefined) ? true : (ex.manualHolBonus === true ? false : null);
+        this.save(); this.render();
+      },
+      onExtraInput() {
+        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
+        delete ex.exactGross; delete ex.exactDed;
+        ex.eduHours = Number($('input_edu_hours').value) || 0;
+        ex.retroPay = Number($('input_retro_pay').value) || 0;
+        ex.foodDed = Number($('input_food_ded').value) || 0;
+        this.save(); this.render(true);
       },
 
-      getLeaveChipLabel(ev,isPay=false){
-        const vh=ev.vacHours||(ev.vacDays*8);
-        if(vh>=8) return isPay?'🌴연차8h':'🌴휴가-1일';
-        if(vh===4) return '🌴반차4h';
+      getStandardMonthGridDates(y, m) {
+        const fd = new Date(y, m - 1, 1, 12, 0, 0).getDay(), dim = new Date(y, m, 0).getDate(), l = [];
+        for (let i = fd - 1; i >= 0; i--) { const dt = new Date(y, m - 1, -i, 12, 0, 0); l.push({ y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate(), isOtherMonth: true }); }
+        for (let d = 1; d <= dim; d++) l.push({ y, m, d, isOtherMonth: false });
+        const rem = (7 - (l.length % 7)) % 7;
+        for (let i = 1; i <= rem; i++) { const dt = new Date(y, m, i, 12, 0, 0); l.push({ y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate(), isOtherMonth: true }); }
+        return l;
+      },
+      getCutoffDates(py, pm) {
+        let y = py, m = pm - 1;
+        if (m < 1) { m = 12; y -= 1; }
+        const dim = new Date(y, m, 0).getDate(), l = [];
+        for (let d = 21; d <= dim; d++) l.push({ y, m, d });
+        for (let d = 1; d <= 20; d++) l.push({ y: py, m: pm, d });
+        return l;
+      },
+      formatKey(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; },
+
+      evaluateDay(y, m, d, isOther = false) {
+        const key = this.formatKey(y, m, d), dow = new Date(y, m - 1, d, 12, 0, 0).getDay(), rec = this.records[key] || {};
+        const compHol = Boolean(rec.compHol), sysHol = KoreanHolidayEngine.getHolidayName(y, m, d), holidayName = sysHol || (compHol ? '약정휴일' : null);
+        const isWeekend = (dow === 0 || dow === 6), isRedOffDay = isWeekend || Boolean(holidayName), isSundayOrHol = (dow === 0 || Boolean(holidayName)), isSaturday = (dow === 6 && !holidayName);
+        const defaultShift = this.getDefaultShift(y, m, d);
+        let shift = rec.shift || defaultShift, type = rec.type || (isRedOffDay ? 'OFF' : 'NORMAL'), holKind = rec.holKind || null;
+        let otHours = 0, holBaseHours = 0, holOverHours = 0, nightHours = 0, vacDays = 0, vacHours = 0;
+        const memo = (rec.memo || '').trim(), memoColor = (rec.memoColor !== undefined) ? Number(rec.memoColor) : ((y * 37 + m * 13 + d * 7) % PASTEL_PALETTE.length);
+
+        if (type === 'NORMAL') nightHours = (shift === 'NIGHT') ? 8 : 0;
+        else if (type === 'OT') { otHours = Number(rec.hours) || 0; nightHours = (shift === 'NIGHT') ? 8 : 0; }
+        else if (type === 'NIGHT_OT') { otHours = Number(rec.hours) || 0; nightHours = ((shift === 'NIGHT') ? 8 : 0) + otHours; }
+        else if (type === 'HOLIDAY') {
+          const th = (rec.hours !== undefined) ? Number(rec.hours) : 12;
+          holBaseHours = Math.min(8, th); holOverHours = Math.max(0, th - 8);
+          if (holKind === 'NIGHT' || (!holKind && shift === 'NIGHT')) { holKind = 'NIGHT'; shift = 'NIGHT'; nightHours = Math.min(8, th); }
+          else { holKind = 'DAY'; shift = 'EARLY'; nightHours = 0; }
+        } else if (type === 'LEAVE') {
+          vacDays = (rec.vacDays !== undefined) ? Number(rec.vacDays) : 1;
+          vacHours = Math.round(vacDays * 8 * 10) / 10;
+          nightHours = (shift === 'NIGHT') ? Math.max(0, 8 - vacHours) : 0;
+        }
+        let badgeKey = shift;
+        if (type === 'OFF') badgeKey = 'OFF';
+        else if (type === 'HOLIDAY') badgeKey = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY';
+        return { y, m, d, key, dow, isWeekend, isRedOffDay, isSundayOrHol, isSaturday, holidayName, compHol, dayName: this.DAY_KOR[dow], defaultShift, shift, badgeKey, type, holKind, otHours, holBaseHours, holOverHours, nightHours, vacDays, vacHours, memo, memoColor, isOtherMonth: isOther };
+      },
+
+      getLeaveChipLabel(ev, isPay = false) {
+        const vh = ev.vacHours || (ev.vacDays * 8);
+        if (vh >= 8) return isPay ? '🌴연차8h' : '🌴휴가-1일';
+        if (vh === 4) return '🌴반차4h';
         return `🌴휴가${vh}h`;
       },
 
-      estimateMonthlyIncomeTax(nbGross,regBonus,prevHol,base){
-        if(!base||base<=0||nbGross<=0) return 0;
-        let bt=0;
-        if(nbGross<=5000000) bt=Math.max(0,(nbGross-3500000)*0.12);
-        else if(nbGross<=6233901) bt=180000+(nbGross-5000000)*0.183167;
-        else if(nbGross<=6721792) bt=406010+(nbGross-6233901)*0.135276;
-        else if(nbGross<=7333072) bt=472010+(nbGross-6721792)*0.201086;
-        else if(nbGross<=8192719) bt=594930+(nbGross-7333072)*0.211284;
-        else bt=776560+(nbGross-8192719)*0.220577;
-        let bTax=0;
-        if(regBonus>0) bTax+=regBonus*(prevHol?0.2508:0.217);
-        if(prevHol) bTax+=base*0.2508;
-        const it=Math.round((bt+bTax)/10)*10;
-        return it+Math.floor((it*0.1)/10)*10;
+      estimateMonthlyIncomeTax(nbGross, regBonus, prevHol, base) {
+        if (!base || base <= 0 || nbGross <= 0) return 0;
+        let bt = 0;
+        if (nbGross <= 5000000) bt = Math.max(0, (nbGross - 3500000) * 0.12);
+        else if (nbGross <= 6233901) bt = 180000 + (nbGross - 5000000) * 0.183167;
+        else if (nbGross <= 6721792) bt = 406010 + (nbGross - 6233901) * 0.135276;
+        else if (nbGross <= 7333072) bt = 472010 + (nbGross - 6721792) * 0.201086;
+        else if (nbGross <= 8192719) bt = 594930 + (nbGross - 7333072) * 0.211284;
+        else bt = 776560 + (nbGross - 8192719) * 0.220577;
+        let bTax = 0;
+        if (regBonus > 0) bTax += regBonus * (prevHol ? 0.2508 : 0.217);
+        if (prevHol) bTax += base * 0.2508;
+        const it = Math.round((bt + bTax) / 10) * 10;
+        return it + Math.floor((it * 0.1) / 10) * 10;
       },
 
-      calculateMonthSummary(payY,payM){
-        const ex=this.getMonthExtra(payY,payM),appliedBase=ex.customBasePay||this.basePay,hasBase=appliedBase>0;
-        const rate=this.getHourlyRate(appliedBase),nightUnit=this.getNightHourlyRate(appliedBase),lmsPay=this.getLmsAllowance(appliedBase),unionFee=hasBase?Math.floor(appliedBase*0.02):0;
-        const cutoffDates=this.getCutoffDates(payY,payM);
-        let sumOtH=0,sumHolBaseH=0,sumHolOverH=0,sumNightH=0,holCount=0,monthVacDays=0,normalWorkDays=0;
+      calculateMonthSummary(payY, payM) {
+        const cacheKey = `${payY}-${payM}`;
+        if (this.summaryCache[cacheKey]) return this.summaryCache[cacheKey];
 
-        const evaluated=cutoffDates.map(dt=>{
-          const ev=this.evaluateDay(dt.y,dt.m,dt.d);
-          sumOtH+=ev.otHours;sumHolBaseH+=ev.holBaseHours;sumHolOverH+=ev.holOverHours;sumNightH+=ev.nightHours;
-          if(ev.type==='HOLIDAY') holCount++;
-          else if(ev.type==='LEAVE'){monthVacDays+=ev.vacDays;if(ev.vacDays<1)normalWorkDays+=(1-ev.vacDays);}
-          else if(ev.type==='NORMAL'||ev.type==='OT'||ev.type==='NIGHT_OT') normalWorkDays+=1;
+        const ex = this.getMonthExtra(payY, payM), appliedBase = ex.customBasePay || this.basePay, hasBase = appliedBase > 0;
+        const rate = this.getHourlyRate(appliedBase), nightUnit = this.getNightHourlyRate(appliedBase), lmsPay = this.getLmsAllowance(appliedBase), unionFee = hasBase ? Math.floor(appliedBase * 0.02) : 0;
+        const cutoffDates = this.getCutoffDates(payY, payM);
+        let sumOtH = 0, sumHolBaseH = 0, sumHolOverH = 0, sumNightH = 0, holCount = 0, monthVacDays = 0, normalWorkDays = 0;
+
+        const evaluated = cutoffDates.map(dt => {
+          const ev = this.evaluateDay(dt.y, dt.m, dt.d);
+          sumOtH += ev.otHours; sumHolBaseH += ev.holBaseHours; sumHolOverH += ev.holOverHours; sumNightH += ev.nightHours;
+          if (ev.type === 'HOLIDAY') holCount++;
+          else if (ev.type === 'LEAVE') { monthVacDays += ev.vacDays; if (ev.vacDays < 1) normalWorkDays += (1 - ev.vacDays); }
+          else if (ev.type === 'NORMAL' || ev.type === 'OT' || ev.type === 'NIGHT_OT') normalWorkDays += 1;
           return ev;
         });
 
-        const paidDays=cutoffDates.length,workDays=normalWorkDays+holCount,eduH=Number(ex.eduHours)||0;
-        const totalPlainOtH=sumOtH+eduH;
-        const extraWeighted=(totalPlainOtH*1.5)+(sumHolBaseH*1.5)+(sumHolOverH*2.0)+(sumNightH*0.5);
-        const extraGongsu=extraWeighted/8;
-        const timeGongsu=hasBase?(paidDays+extraGongsu):0;
-        const moneyGongsu=hasBase?(paidDays+(extraGongsu*1.0909)):0;
-        const actualWorkHours=(normalWorkDays*8)+totalPlainOtH+sumHolBaseH+sumHolOverH;
-        const weeklyAvgHours=hasBase?(actualWorkHours/(paidDays/7)):0;
+        const paidDays = cutoffDates.length, workDays = normalWorkDays + holCount, eduH = Number(ex.eduHours) || 0;
+        const totalPlainOtH = sumOtH + eduH;
+        const extraWeighted = (totalPlainOtH * 1.5) + (sumHolBaseH * 1.5) + (sumHolOverH * 2.0) + (sumNightH * 0.5);
+        const extraGongsu = extraWeighted / 8;
+        const timeGongsu = hasBase ? (paidDays + extraGongsu) : 0;
+        const moneyGongsu = hasBase ? (paidDays + (extraGongsu * 1.0909)) : 0;
+        const actualWorkHours = (normalWorkDays * 8) + totalPlainOtH + sumHolBaseH + sumHolOverH;
+        const weeklyAvgHours = hasBase ? (actualWorkHours / (paidDays / 7)) : 0;
 
-        const fest=KoreanHolidayEngine.getFestivalInCalendarMonth(payY,payM);
-        let hasHol=Boolean(fest);
-        if(ex.manualHolBonus===true) hasHol=true; else if(ex.manualHolBonus===false) hasHol=false;
-        const autoHolName=hasHol?(fest?fest.name:'명절'):null;
+        const fest = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
+        let hasHol = Boolean(fest);
+        if (ex.manualHolBonus === true) hasHol = true; else if (ex.manualHolBonus === false) hasHol = false;
+        const autoHolName = hasHol ? (fest ? fest.name : '명절') : null;
 
-        let py=payY,pm=payM-1;if(pm<1){pm=12;py-=1;}
-        const pFest=KoreanHolidayEngine.getFestivalInCalendarMonth(py,pm),pEx=this.getMonthExtra(py,pm);
-        const prevHadHolBonus=(pEx.manualHolBonus===true)||(pEx.manualHolBonus!==false&&Boolean(pFest));
+        let py = payY, pm = payM - 1; if (pm < 1) { pm = 12; py -= 1; }
+        const pFest = KoreanHolidayEngine.getFestivalInCalendarMonth(py, pm), pEx = this.getMonthExtra(py, pm);
+        const prevHadHolBonus = (pEx.manualHolBonus === true) || (pEx.manualHolBonus !== false && Boolean(pFest));
 
-        const isEven=(payM%2===0);
-        const otPay=Math.round(sumOtH*1.5*rate),holBasePay=Math.round(sumHolBaseH*1.5*rate),holOverPay=Math.round(sumHolOverH*2.0*rate),nightPay=Math.round(sumNightH*nightUnit),eduPay=Math.round(eduH*1.5*rate);
-        const regBonusPay=(hasBase&&isEven)?appliedBase:0,holBonusPay=(hasBase&&hasHol)?appliedBase:0;
-        const housingAllow=ex.housingAllow||0,housingDed=ex.housingDed||0,retroPay=Number(ex.retroPay)||0,fixedAllow=hasBase?180000:0;
+        const isEven = (payM % 2 === 0);
+        const otPay = Math.round(sumOtH * 1.5 * rate), holBasePay = Math.round(sumHolBaseH * 1.5 * rate), holOverPay = Math.round(sumHolOverH * 2.0 * rate), nightPay = Math.round(sumNightH * nightUnit), eduPay = Math.round(eduH * 1.5 * rate);
+        const regBonusPay = (hasBase && isEven) ? appliedBase : 0, holBonusPay = (hasBase && hasHol) ? appliedBase : 0;
+        const housingAllow = ex.housingAllow || 0, housingDed = ex.housingDed || 0, retroPay = Number(ex.retroPay) || 0, fixedAllow = hasBase ? 180000 : 0;
 
-        const coreMonthlyWage=hasBase?(appliedBase+fixedAllow+lmsPay+otPay+holBasePay+holOverPay+nightPay+eduPay):0;
-        const fixedBaseTotal=hasBase?(appliedBase+fixedAllow+lmsPay+housingAllow+retroPay):0;
-        const rawGross=ex.exactGross!==undefined?ex.exactGross:(fixedBaseTotal+regBonusPay+holBonusPay+otPay+holBasePay+holOverPay+nightPay+eduPay);
+        const coreMonthlyWage = hasBase ? (appliedBase + fixedAllow + lmsPay + otPay + holBasePay + holOverPay + nightPay + eduPay) : 0;
+        const fixedBaseTotal = hasBase ? (appliedBase + fixedAllow + lmsPay + housingAllow + retroPay) : 0;
+        const rawGross = ex.exactGross !== undefined ? ex.exactGross : (fixedBaseTotal + regBonusPay + holBonusPay + otPay + holBasePay + holOverPay + nightPay + eduPay);
 
-        const nbGross=rawGross-regBonusPay-holBonusPay;
-        const totalTax=ex.exactTax!==undefined?ex.exactTax:this.estimateMonthlyIncomeTax(nbGross,regBonusPay,prevHadHolBonus,appliedBase);
-        const fixedInsurances=ex.exactIns!==undefined?ex.exactIns:(hasBase?(313020+248190+150890+56000):0);
-        const foodDed=Number(ex.foodDed)||0;
-        const rawDed=ex.exactDed!==undefined?ex.exactDed:(totalTax+fixedInsurances+unionFee+housingDed+foodDed);
+        const nbGross = rawGross - regBonusPay - holBonusPay;
+        const totalTax = ex.exactTax !== undefined ? ex.exactTax : this.estimateMonthlyIncomeTax(nbGross, regBonusPay, prevHadHolBonus, appliedBase);
+        const fixedInsurances = ex.exactIns !== undefined ? ex.exactIns : (hasBase ? (313020 + 248190 + 150890 + 56000) : 0);
+        const foodDed = Number(ex.foodDed) || 0;
+        const rawDed = ex.exactDed !== undefined ? ex.exactDed : (totalTax + fixedInsurances + unionFee + housingDed + foodDed);
 
-        const isVerifiedSlip=(ex.exactGross!==undefined&&ex.exactDed!==undefined);
-        const finalGross=isVerifiedSlip?rawGross:(hasBase?(rawGross+this.calibGrossOffset):0);
-        const finalDed=isVerifiedSlip?rawDed:(hasBase?Math.max(0,Math.round(rawDed*this.calibDedRatio)):0);
-        const finalNet=finalGross-finalDed;
+        const isVerifiedSlip = (ex.exactGross !== undefined && ex.exactDed !== undefined);
+        const finalGross = isVerifiedSlip ? rawGross : (hasBase ? (rawGross + this.calibGrossOffset) : 0);
+        const finalDed = isVerifiedSlip ? rawDed : (hasBase ? Math.max(0, Math.round(rawDed * this.calibDedRatio)) : 0);
+        const finalNet = finalGross - finalDed;
 
-        return{payY,payM,appliedBase,rate,cutoffDates,evaluated,autoHolName,isEven,ex,isVerifiedSlip,prevHadHolBonus,sumOtH:totalPlainOtH,sumHolBaseH,sumHolOverH,sumNightH,holCount,monthVacDays,paidDays,workDays,timeGongsu,moneyGongsu,weeklyAvgHours,fixedBaseTotal,coreMonthlyWage,lmsPay,housingAllow,housingDed,retroPay,regBonusPay,holBonusPay,otPay,holBasePay,holOverPay,nightPay,eduPay,totalTax,fixedInsurances,unionFee,foodDed,rawGross,rawDed,finalGross,finalDed,finalNet};
+        return (this.summaryCache[cacheKey] = {
+          payY, payM, appliedBase, rate, cutoffDates, evaluated, autoHolName, isEven, ex, isVerifiedSlip, prevHadHolBonus,
+          sumOtH: totalPlainOtH, sumHolBaseH, sumHolOverH, sumNightH, holCount, monthVacDays, paidDays, workDays,
+          timeGongsu, moneyGongsu, weeklyAvgHours, fixedBaseTotal, coreMonthlyWage, lmsPay, housingAllow, housingDed,
+          retroPay, regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay, totalTax,
+          fixedInsurances, unionFee, foodDed, rawGross, rawDed, finalGross, finalDed, finalNet
+        });
       },
 
-      changeSeveranceMonth(d){this.sevMonth+=d;if(this.sevMonth>12){this.sevMonth=1;this.sevYear++;}else if(this.sevMonth<1){this.sevMonth=12;this.sevYear--;}this.renderSeveranceTab();},
-      resetSeveranceToOct(){this.sevYear=2026;this.sevMonth=10;this.renderSeveranceTab();},
-      toggleSeveranceTenureMode(){this.sevUseExactMonths=!this.sevUseExactMonths;this.renderSeveranceTab();},
+      changeSeveranceMonth(d) {
+        this.sevMonth += d;
+        if (this.sevMonth > 12) { this.sevMonth = 1; this.sevYear++; }
+        else if (this.sevMonth < 1) { this.sevMonth = 12; this.sevYear--; }
+        this.renderSeveranceTab();
+      },
+      resetSeveranceToOct() { this.sevYear = 2026; this.sevMonth = 10; this.renderSeveranceTab(); },
+      toggleSeveranceTenureMode() { this.sevUseExactMonths = !this.sevUseExactMonths; this.renderSeveranceTab(); },
 
-      calculateSeveranceSummary(ty,tm){
-        const months=[];
-        for(let i=2;i>=0;i--){let y=ty,m=tm-i;while(m<1){m+=12;y-=1;}months.push(this.calculateMonthSummary(y,m));}
-        const lb=months[2].appliedBase||this.basePay;
-        const avg3M=months.reduce((a,c)=>a+c.coreMonthlyWage,0)/3;
-        const bonusInc=(lb*(8/12))+64961.6667;
-        const avgWage=Math.round((avg3M+bonusInc)/10)*10;
-        const tmCnt=Math.max(12,(ty-2012)*12+(tm-10)),tyInt=Math.floor(tmCnt/12),tmRem=tmCnt%12;
-        const tf=this.sevUseExactMonths?(tyInt+(tmRem/12)):tyInt;
-        const gross=Math.round(avgWage*tf);
-        const itRaw=tf*((4722300/14)+((avgWage-9579160)*0.096));
-        const sIt=Math.max(0,Math.round(itRaw/10)*10),sLt=Math.floor((sIt*0.1)/10)*10,tTax=sIt+sLt;
-        return{targetY:ty,targetM:tm,lastDay:new Date(ty,tm,0).getDate(),months,avg3MWage:Math.round(avg3M),bonusMonthlyInclusion:Math.round(bonusInc),avgWage,tenYearsInt:tyInt,tenMonthsRem:tmRem,tenureFactor:tf,grossSeverance:gross,sevIncomeTax:sIt,sevLocalTax:sLt,totalSevTax:tTax,netSeverance:gross-tTax};
+      calculateSeveranceSummary(ty, tm) {
+        const months = [];
+        for (let i = 2; i >= 0; i--) {
+          let y = ty, m = tm - i;
+          while (m < 1) { m += 12; y -= 1; }
+          months.push(this.calculateMonthSummary(y, m));
+        }
+        const lb = months[2].appliedBase || this.basePay;
+        const avg3M = months.reduce((a, c) => a + c.coreMonthlyWage, 0) / 3;
+        const bonusInc = (lb * (8 / 12)) + 64961.6667;
+        const avgWage = Math.round((avg3M + bonusInc) / 10) * 10;
+        const tmCnt = Math.max(12, (ty - 2012) * 12 + (tm - 10)), tyInt = Math.floor(tmCnt / 12), tmRem = tmCnt % 12;
+        const tf = this.sevUseExactMonths ? (tyInt + (tmRem / 12)) : tyInt;
+        const gross = Math.round(avgWage * tf);
+        const itRaw = tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096));
+        const sIt = Math.max(0, Math.round(itRaw / 10) * 10), sLt = Math.floor((sIt * 0.1) / 10) * 10, tTax = sIt + sLt;
+        return {
+          targetY: ty, targetM: tm, lastDay: new Date(ty, tm, 0).getDate(), months,
+          avg3MWage: Math.round(avg3M), bonusMonthlyInclusion: Math.round(bonusInc), avgWage,
+          tenYearsInt: tyInt, tenMonthsRem: tmRem, tenureFactor: tf,
+          grossSeverance: gross, sevIncomeTax: sIt, sevLocalTax: sLt, totalSevTax: tTax, netSeverance: gross - tTax
+        };
       },
 
-      renderSeveranceTab(){
-        const s=this.calculateSeveranceSummary(this.sevYear,this.sevMonth);
-        document.getElementById('sev_sub_period').innerText=`직전 3개월 (${s.months.map(c=>c.payM+'월').join('·')}) 급여 실시간 연동`;
-        document.getElementById('sev_month_title').innerText=`${s.targetY}년 ${s.targetM}월 예상퇴직금 조회`;
-        document.getElementById('btn_sev_tenure_mode').innerText=this.sevUseExactMonths?'근속: 월단위연동':'근속: 연단위고정';
-        document.getElementById('sev_net_pay').innerText=`${s.netSeverance.toLocaleString()}원`;
-        document.getElementById('sev_gross_pay').innerText=`${s.grossSeverance.toLocaleString()}원`;
-        document.getElementById('sev_total_tax').innerText=`-${s.totalSevTax.toLocaleString()}원`;
-        document.getElementById('sev_dates_info').innerText=`2012.11.09 ~ ${s.targetY}.${String(s.targetM).padStart(2,'0')}.${String(s.lastDay).padStart(2,'0')}`;
-        document.getElementById('sev_avg_wage').innerText=`${s.avgWage.toLocaleString()}원`;
-        document.getElementById('sev_tenure_text').innerText=`${s.tenYearsInt}년 ${String(s.tenMonthsRem).padStart(2,'0')}개월 (${s.tenureFactor.toFixed(2)}년)`;
-        document.getElementById('sev_tax_detail').innerText=`-${s.sevIncomeTax.toLocaleString()}원 / -${s.sevLocalTax.toLocaleString()}원`;
-        document.getElementById('sev_3month_tbody').innerHTML=s.months.map(c=>{
-          const hh=this.fmtHoursLabel(c.sumHolBaseH+c.sumHolOverH);
-          return `<tr onclick="App.jumpToPayMonth(${c.payY},${c.payM})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2.5 pr-1 font-black text-slate-800">${c.payY}.${String(c.payM).padStart(2,'0')} 급여</td><td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h·특${c.holCount}회(${hh})·야${c.sumNightH}h</td><td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700">${c.coreMonthlyWage.toLocaleString()}원</td></tr>`;
-        }).join('');
-        document.getElementById('sev_part_3m_avg').innerText=`${s.avg3MWage.toLocaleString()}원`;
-        document.getElementById('sev_part_bonus_avg').innerText=`+${s.bonusMonthlyInclusion.toLocaleString()}원`;
-        document.getElementById('sev_part_total_avg').innerText=`${s.avgWage.toLocaleString()}원`;
+      renderSeveranceTab() {
+        const s = this.calculateSeveranceSummary(this.sevYear, this.sevMonth);
+        setText('sev_sub_period', `직전 3개월 (${s.months.map(c => c.payM + '월').join('·')}) 급여 실시간 연동`);
+        setText('sev_month_title', `${s.targetY}년 ${s.targetM}월 예상퇴직금 조회`);
+        setText('btn_sev_tenure_mode', this.sevUseExactMonths ? '근속: 월단위연동' : '근속: 연단위고정');
+        setText('sev_net_pay', `${s.netSeverance.toLocaleString()}원`);
+        setText('sev_gross_pay', `${s.grossSeverance.toLocaleString()}원`);
+        setText('sev_total_tax', `-${s.totalSevTax.toLocaleString()}원`);
+        setText('sev_dates_info', `2012.11.09 ~ ${s.targetY}.${String(s.targetM).padStart(2, '0')}.${String(s.lastDay).padStart(2, '0')}`);
+        setText('sev_avg_wage', `${s.avgWage.toLocaleString()}원`);
+        setText('sev_tenure_text', `${s.tenYearsInt}년 ${String(s.tenMonthsRem).padStart(2, '0')}개월 (${s.tenureFactor.toFixed(2)}년)`);
+        setText('sev_tax_detail', `-${s.sevIncomeTax.toLocaleString()}원 / -${s.sevLocalTax.toLocaleString()}원`);
+        setHtml('sev_3month_tbody', s.months.map(c => {
+          const hh = this.fmtHoursLabel(c.sumHolBaseH + c.sumHolOverH);
+          return `<tr onclick="App.jumpToPayMonth(${c.payY},${c.payM})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2.5 pr-1 font-black text-slate-800">${c.payY}.${String(c.payM).padStart(2, '0')} 급여</td><td class="py-2 px-1 text-center text-[10px] text-slate-600">잔${c.sumOtH}h·특${c.holCount}회(${hh})·야${c.sumNightH}h</td><td class="py-2 pl-1 pr-2.5 text-right font-black text-blue-700">${c.coreMonthlyWage.toLocaleString()}원</td></tr>`;
+        }).join(''));
+        setText('sev_part_3m_avg', `${s.avg3MWage.toLocaleString()}원`);
+        setText('sev_part_bonus_avg', `+${s.bonusMonthlyInclusion.toLocaleString()}원`);
+        setText('sev_part_total_avg', `${s.avgWage.toLocaleString()}원`);
 
-        const rate=this.getHourlyRate(this.basePay),nUnit=this.getNightHourlyRate(this.basePay),mult=s.tenureFactor/3;
-        document.getElementById('sev_boost_tenure_badge').innerText=`${s.tenYearsInt}년 근속 (×${mult.toFixed(2)}배)`;
-        const d12=Math.round((8*1.5+4*2.0)*rate),n8=Math.round(8*nUnit),n12=d12+n8,d8=Math.round(8*1.5*rate),nh8=d8+n8,ot4=Math.round(4*1.5*rate);
-        const bN12=Math.round(n12*mult),bD12=Math.round(d12*mult),bN8=Math.round(nh8*mult),bOt4=Math.round(ot4*mult);
-        document.getElementById('sev_boost_n12').innerText=`+${bN12.toLocaleString()}원`;
-        document.getElementById('sev_boost_n12_net').innerText=`평균 +${(n12/30000).toFixed(1)}만 / 세후 +${(bN12*0.894/10000).toFixed(1)}만`;
-        document.getElementById('sev_boost_d12').innerText=`+${bD12.toLocaleString()}원`;
-        document.getElementById('sev_boost_d12_net').innerText=`평균 +${(d12/30000).toFixed(1)}만 / 세후 +${(bD12*0.894/10000).toFixed(1)}만`;
-        document.getElementById('sev_boost_n8').innerText=`+${bN8.toLocaleString()}원`;
-        document.getElementById('sev_boost_n8_net').innerText=`평균 +${(nh8/30000).toFixed(1)}만 / 세후 +${(bN8*0.894/10000).toFixed(1)}만`;
-        document.getElementById('sev_boost_ot4').innerText=`+${bOt4.toLocaleString()}원`;
-        document.getElementById('sev_boost_ot4_net').innerText=`평균 +${(ot4/30000).toFixed(1)}만 / 세후 +${(bOt4*0.894/10000).toFixed(1)}만`;
-      },
-
-      invalidateExactSlipForDate(k){
-        const[y,m,d]=k.split('-').map(Number);let py=y,pm=(d>=21)?(m+1):m;if(pm>12){pm=1;py+=1;}
-        const ex=this.monthExtras[this.getMonthKey(py,pm)];if(ex){delete ex.exactGross;delete ex.exactDed;}
-      },
-      setWorkRecord(k,w){
-        this.invalidateExactSlipForDate(k);const p=this.records[k]||{};
-        if(!w){if(p.memo||p.compHol)this.records[k]={memo:p.memo||'',memoColor:p.memoColor,compHol:p.compHol};else delete this.records[k];}
-        else this.records[k]={...w,memo:p.memo||'',memoColor:p.memoColor,compHol:p.compHol};
-      },
-      toggleCompanyHoliday(){
-        if(!this.selectedDateKey)return;
-        this.invalidateExactSlipForDate(this.selectedDateKey);this.syncModalMemoToRecord(this.selectedDateKey);
-        const c=this.records[this.selectedDateKey]||{};c.compHol=!c.compHol;
-        if(c.compHol&&(!c.type||c.type==='NORMAL')) delete c.type;
-        if(!c.memo&&!c.type&&!c.compHol) delete this.records[this.selectedDateKey]; else this.records[this.selectedDateKey]=c;
-        this.closeDayModal();this.save();this.render();
+        const rate = this.getHourlyRate(this.basePay), nUnit = this.getNightHourlyRate(this.basePay), mult = s.tenureFactor / 3;
+        setText('sev_boost_tenure_badge', `${s.tenYearsInt}년 근속 (×${mult.toFixed(2)}배)`);
+        const d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nUnit), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8, ot4 = Math.round(4 * 1.5 * rate);
+        const bN12 = Math.round(n12 * mult), bD12 = Math.round(d12 * mult), bN8 = Math.round(nh8 * mult), bOt4 = Math.round(ot4 * mult);
+        setText('sev_boost_n12', `+${bN12.toLocaleString()}원`);
+        setText('sev_boost_n12_net', `평균 +${(n12 / 30000).toFixed(1)}만 / 세후 +${(bN12 * 0.894 / 10000).toFixed(1)}만`);
+        setText('sev_boost_d12', `+${bD12.toLocaleString()}원`);
+        setText('sev_boost_d12_net', `평균 +${(d12 / 30000).toFixed(1)}만 / 세후 +${(bD12 * 0.894 / 10000).toFixed(1)}만`);
+        setText('sev_boost_n8', `+${bN8.toLocaleString()}원`);
+        setText('sev_boost_n8_net', `평균 +${(nh8 / 30000).toFixed(1)}만 / 세후 +${(bN8 * 0.894 / 10000).toFixed(1)}만`);
+        setText('sev_boost_ot4', `+${bOt4.toLocaleString()}원`);
+        setText('sev_boost_ot4_net', `평균 +${(ot4 / 30000).toFixed(1)}만 / 세후 +${(bOt4 * 0.894 / 10000).toFixed(1)}만`);
       },
 
-      onCellTap(ev, forceModal=false){
-        if(this.stampMode && !forceModal){
+      invalidateExactSlipForDate(k) {
+        const [y, m, d] = k.split('-').map(Number);
+        let py = y, pm = (d >= 21) ? (m + 1) : m;
+        if (pm > 12) { pm = 1; py += 1; }
+        const ex = this.monthExtras[this.getMonthKey(py, pm)];
+        if (ex) { delete ex.exactGross; delete ex.exactDed; }
+        this.invalidateSummaryCache();
+      },
+      setWorkRecord(k, w) {
+        this.invalidateExactSlipForDate(k);
+        const p = this.records[k] || {};
+        if (!w) {
+          if (p.memo || p.compHol) this.records[k] = { memo: p.memo || '', memoColor: p.memoColor, compHol: p.compHol };
+          else delete this.records[k];
+        } else {
+          this.records[k] = { ...w, memo: p.memo || '', memoColor: p.memoColor, compHol: p.compHol };
+        }
+      },
+      toggleCompanyHoliday() {
+        if (!this.selectedDateKey) return;
+        this.invalidateExactSlipForDate(this.selectedDateKey);
+        this.syncModalMemoToRecord(this.selectedDateKey);
+        const c = this.records[this.selectedDateKey] || {};
+        c.compHol = !c.compHol;
+        if (c.compHol && (!c.type || c.type === 'NORMAL')) delete c.type;
+        if (!c.memo && !c.type && !c.compHol) delete this.records[this.selectedDateKey];
+        else this.records[this.selectedDateKey] = c;
+        this.closeDayModal(); this.save(); this.render();
+      },
+
+      onCellTap(ev, forceModal = false) {
+        if (this.stampMode && !forceModal) {
           this.applyStampOnCell(ev);
           return;
         }
-        this.selectedDateKey=ev.key;this.selectedDayInfo=ev;
-        document.getElementById('modal_date_title').innerText=`${ev.y}년 ${ev.m}월 ${ev.d}일 (${ev.dayName}요일)`;
-        const b=document.getElementById('modal_shift_badge');b.innerText=this.SHIFT_FULL[ev.badgeKey];b.className=`text-[10px] font-extrabold px-2 py-0.5 rounded shrink-0 badge-${ev.badgeKey}`;
-        const wb=document.getElementById('modal_current_work_badge');
-        if(ev.type==='HOLIDAY'){const th=this.fmtHoursLabel(ev.holBaseHours+ev.holOverHours);wb.innerText=ev.holKind==='NIGHT'?`✔ 야간특근 ${th}`:`✔ 주간특근 ${th}`;wb.classList.remove('hidden');}
-        else if(ev.type==='OT'||ev.type==='NIGHT_OT'){wb.innerText=ev.type==='NIGHT_OT'?`✔ 야간잔업 +${ev.otHours}h`:`✔ 일반잔업 +${ev.otHours}h`;wb.classList.remove('hidden');}
-        else if(ev.type==='LEAVE'){const vh=ev.vacHours||(ev.vacDays*8);wb.innerText=`✔ 휴가 ${vh}h (-${this.fmtVacNum(ev.vacDays)}일)`;wb.classList.remove('hidden');}
-        else if(ev.type==='GONGGA'){wb.innerText='✔ 유급공가(검진·경조 / 연차미차감)';wb.classList.remove('hidden');}
-        else wb.classList.add('hidden');
-        const hb=document.getElementById('modal_holiday_badge');
-        if(ev.holidayName){hb.innerText=`공휴일: ${ev.holidayName}`;hb.classList.remove('hidden');}else hb.classList.add('hidden');
-        document.getElementById('modal_shift_select').value=ev.shift;
-        document.getElementById('modal_memo_input').value=ev.memo||'';
-        const m=document.getElementById('day_modal');m.classList.remove('hidden');m.classList.add('flex');
+        this.selectedDateKey = ev.key; this.selectedDayInfo = ev;
+        setText('modal_date_title', `${ev.y}년 ${ev.m}월 ${ev.d}일 (${ev.dayName}요일)`);
+        const b = $('modal_shift_badge');
+        b.innerText = this.SHIFT_FULL[ev.badgeKey];
+        b.className = `text-[10px] font-extrabold px-2 py-0.5 rounded shrink-0 badge-${ev.badgeKey}`;
+
+        const wb = $('modal_current_work_badge');
+        if (ev.type === 'HOLIDAY') {
+          const th = this.fmtHoursLabel(ev.holBaseHours + ev.holOverHours);
+          wb.innerText = ev.holKind === 'NIGHT' ? `✔ 야간특근 ${th}` : `✔ 주간특근 ${th}`;
+          wb.classList.remove('hidden');
+        } else if (ev.type === 'OT' || ev.type === 'NIGHT_OT') {
+          wb.innerText = ev.type === 'NIGHT_OT' ? `✔ 야간잔업 +${ev.otHours}h` : `✔ 일반잔업 +${ev.otHours}h`;
+          wb.classList.remove('hidden');
+        } else if (ev.type === 'LEAVE') {
+          const vh = ev.vacHours || (ev.vacDays * 8);
+          wb.innerText = `✔ 휴가 ${vh}h (-${this.fmtVacNum(ev.vacDays)}일)`;
+          wb.classList.remove('hidden');
+        } else if (ev.type === 'GONGGA') {
+          wb.innerText = '✔ 유급공가(검진·경조 / 연차미차감)';
+          wb.classList.remove('hidden');
+        } else wb.classList.add('hidden');
+
+        const hb = $('modal_holiday_badge');
+        if (ev.holidayName) { hb.innerText = `공휴일: ${ev.holidayName}`; hb.classList.remove('hidden'); }
+        else hb.classList.add('hidden');
+
+        setText('btn_company_holiday', ev.compHol ? '🎉 약정·노조휴일 해제' : '🎉 약정·노조휴일 지정');
+        setText('modal_leave_SubInfo', ev.shift === 'NIGHT'
+          ? '🌙 야간조: 휴가 시간만큼 당일 야간수당(8h)에서 차감'
+          : '☀️ 초·중반조: 시간차 사용 시 급여차감 0원');
+
+        $('modal_shift_select').value = ev.shift;
+        $('modal_memo_input').value = ev.memo || '';
+        const m = $('day_modal'); m.classList.remove('hidden'); m.classList.add('flex');
       },
 
-      syncModalMemoToRecord(k){
-        const mt=document.getElementById('modal_memo_input').value.trim(),c=this.records[k]||{};c.memo=mt;
-        if(mt&&c.memoColor===undefined) c.memoColor=Math.floor(Math.random()*PASTEL_PALETTE.length);
-        if(!c.memo&&!c.type&&!c.compHol) delete this.records[k]; else this.records[k]=c;
+      syncModalMemoToRecord(k) {
+        const mt = $('modal_memo_input').value.trim(), c = this.records[k] || {};
+        c.memo = mt;
+        if (mt && c.memoColor === undefined) c.memoColor = Math.floor(Math.random() * PASTEL_PALETTE.length);
+        if (!c.memo && !c.type && !c.compHol) delete this.records[k]; else this.records[k] = c;
       },
-      saveMemoOnly(){if(!this.selectedDateKey)return;this.syncModalMemoToRecord(this.selectedDateKey);this.closeDayModal();this.save();this.render();},
-      rerollMemoColor(){
-        if(!this.selectedDateKey)return;const c=this.records[this.selectedDateKey]||{};
-        c.memo=document.getElementById('modal_memo_input').value.trim();
-        c.memoColor=((c.memoColor||0)+1+Math.floor(Math.random()*3))%PASTEL_PALETTE.length;
-        this.records[this.selectedDateKey]=c;this.save();this.render();
+      saveMemoOnly() { if (!this.selectedDateKey) return; this.syncModalMemoToRecord(this.selectedDateKey); this.closeDayModal(); this.save(); this.render(); },
+      rerollMemoColor() {
+        if (!this.selectedDateKey) return;
+        const c = this.records[this.selectedDateKey] || {};
+        c.memo = $('modal_memo_input').value.trim();
+        c.memoColor = ((c.memoColor || 0) + 1 + Math.floor(Math.random() * 3)) % PASTEL_PALETTE.length;
+        this.records[this.selectedDateKey] = c; this.save(); this.render();
       },
-      clearMemoOnly(){
-        if(!this.selectedDateKey)return;document.getElementById('modal_memo_input').value='';
-        const c=this.records[this.selectedDateKey]||{};delete c.memo;delete c.memoColor;
-        if(!c.type&&!c.compHol) delete this.records[this.selectedDateKey]; else this.records[this.selectedDateKey]=c;
-        this.closeDayModal();this.save();this.render();
+      clearMemoOnly() {
+        if (!this.selectedDateKey) return;
+        $('modal_memo_input').value = '';
+        const c = this.records[this.selectedDateKey] || {};
+        delete c.memo; delete c.memoColor;
+        if (!c.type && !c.compHol) delete this.records[this.selectedDateKey]; else this.records[this.selectedDateKey] = c;
+        this.closeDayModal(); this.save(); this.render();
       },
-      applyDay(type,val,holKind=null){
-        if(!this.selectedDateKey)return;this.syncModalMemoToRecord(this.selectedDateKey);
-        let sh=document.getElementById('modal_shift_select').value;
-        if(type==='DEFAULT') this.setWorkRecord(this.selectedDateKey,null);
-        else if(type==='LEAVE') this.setWorkRecord(this.selectedDateKey,{type:'LEAVE',hours:0,vacDays:val,shift:sh});
-        else if(type==='GONGGA') this.setWorkRecord(this.selectedDateKey,{type:'GONGGA',hours:0,vacDays:0,shift:sh});
-        else if(type==='HOLIDAY'){sh=(holKind==='NIGHT')?'NIGHT':'EARLY';this.setWorkRecord(this.selectedDateKey,{type:'HOLIDAY',hours:val,holKind:holKind||'DAY',shift:sh});}
-        else this.setWorkRecord(this.selectedDateKey,{type,hours:val,shift:sh});
-        this.closeDayModal();this.save();this.render();
+      applyDay(type, val, holKind = null) {
+        if (!this.selectedDateKey) return;
+        this.syncModalMemoToRecord(this.selectedDateKey);
+        let sh = $('modal_shift_select').value;
+        if (type === 'DEFAULT') this.setWorkRecord(this.selectedDateKey, null);
+        else if (type === 'LEAVE') this.setWorkRecord(this.selectedDateKey, { type: 'LEAVE', hours: 0, vacDays: val, shift: sh });
+        else if (type === 'GONGGA') this.setWorkRecord(this.selectedDateKey, { type: 'GONGGA', hours: 0, vacDays: 0, shift: sh });
+        else if (type === 'HOLIDAY') { sh = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY'; this.setWorkRecord(this.selectedDateKey, { type: 'HOLIDAY', hours: val, holKind: holKind || 'DAY', shift: sh }); }
+        else this.setWorkRecord(this.selectedDateKey, { type, hours: val, shift: sh });
+        this.closeDayModal(); this.save(); this.render();
       },
-      changeShiftOnly(ns){
-        if(!this.selectedDateKey)return;this.invalidateExactSlipForDate(this.selectedDateKey);this.syncModalMemoToRecord(this.selectedDateKey);
-        const p=this.records[this.selectedDateKey]||{};let tt=p.type||this.selectedDayInfo.type;if(tt==='OFF')tt='NORMAL';
-        const c={...p,type:tt,hours:p.hours!==undefined?p.hours:(this.selectedDayInfo.otHours||(this.selectedDayInfo.holBaseHours+this.selectedDayInfo.holOverHours)||0),vacDays:p.vacDays||this.selectedDayInfo.vacDays||1,shift:ns};
-        if(c.type==='HOLIDAY') c.holKind=(ns==='NIGHT')?'NIGHT':'DAY';
-        this.records[this.selectedDateKey]=c;this.closeDayModal();this.save();this.render();
+      changeShiftOnly(ns) {
+        if (!this.selectedDateKey) return;
+        this.invalidateExactSlipForDate(this.selectedDateKey);
+        this.syncModalMemoToRecord(this.selectedDateKey);
+        const p = this.records[this.selectedDateKey] || {};
+        let tt = p.type || this.selectedDayInfo.type;
+        if (tt === 'OFF') tt = 'NORMAL';
+        const c = { ...p, type: tt, hours: p.hours !== undefined ? p.hours : (this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0), vacDays: p.vacDays || this.selectedDayInfo.vacDays || 1, shift: ns };
+        if (c.type === 'HOLIDAY') c.holKind = (ns === 'NIGHT') ? 'NIGHT' : 'DAY';
+        this.records[this.selectedDateKey] = c; this.closeDayModal(); this.save(); this.render();
       },
-      closeDayModal(){const m=document.getElementById('day_modal');m.classList.add('hidden');m.classList.remove('flex');this.selectedDateKey=null;},
+      closeDayModal() { const m = $('day_modal'); m.classList.add('hidden'); m.classList.remove('flex'); this.selectedDateKey = null; },
 
-      changeMonth(d){
-        this.swipeAnimClass=d>0?'swipe-left-anim':'swipe-right-anim';
-        if(this.calendarView==='MEMO'){this.memoMonth+=d;if(this.memoMonth>12){this.memoMonth=1;this.memoYear++;}else if(this.memoMonth<1){this.memoMonth=12;this.memoYear--;}this.memoPayOffset=0;}
-        else{this.payViewMonth+=d;if(this.payViewMonth>12){this.payViewMonth=1;this.payViewYear++;}else if(this.payViewMonth<1){this.payViewMonth=12;this.payViewYear--;}}
+      changeMonth(d) {
+        this.swipeAnimClass = d > 0 ? 'swipe-left-anim' : 'swipe-right-anim';
+        if (this.calendarView === 'MEMO') {
+          this.memoMonth += d;
+          if (this.memoMonth > 12) { this.memoMonth = 1; this.memoYear++; }
+          else if (this.memoMonth < 1) { this.memoMonth = 12; this.memoYear--; }
+          this.memoPayOffset = 0;
+        } else {
+          this.payViewMonth += d;
+          if (this.payViewMonth > 12) { this.payViewMonth = 1; this.payViewYear++; }
+          else if (this.payViewMonth < 1) { this.payViewMonth = 12; this.payViewYear--; }
+        }
         this.render();
       },
-      changeReportYear(d){this.reportYear+=d;this.renderAnnualReport();},
-      jumpToMonthFromReport(y,m){this.payViewYear=y;this.payViewMonth=m;this.switchTab('home');this.setCalendarView('PAY');},
-      resetCurrentMonth(){
-        const pm=this.getActivePayYM();if(!confirm(`${pm.m}월 급여 근무 내역을 초기화하시겠습니까? (메모 유지)`))return;
-        this.getCutoffDates(pm.y,pm.m).forEach(dt=>this.setWorkRecord(this.formatKey(dt.y,dt.m,dt.d),null));
-        delete this.monthExtras[this.getMonthKey(pm.y,pm.m)];this.save();this.render();
+      changeReportYear(d) { this.reportYear += d; this.renderAnnualReport(); this.renderRetroSimulator(); },
+      jumpToMonthFromReport(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
+      resetCurrentMonth() {
+        const pm = this.getActivePayYM();
+        if (!confirm(`${pm.m}월 급여 근무 내역을 초기화하시겠습니까? (메모 유지)`)) return;
+        this.getCutoffDates(pm.y, pm.m).forEach(dt => this.setWorkRecord(this.formatKey(dt.y, dt.m, dt.d), null));
+        delete this.monthExtras[this.getMonthKey(pm.y, pm.m)];
+        this.save(); this.render();
       },
-      escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));},
-      buildCellHeaderHtml(dtTxt,dc,isT,bk){
-        if(isT) return `<div class="-mx-1 -mt-1 px-1.5 py-1 bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-1 leading-none"><span class="text-[9.5px] font-black tracking-tighter nowrap">${dtTxt}</span><span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${bk}">${this.SHIFT_CHAR[bk]}</span></div>`;
+      escapeHtml(s) { return s.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); },
+      buildCellHeaderHtml(dtTxt, dc, isT, bk) {
+        if (isT) return `<div class="-mx-1 -mt-1 px-1.5 py-1 bg-blue-600 text-white flex items-center justify-between gap-0.5 mb-1 leading-none"><span class="text-[9.5px] font-black tracking-tighter nowrap">${dtTxt}</span><span class="w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[8px] font-black shrink-0 badge-${bk}">${this.SHIFT_CHAR[bk]}</span></div>`;
         return `<div class="flex items-center justify-between gap-0.5 mb-0.5 leading-none"><span class="text-[10px] font-black ${dc} tracking-tighter nowrap">${dtTxt}</span><span class="w-3.5 h-3.5 rounded flex items-center justify-center text-[8px] font-black shrink-0 badge-${bk}">${this.SHIFT_CHAR[bk]}</span></div>`;
       },
-      renderQuickMonthBar(){
-        const b=document.getElementById('quick_month_grid');if(!b)return;
-        const am=(this.calendarView==='MEMO')?this.memoMonth:this.payViewMonth;
-        let h='';
-        for(let m=1;m<=12;m++){
-          const c=(m===am)?'py-1.5 rounded-lg bg-blue-600 text-white font-black shadow-sm active:scale-95 transition':'py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-800 font-black active:scale-95 transition';
-          h+=`<button onclick="App.jumpToCalendarMonth(${m})" class="${c}">${m}월</button>`;
+      renderQuickMonthBar() {
+        const b = $('quick_month_grid');
+        if (!b) return;
+        const am = (this.calendarView === 'MEMO') ? this.memoMonth : this.payViewMonth;
+        let h = '';
+        for (let m = 1; m <= 12; m++) {
+          const c = (m === am) ? 'py-1.5 rounded-lg bg-blue-600 text-white font-black shadow-sm active:scale-95 transition' : 'py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-800 font-black active:scale-95 transition';
+          h += `<button onclick="App.jumpToCalendarMonth(${m})" class="${c}">${m}월</button>`;
         }
-        b.innerHTML=h;
+        b.innerHTML = h;
       },
 
-      renderVacationDatesList(){
-        const box=document.getElementById('vac_dates_list_box');
-        const lbl=document.getElementById('vac_list_count_label');
-        if(!box||!lbl) return;
-        const entries=Object.entries(this.records).filter(([_,r])=>r&&r.type==='LEAVE').sort((a,b)=>a[0].localeCompare(b[0]));
-        const calSum=entries.reduce((acc,[_,r])=>acc+(r.vacDays!==undefined?Number(r.vacDays):1),0);
-        lbl.innerText=`달력 ${entries.length}건 (총 ${this.fmtVacNum(calSum)}일) ▼`;
-        if(entries.length===0){
-          box.innerHTML=`<div class="text-slate-400 text-center py-2">달력에 등록된 연차 내역이 없습니다.</div>`;
+      renderVacationDatesList() {
+        const box = $('vac_dates_list_box'), lbl = $('vac_list_count_label');
+        if (!box || !lbl) return;
+        const entries = Object.entries(this.records).filter(([_, r]) => r && r.type === 'LEAVE').sort((a, b) => a[0].localeCompare(b[0]));
+        const calSum = entries.reduce((acc, [_, r]) => acc + (r.vacDays !== undefined ? Number(r.vacDays) : 1), 0);
+        lbl.innerText = `달력 ${entries.length}건 (총 ${this.fmtVacNum(calSum)}일) ▼`;
+        if (entries.length === 0) {
+          box.innerHTML = `<div class="text-slate-400 text-center py-2">달력에 등록된 연차 내역이 없습니다.</div>`;
           return;
         }
-        box.innerHTML=entries.map(([k,r])=>{
-          const vd=this.fmtVacNum(r.vacDays!==undefined?r.vacDays:1);
-          const [y,m,d]=k.split('-').map(Number);
+        box.innerHTML = entries.map(([k, r]) => {
+          const vd = this.fmtVacNum(r.vacDays !== undefined ? r.vacDays : 1);
+          const [y, m, d] = k.split('-').map(Number);
           return `<div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
-            <span onclick="App.switchTab('home');App.jumpToDateOnCalendar(${y},${m},${d})" class="font-bold text-slate-800 cursor-pointer">📅 ${k} <strong class="text-emerald-700 ml-1">-${vd}일(${vd*8}h)</strong></span>
+            <span onclick="App.switchTab('home');App.jumpToDateOnCalendar(${y},${m},${d})" class="font-bold text-slate-800 cursor-pointer">📅 ${k} <strong class="text-emerald-700 ml-1">-${vd}일(${vd * 8}h)</strong></span>
             <button onclick="App.removeLeaveRecord('${k}')" class="px-2 py-0.5 rounded bg-rose-50 text-rose-600 font-black text-[10px] border border-rose-200">✕ 삭제</button>
           </div>`;
         }).join('');
       },
 
-      render(skipInput=false){
-        const ti=this.getTodayInfo();
-        document.getElementById('today_header_info').innerText=`오늘 ${ti.m}.${ti.d} (${ti.dayName})`;
-        this.updateGithubUiStatus();this.renderQuickMonthBar();this.renderVacationDatesList();this.updateStampUI();
+      render(skipInput = false) {
+        const ti = this.getTodayInfo();
+        setText('today_header_info', `오늘 ${ti.m}.${ti.d} (${ti.dayName})`);
+        this.updateGithubUiStatus();
 
-        const ap=this.getActivePayYM(),calc=this.calculateMonthSummary(ap.y,ap.m),rate=calc.rate;
-        const calUsedVac=this.getCalendarUsedVacationDays();
-        const totalUsedVac=Math.max(0,this.priorUsedVacation+calUsedVac);
-        const remainVac=Math.max(0,this.totalVacation-totalUsedVac);
-        const remainVacHours=Math.round(remainVac*8*10)/10,oneDayVacPay=Math.round(8*this.getHourlyRate(this.basePay)),unusedVacPay=Math.round(remainVac*oneDayVacPay);
+        const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m), rate = calc.rate;
+        const calUsedVac = this.getCalendarUsedVacationDays();
+        const totalUsedVac = Math.max(0, this.priorUsedVacation + calUsedVac);
+        const remainVac = Math.max(0, this.totalVacation - totalUsedVac);
+        const remainVacHours = Math.round(remainVac * 8 * 10) / 10;
+        const oneDayVacPay = Math.round(8 * this.getHourlyRate(this.basePay));
+        const unusedVacPay = Math.round(remainVac * oneDayVacPay);
 
-        document.getElementById('top_vacation_badge').innerText=`${this.fmtVacNum(remainVac)}일(${remainVacHours}h)`;
-        document.getElementById('top_vacation_money').innerText=`미사용시 +${(unusedVacPay/10000).toFixed(1)}만원`;
-        document.getElementById('set_remain_vac').innerText=`${this.fmtVacNum(remainVac)}일 (${remainVacHours}시간)`;
-        document.getElementById('set_total_vac_label').innerText=`${this.totalVacation}일 (${this.totalVacation*8}h)`;
-        document.getElementById('set_calendar_used_vac').innerText=`${this.fmtVacNum(calUsedVac)}일 (기사용 ${this.fmtVacNum(this.priorUsedVacation)}일)`;
-        document.getElementById('set_unused_vac_pay').innerText=`+${unusedVacPay.toLocaleString()}원`;
-        document.getElementById('set_oneday_vac_pay').innerText=`(1일 ${oneDayVacPay.toLocaleString()}원 / 1h ${Math.round(this.getHourlyRate(this.basePay)).toLocaleString()}원)`;
+        // 상단 헤더 연차 배지 (항상 업데이트)
+        setText('top_vacation_badge', `${this.fmtVacNum(remainVac)}일(${remainVacHours}h)`);
+        setText('top_vacation_money', `미사용시 +${(unusedVacPay / 10000).toFixed(1)}만원`);
 
+        this.lastRawGross = calc.rawGross;
+        this.lastRawDed = calc.rawDed;
+
+        // 활성 탭별 지연 렌더링 (성능 핵심)
+        if (this.activeTab === 'report') {
+          this.renderAnnualReport(unusedVacPay);
+          this.renderRetroSimulator();
+          return;
+        }
+        if (this.activeTab === 'severance') {
+          this.renderSeveranceTab();
+          return;
+        }
+        if (this.activeTab === 'rates') {
+          this.renderRateTable(calc.appliedBase, rate);
+          return;
+        }
+        if (this.activeTab === 'settings') {
+          setText('set_remain_vac', `${this.fmtVacNum(remainVac)}일 (${remainVacHours}시간)`);
+          setText('set_total_vac_label', `${this.totalVacation}일 (${this.totalVacation * 8}h)`);
+          setText('set_calendar_used_vac', `${this.fmtVacNum(calUsedVac)}일 (기사용 ${this.fmtVacNum(this.priorUsedVacation)}일)`);
+          setText('set_unused_vac_pay', `+${unusedVacPay.toLocaleString()}원`);
+          setText('set_oneday_vac_pay', `(1일 ${oneDayVacPay.toLocaleString()}원 / 1h ${Math.round(this.getHourlyRate(this.basePay)).toLocaleString()}원)`);
+          setText('calib_month_label', `${ap.m}월`);
+          setText('calib_raw_gross', `${calc.rawGross.toLocaleString()}원`);
+          setText('calib_raw_net', `${(calc.rawGross - calc.rawDed).toLocaleString()}원`);
+
+          const isCalibrated = this.calibGrossOffset !== 0 || Math.abs(this.calibDedRatio - 1.0) > 0.0001;
+          setText('calib_current_status', isCalibrated
+            ? `세전 ${this.calibGrossOffset >= 0 ? '+' : ''}${this.calibGrossOffset.toLocaleString()}원 / 공제율 ${(this.calibDedRatio * 100).toFixed(1)}%`
+            : '정밀공식 적용중');
+
+          const curWeekShift = this.getDefaultShift(ti.y, ti.m, ti.d);
+          ['EARLY', 'MID', 'NIGHT'].forEach(sh => {
+            const btn = $(`btn_set_shift_${sh}`);
+            if (btn) btn.style.outline = (curWeekShift === sh) ? '2.5px solid #0f172a' : 'none';
+          });
+          this.renderVacationDatesList();
+          return;
+        }
+
+        // TAB 1: 홈 & 달력 렌더링
+        this.renderQuickMonthBar();
+        this.updateStampUI();
         this.renderTargetSimulator(calc);
         this.renderMemoHub();
-        this.renderRateTable(calc.appliedBase,rate);
-        this.renderAnnualReport(unusedVacPay);
-        this.renderRetroSimulator();
-        this.renderSeveranceTab();
 
-        document.getElementById('big_ym_title').innerText=this.calendarView==='MEMO'?`${this.memoYear}. ${String(this.memoMonth).padStart(2,'0')} 일정`:`${this.payViewYear}. ${String(this.payViewMonth).padStart(2,'0')} 급여`;
+        setText('big_ym_title', this.calendarView === 'MEMO' ? `${this.memoYear}. ${String(this.memoMonth).padStart(2, '0')} 일정` : `${this.payViewYear}. ${String(this.payViewMonth).padStart(2, '0')} 급여`);
 
-        const bc=document.getElementById('pay_target_curr'),bn=document.getElementById('pay_target_next');
-        if(this.calendarView==='MEMO'){
-          let pm=this.memoMonth-1;if(pm<1)pm=12;let nm=this.memoMonth+1;if(nm>12)nm=1;
-          bc.innerText=`${this.memoMonth}월 급여(${pm}.21~${this.memoMonth}.20)`;bn.innerText=`${nm}월 급여(${this.memoMonth}.21~${nm}.20)`;
-          bc.className=this.memoPayOffset===0?'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate':'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
-          bn.className=this.memoPayOffset===1?'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate':'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
-        }else{
-          let pm=this.payViewMonth-1;if(pm<1)pm=12;let ppm=pm-1;if(ppm<1)ppm=12;
-          bc.innerText=`${pm}월 급여(${ppm}.21~${pm}.20)`;bn.innerText=`${this.payViewMonth}월 급여(${pm}.21~${this.payViewMonth}.20)`;
-          bc.className='px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
-          bn.className='px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate';
+        const bc = $('pay_target_curr'), bn = $('pay_target_next');
+        if (this.calendarView === 'MEMO') {
+          let pm = this.memoMonth - 1; if (pm < 1) pm = 12;
+          let nm = this.memoMonth + 1; if (nm > 12) nm = 1;
+          bc.innerText = `${this.memoMonth}월 급여(${pm}.21~${this.memoMonth}.20)`;
+          bn.innerText = `${nm}월 급여(${this.memoMonth}.21~${nm}.20)`;
+          bc.className = this.memoPayOffset === 0 ? 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate' : 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
+          bn.className = this.memoPayOffset === 1 ? 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate' : 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
+        } else {
+          let pm = this.payViewMonth - 1; if (pm < 1) pm = 12;
+          let ppm = pm - 1; if (ppm < 1) ppm = 12;
+          bc.innerText = `${pm}월 급여(${ppm}.21~${pm}.20)`;
+          bn.innerText = `${this.payViewMonth}월 급여(${pm}.21~${this.payViewMonth}.20)`;
+          bc.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
+          bn.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate';
         }
 
-        const f=calc.cutoffDates[0],l=calc.cutoffDates[calc.cutoffDates.length-1];
-        document.getElementById('subbar_left_text').innerText=this.calendarView==='MEMO'?`📅 오늘 ${ti.y}.${ti.m}.${ti.d}(${ti.dayName})`:`💰 ${ap.y}.${ap.m}월 급여 (${f.m}.${f.d}~${l.m}.${l.d})`;
-        document.getElementById('hero_pay_month_label').innerText=`${ap.y}년 ${ap.m}월 실수령액`;
-        document.getElementById('extra_section_title').innerText=`🎁 ${ap.m}월 급여 특이사항`;
+        const f = calc.cutoffDates[0], l = calc.cutoffDates[calc.cutoffDates.length - 1];
+        setText('subbar_left_text', this.calendarView === 'MEMO' ? `📅 오늘 ${ti.y}.${ti.m}.${ti.d}(${ti.dayName})` : `💰 ${ap.y}.${ap.m}월 급여 (${f.m}.${f.d}~${l.m}.${l.d})`);
+        setText('hero_pay_month_label', `${ap.y}년 ${ap.m}월 실수령액`);
+        setText('extra_section_title', `🎁 ${ap.m}월 급여 특이사항`);
 
-        const eb=document.getElementById('even_odd_badge');
-        eb.innerText=calc.isEven?'짝수상여 100%':'홀수달';
-        eb.className=`text-[8.5px] font-black px-1.5 py-0.5 rounded-full nowrap ${calc.isEven?'bg-indigo-500 text-white':'bg-slate-700 text-slate-300'}`;
-        document.getElementById('verified_slip_badge').classList.toggle('hidden',!calc.isVerifiedSlip);
+        const eb = $('even_odd_badge');
+        eb.innerText = calc.isEven ? '짝수상여 100%' : '홀수달';
+        eb.className = `text-[8.5px] font-black px-1.5 py-0.5 rounded-full nowrap ${calc.isEven ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'}`;
+        $('verified_slip_badge').classList.toggle('hidden', !calc.isVerifiedSlip);
+        const isCalibrated = !calc.isVerifiedSlip && (this.calibGrossOffset !== 0 || Math.abs(this.calibDedRatio - 1.0) > 0.0001);
+        $('calibration_active_badge').classList.toggle('hidden', !isCalibrated);
 
-        if(!skipInput){
-          document.getElementById('input_edu_hours').value=calc.ex.eduHours>0?calc.ex.eduHours:'';
-          document.getElementById('input_retro_pay').value=calc.ex.retroPay>0?calc.ex.retroPay:'';
-          document.getElementById('input_food_ded').value=calc.ex.foodDed>0?calc.ex.foodDed:'';
+        const holMode = calc.ex.manualHolBonus;
+        setText('btn_toggle_hol_bonus', holMode === true ? '🌕 명절상여: 강제ON' : (holMode === false ? '🌕 명절상여: 강제OFF' : '🌕 명절상여: 자동'));
+
+        if (!skipInput) {
+          $('input_edu_hours').value = calc.ex.eduHours > 0 ? calc.ex.eduHours : '';
+          $('input_retro_pay').value = calc.ex.retroPay > 0 ? calc.ex.retroPay : '';
+          $('input_food_ded').value = calc.ex.foodDed > 0 ? calc.ex.foodDed : '';
         }
 
-        const ahb=document.getElementById('auto_hol_bonus_badge'),ahn=document.getElementById('auto_hol_bonus_notice');
-        if(calc.autoHolName){ahb.innerText=`🌕${calc.autoHolName}상여`;ahb.classList.remove('hidden');ahn.classList.remove('hidden');}
-        else{ahb.classList.add('hidden');ahn.classList.add('hidden');}
+        const ahb = $('auto_hol_bonus_badge'), ahn = $('auto_hol_bonus_notice');
+        if (calc.autoHolName) {
+          ahb.innerText = `🌕${calc.autoHolName}상여`;
+          setText('auto_hol_bonus_text', `🌕 ${calc.autoHolName} 명절상여(+100%) 적용됨`);
+          ahb.classList.remove('hidden'); ahn.classList.remove('hidden');
+        } else {
+          ahb.classList.add('hidden'); ahn.classList.add('hidden');
+        }
 
-        this.lastRawGross=calc.rawGross;this.lastRawDed=calc.rawDed;
-        document.getElementById('calib_month_label').innerText=`${ap.m}월`;
-        document.getElementById('calib_raw_gross').innerText=`${calc.rawGross.toLocaleString()}원`;
-        document.getElementById('calib_raw_net').innerText=`${(calc.rawGross-calc.rawDed).toLocaleString()}원`;
+        setText('hero_net_pay', calc.finalNet.toLocaleString() + '원');
+        setText('summary_gross', calc.finalGross.toLocaleString() + '원');
+        setText('summary_ded', '-' + calc.finalDed.toLocaleString() + '원');
 
-        document.getElementById('hero_net_pay').innerText=calc.finalNet.toLocaleString()+'원';
-        document.getElementById('summary_gross').innerText=calc.finalGross.toLocaleString()+'원';
-        document.getElementById('summary_ded').innerText='-'+calc.finalDed.toLocaleString()+'원';
+        setText('stat_gongsu', `${calc.timeGongsu.toFixed(2)}/${calc.moneyGongsu.toFixed(2)}`);
+        setText('stat_weekly_h', `${calc.weeklyAvgHours.toFixed(2)}h`);
+        setText('stat_workdays', `${this.fmtVacNum(calc.workDays)}일`);
+        setText('stat_paid_days', `${calc.paidDays}/0`);
+        setText('stat_ot', `${calc.sumOtH}h`);
+        const thh = this.fmtHoursLabel(calc.sumHolBaseH + calc.sumHolOverH);
+        setText('stat_hol', `${calc.holCount}회(${thh})`);
+        setText('stat_night', `${calc.sumNightH}h`);
+        const mvh = Math.round(calc.monthVacDays * 8 * 10) / 10;
+        setText('stat_leave', `${this.fmtVacNum(calc.monthVacDays)}일(${mvh}h)`);
 
-        document.getElementById('stat_gongsu').innerText=`${calc.timeGongsu.toFixed(2)}/${calc.moneyGongsu.toFixed(2)}`;
-        document.getElementById('stat_weekly_h').innerText=`${calc.weeklyAvgHours.toFixed(2)}h`;
-        document.getElementById('stat_workdays').innerText=`${this.fmtVacNum(calc.workDays)}일`;
-        document.getElementById('stat_paid_days').innerText=`${calc.paidDays}/0`;
-        document.getElementById('stat_ot').innerText=`${calc.sumOtH}h`;
-        const thh=this.fmtHoursLabel(calc.sumHolBaseH+calc.sumHolOverH);
-        document.getElementById('stat_hol').innerText=`${calc.holCount}회(${thh})`;
-        document.getElementById('stat_night').innerText=`${calc.sumNightH}h`;
-        const mvh=Math.round(calc.monthVacDays*8*10)/10;
-        document.getElementById('stat_leave').innerText=`${this.fmtVacNum(calc.monthVacDays)}일(${mvh}h)`;
-
-        document.getElementById('payslip_detail_box').innerHTML=`
+        setHtml('payslip_detail_box', `
           <div class="font-bold text-sky-300">[지급 내역 · 기본급 ${calc.appliedBase.toLocaleString()}원]</div>
-          <div class="flex justify-between"><span>• 기본급·교대·장려·역량(${calc.lmsPay.toLocaleString()})</span><strong>${(calc.appliedBase+(calc.appliedBase>0?180000:0)+calc.lmsPay).toLocaleString()}원</strong></div>
-          ${calc.retroPay>0?`<div class="flex justify-between text-emerald-300"><span>• 성과·소급·기타수당(퇴직금제외)</span><strong>+${calc.retroPay.toLocaleString()}원</strong></div>`:''}
-          ${calc.regBonusPay>0?`<div class="flex justify-between text-indigo-300"><span>• 짝수달 정기상여 (100%)</span><strong>+${calc.regBonusPay.toLocaleString()}원</strong></div>`:''}
-          ${calc.holBonusPay>0?`<div class="flex justify-between text-amber-300"><span>• ${calc.autoHolName} 명절상여 (100%)</span><strong>+${calc.holBonusPay.toLocaleString()}원</strong></div>`:''}
-          <div class="flex justify-between text-blue-300"><span>• 평일연장·교육수당 (${calc.sumOtH}h)</span><strong>+${(calc.otPay+calc.eduPay).toLocaleString()}원</strong></div>
+          <div class="flex justify-between"><span>• 기본급·교대·장려·역량(${calc.lmsPay.toLocaleString()})</span><strong>${(calc.appliedBase + (calc.appliedBase > 0 ? 180000 : 0) + calc.lmsPay).toLocaleString()}원</strong></div>
+          ${calc.retroPay > 0 ? `<div class="flex justify-between text-emerald-300"><span>• 성과·소급·기타수당(퇴직금제외)</span><strong>+${calc.retroPay.toLocaleString()}원</strong></div>` : ''}
+          ${calc.regBonusPay > 0 ? `<div class="flex justify-between text-indigo-300"><span>• 짝수달 정기상여 (100%)</span><strong>+${calc.regBonusPay.toLocaleString()}원</strong></div>` : ''}
+          ${calc.holBonusPay > 0 ? `<div class="flex justify-between text-amber-300"><span>• ${calc.autoHolName} 명절상여 (100%)</span><strong>+${calc.holBonusPay.toLocaleString()}원</strong></div>` : ''}
+          <div class="flex justify-between text-blue-300"><span>• 평일연장·교육수당 (${calc.sumOtH}h)</span><strong>+${(calc.otPay + calc.eduPay).toLocaleString()}원</strong></div>
           <div class="flex justify-between text-red-300"><span>• 휴일근로수당 (${calc.sumHolBaseH}h)</span><strong>+${calc.holBasePay.toLocaleString()}원</strong></div>
           <div class="flex justify-between text-rose-300"><span>• 휴일연장수당 (${this.fmtHoursLabel(calc.sumHolOverH)})</span><strong>+${calc.holOverPay.toLocaleString()}원</strong></div>
           <div class="flex justify-between text-purple-300"><span>• 야간근무수당 (${calc.sumNightH}h)</span><strong>+${calc.nightPay.toLocaleString()}원</strong></div>
           <div class="font-bold text-rose-300 pt-1 border-t border-slate-700">[공제 내역]</div>
           <div class="flex justify-between"><span>• 소득세·주민세</span><strong>-${calc.totalTax.toLocaleString()}원</strong></div>
-          <div class="flex justify-between"><span>• 4대보험·조합비(${calc.unionFee.toLocaleString()})</span><strong>-${(calc.fixedInsurances+calc.unionFee).toLocaleString()}원</strong></div>
-          ${calc.foodDed>0?`<div class="flex justify-between"><span>• 기타공제</span><strong>-${calc.foodDed.toLocaleString()}원</strong></div>`:''}
-        `;
+          <div class="flex justify-between"><span>• 4대보험·조합비(${calc.unionFee.toLocaleString()})</span><strong>-${(calc.fixedInsurances + calc.unionFee).toLocaleString()}원</strong></div>
+          ${calc.foodDed > 0 ? `<div class="flex justify-between"><span>• 기타공제</span><strong>-${calc.foodDed.toLocaleString()}원</strong></div>` : ''}
+        `);
 
-        const grid=document.getElementById('calendar_grid');grid.innerHTML='';
-        if(this.calendarView==='MEMO'){
-          const std=this.getStandardMonthGridDates(this.memoYear,this.memoMonth),ch=(Math.ceil(std.length/7)>=6)?'min-h-[72px]':'min-h-[86px]';
-          std.forEach(dt=>{
-            const ev=this.evaluateDay(dt.y,dt.m,dt.d,dt.isOtherMonth),isT=(ev.key===ti.key),isF=(ev.key===this.focusedDateKey);
-            let cs='bg-white';if(ev.isOtherMonth)cs+=' opacity-35';if(isT)cs+=' cell-today';if(isF)cs+=' cell-focused';
-            let dc=ev.isSundayOrHol?'text-red-600':(ev.isSaturday?'text-blue-600':'text-slate-900');
-            const dl=(ev.isOtherMonth&&ev.d===1)?`${ev.m}.${ev.d}`:`${ev.d}`;
-            const chips=[];
-            if(ev.type==='HOLIDAY'){const th=this.fmtHoursLabel(ev.holBaseHours+ev.holOverHours);chips.push(ev.holKind==='NIGHT'?`<div class="work-top-chip text-purple-800">🌙야특${th}</div>`:`<div class="work-top-chip text-red-600">☀️주특${th}</div>`);}
-            else if(ev.type==='OT') chips.push(`<div class="work-top-chip text-blue-700">⚡+${ev.otHours}h잔업</div>`);
-            else if(ev.type==='NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
-            else if(ev.type==='LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">${this.getLeaveChipLabel(ev,false)}</div>`);
-            else if(ev.type==='GONGGA') chips.push(`<div class="work-top-chip text-sky-700">🏥공가(검진)</div>`);
-            if(ev.memo){
-              ev.memo.split('\n').map(l=>l.trim()).filter(Boolean).forEach((ln,idx)=>{
-                const pal=PASTEL_PALETTE[(ev.memoColor+idx*3)%PASTEL_PALETTE.length];
+        // 달력 그리드 단일 패스 HTML 생성
+        const grid = $('calendar_grid');
+        this.currentGridCells = [];
+        const htmlParts = [];
+
+        if (this.calendarView === 'MEMO') {
+          const std = this.getStandardMonthGridDates(this.memoYear, this.memoMonth);
+          const ch = (Math.ceil(std.length / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
+          std.forEach((dt, idx) => {
+            const ev = this.evaluateDay(dt.y, dt.m, dt.d, dt.isOtherMonth);
+            this.currentGridCells.push(ev);
+            const isT = (ev.key === ti.key), isF = (ev.key === this.focusedDateKey);
+            let cs = 'bg-white';
+            if (ev.isOtherMonth) cs += ' opacity-35';
+            if (isT) cs += ' cell-today';
+            if (isF) cs += ' cell-focused';
+            const dc = ev.isSundayOrHol ? 'text-red-600' : (ev.isSaturday ? 'text-blue-600' : 'text-slate-900');
+            const dl = (ev.isOtherMonth && ev.d === 1) ? `${ev.m}.${ev.d}` : `${ev.d}`;
+            const chips = [];
+            if (ev.type === 'HOLIDAY') {
+              const th = this.fmtHoursLabel(ev.holBaseHours + ev.holOverHours);
+              chips.push(ev.holKind === 'NIGHT' ? `<div class="work-top-chip text-purple-800">🌙야특${th}</div>` : `<div class="work-top-chip text-red-600">☀️주특${th}</div>`);
+            } else if (ev.type === 'OT') chips.push(`<div class="work-top-chip text-blue-700">⚡+${ev.otHours}h잔업</div>`);
+            else if (ev.type === 'NIGHT_OT') chips.push(`<div class="work-top-chip text-indigo-800">🦉+${ev.otHours}h야잔</div>`);
+            else if (ev.type === 'LEAVE') chips.push(`<div class="work-top-chip text-emerald-700">${this.getLeaveChipLabel(ev, false)}</div>`);
+            else if (ev.type === 'GONGGA') chips.push(`<div class="work-top-chip text-sky-700">🏥공가(검진)</div>`);
+            if (ev.memo) {
+              ev.memo.split('\n').map(l => l.trim()).filter(Boolean).forEach((ln, mIdx) => {
+                const pal = PASTEL_PALETTE[(ev.memoColor + mIdx * 3) % PASTEL_PALETTE.length];
                 chips.push(`<div class="memo-chip" style="background:${pal.bg};border:1px solid ${pal.border}">${this.escapeHtml(ln)}</div>`);
               });
             }
-            const div=document.createElement('div');
-            div.className=`p-1 ${ch} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cs}`;
-            div.onclick=()=>this.onCellTap(ev);
-            div.innerHTML=`${this.buildCellHeaderHtml(dl,dc,isT,ev.badgeKey)}${ev.holidayName?`<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center mb-0.5">${ev.holidayName}</div>`:''}<div class="flex flex-col gap-[1.5px] w-full">${chips.join('')}</div>`;
-            grid.appendChild(div);
+            htmlParts.push(`<div data-cell-idx="${idx}" class="p-1 ${ch} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cs}">${this.buildCellHeaderHtml(dl, dc, isT, ev.badgeKey)}${ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center mb-0.5">${ev.holidayName}</div>` : ''}<div class="flex flex-col gap-[1.5px] w-full">${chips.join('')}</div></div>`);
           });
-        }else{
-          const fd=calc.evaluated[0].dow,tc=fd+calc.evaluated.length,ch=(Math.ceil(tc/7)>=6)?'min-h-[72px]':'min-h-[86px]';
-          for(let i=0;i<fd;i++){const e=document.createElement('div');e.className=`${ch} bg-slate-50/80`;grid.appendChild(e);}
-          calc.evaluated.forEach(ev=>{
-            let cs='bg-white',sh=`<span class="text-[9px] text-slate-500 font-semibold">고정8h</span>`;
-            if(ev.type==='OT'){cs='cell-checked-ot';sh=`<span class="text-[9.5px] font-black text-blue-700">+${ev.otHours}h잔업</span>`;}
-            else if(ev.type==='NIGHT_OT'){cs='cell-checked-night-ot';sh=`<span class="text-[9.5px] font-black text-indigo-700">🦉+${ev.otHours}h야잔</span>`;}
-            else if(ev.type==='HOLIDAY'){const th=this.fmtHoursLabel(ev.holBaseHours+ev.holOverHours);cs=ev.holKind==='NIGHT'?'cell-checked-hol-night':'cell-checked-hol-day';sh=ev.holKind==='NIGHT'?`<span class="text-[9.5px] font-black text-purple-800">🌙야특${th}</span>`:`<span class="text-[9.5px] font-black text-red-600">☀️주특${th}</span>`;}
-            else if(ev.type==='LEAVE'){cs='cell-checked-leave';sh=`<span class="text-[9px] font-black text-emerald-800">${this.getLeaveChipLabel(ev,true)}</span>`;}
-            else if(ev.type==='GONGGA'){cs='cell-checked-gongga';sh=`<span class="text-[9px] font-black text-sky-800">🏥공가(검진)</span>`;}
-            else if(ev.type==='OFF'){sh=`<span class="text-[9px] text-slate-400">휴일</span>`;}
-            if(ev.d===1) cs+=' month-start-bar';
-            const isT=(ev.key===ti.key),isF=(ev.key===this.focusedDateKey);
-            if(isT) cs+=' cell-today'; if(isF) cs+=' cell-focused';
-            let dc=ev.isSundayOrHol?'text-red-600':(ev.isSaturday?'text-blue-600':'text-slate-900');
-            const div=document.createElement('div');
-            div.className=`p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${ch} min-w-0 overflow-hidden ${cs}`;
-            div.onclick=()=>this.onCellTap(ev);
-            div.innerHTML=`${this.buildCellHeaderHtml(`${ev.m}.${ev.d}`,dc,isT,ev.badgeKey)}${ev.holidayName?`<div class="text-[7.5px] font-extrabold text-red-600 truncate text-center">${ev.holidayName}</div>`:'<div class="h-[9px]"></div>'}<div class="text-center leading-none my-0.5">${sh}</div><div class="flex items-center justify-end text-[7.5px] font-extrabold leading-none"><span class="${ev.nightHours>0?'text-purple-800':'text-transparent'}">야${ev.nightHours}h</span></div>`;
-            grid.appendChild(div);
+        } else {
+          const fd = calc.evaluated[0].dow, tc = fd + calc.evaluated.length, ch = (Math.ceil(tc / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
+          for (let i = 0; i < fd; i++) htmlParts.push(`<div class="${ch} bg-slate-50/80"></div>`);
+          calc.evaluated.forEach((ev, idx) => {
+            this.currentGridCells.push(ev);
+            let cs = 'bg-white', sh = `<span class="text-[9px] text-slate-500 font-semibold">고정8h</span>`;
+            if (ev.type === 'OT') { cs = 'cell-checked-ot'; sh = `<span class="text-[9.5px] font-black text-blue-700">+${ev.otHours}h잔업</span>`; }
+            else if (ev.type === 'NIGHT_OT') { cs = 'cell-checked-night-ot'; sh = `<span class="text-[9.5px] font-black text-indigo-700">🦉+${ev.otHours}h야잔</span>`; }
+            else if (ev.type === 'HOLIDAY') {
+              const th = this.fmtHoursLabel(ev.holBaseHours + ev.holOverHours);
+              cs = ev.holKind === 'NIGHT' ? 'cell-checked-hol-night' : 'cell-checked-hol-day';
+              sh = ev.holKind === 'NIGHT' ? `<span class="text-[9.5px] font-black text-purple-800">🌙야특${th}</span>` : `<span class="text-[9.5px] font-black text-red-600">☀️주특${th}</span>`;
+            } else if (ev.type === 'LEAVE') { cs = 'cell-checked-leave'; sh = `<span class="text-[9px] font-black text-emerald-800">${this.getLeaveChipLabel(ev, true)}</span>`; }
+            else if (ev.type === 'GONGGA') { cs = 'cell-checked-gongga'; sh = `<span class="text-[9px] font-black text-sky-800">🏥공가(검진)</span>`; }
+            else if (ev.type === 'OFF') { sh = `<span class="text-[9px] text-slate-400">휴일</span>`; }
+            if (ev.d === 1) cs += ' month-start-bar';
+            const isT = (ev.key === ti.key), isF = (ev.key === this.focusedDateKey);
+            if (isT) cs += ' cell-today'; if (isF) cs += ' cell-focused';
+            const dc = ev.isSundayOrHol ? 'text-red-600' : (ev.isSaturday ? 'text-blue-600' : 'text-slate-900');
+            htmlParts.push(`<div data-cell-idx="${idx}" class="p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${ch} min-w-0 overflow-hidden ${cs}">${this.buildCellHeaderHtml(`${ev.m}.${ev.d}`, dc, isT, ev.badgeKey)}${ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 truncate text-center">${ev.holidayName}</div>` : '<div class="h-[9px]"></div>'}<div class="text-center leading-none my-0.5">${sh}</div><div class="flex items-center justify-end text-[7.5px] font-extrabold leading-none"><span class="${ev.nightHours > 0 ? 'text-purple-800' : 'text-transparent'}">야${ev.nightHours}h</span></div></div>`);
           });
+        }
+
+        grid.innerHTML = htmlParts.join('');
+        if (this.swipeAnimClass) {
+          grid.className = `grid grid-cols-7 bg-slate-200 gap-[1px] w-full ${this.swipeAnimClass}`;
+          this.swipeAnimClass = '';
         }
       },
 
-      renderAnnualReport(uvPay){
-        const y=this.reportYear;document.getElementById('report_year_title').innerText=`${y}년 누적 연봉·특근 리포트`;
-        const calUsed=this.getCalendarUsedVacationDays(),totalUsed=Math.max(0,this.priorUsedVacation+calUsed),rem=Math.max(0,this.totalVacation-totalUsed);
-        const unusedPay=(uvPay!==undefined)?uvPay:Math.round(rem*8*this.getHourlyRate(this.basePay));
-        let tg=0,tn=0,to=0,thc=0,thh=0,tni=0;const rows=[];
-        for(let m=1;m<=12;m++){
-          const c=this.calculateMonthSummary(y,m);
-          tg+=c.finalGross;tn+=c.finalNet;to+=c.sumOtH;thc+=c.holCount;thh+=(c.sumHolBaseH+c.sumHolOverH);tni+=c.sumNightH;
+      renderAnnualReport(uvPay) {
+        const y = this.reportYear;
+        setText('report_year_title', `${y}년 누적 연봉·특근 리포트`);
+        const calUsed = this.getCalendarUsedVacationDays(), totalUsed = Math.max(0, this.priorUsedVacation + calUsed), rem = Math.max(0, this.totalVacation - totalUsed);
+        const unusedPay = (uvPay !== undefined) ? uvPay : Math.round(rem * 8 * this.getHourlyRate(this.basePay));
+        let tg = 0, tn = 0, to = 0, thc = 0, thh = 0, tni = 0;
+        const rows = [];
+        for (let m = 1; m <= 12; m++) {
+          const c = this.calculateMonthSummary(y, m);
+          tg += c.finalGross; tn += c.finalNet; to += c.sumOtH; thc += c.holCount; thh += (c.sumHolBaseH + c.sumHolOverH); tni += c.sumNightH;
           rows.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2 font-extrabold">${m}월</td><td class="py-2 text-center text-[9.5px] text-slate-600">잔${c.sumOtH}·특${c.holCount}·야${c.sumNightH}</td><td class="py-2 px-1 text-right font-bold text-slate-700">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 pr-2.5 text-right font-black text-emerald-700">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
         }
-        document.getElementById('rep_total_gross').innerText=`${(tg+unusedPay).toLocaleString()}원`;
-        document.getElementById('rep_total_net').innerText=`${(tn+Math.round(unusedPay*0.85)).toLocaleString()}원`;
-        document.getElementById('rep_unused_vac_pay').innerText=`+${unusedPay.toLocaleString()}원 (${this.fmtVacNum(rem)}일)`;
-        document.getElementById('rep_sum_ot').innerText=`${to}h`;
-        document.getElementById('rep_sum_hol').innerText=`${thc}회(${this.fmtHoursLabel(thh)})`;
-        document.getElementById('rep_sum_night').innerText=`${tni}h`;
-        document.getElementById('rep_sum_vac').innerText=`${this.fmtVacNum(totalUsed)}일`;
-        document.getElementById('rep_monthly_tbody').innerHTML=rows.join('');
+        setText('rep_total_gross', `${(tg + unusedPay).toLocaleString()}원`);
+        setText('rep_total_net', `${(tn + Math.round(unusedPay * 0.85)).toLocaleString()}원`);
+        setText('rep_unused_vac_pay', `+${unusedPay.toLocaleString()}원 (${this.fmtVacNum(rem)}일)`);
+        setText('rep_sum_ot', `${to}h`);
+        setText('rep_sum_hol', `${thc}회(${this.fmtHoursLabel(thh)})`);
+        setText('rep_sum_night', `${tni}h`);
+        setText('rep_sum_vac', `${this.fmtVacNum(totalUsed)}일`);
+        setHtml('rep_monthly_tbody', rows.join(''));
       },
 
-      renderRateTable(base,rate){
-        document.getElementById('rate_tab_base').innerText=`${base.toLocaleString()}원`;
-        document.getElementById('rate_tab_hourly').innerText=`${Math.round(rate).toLocaleString()}원/h`;
-        const nU=this.getNightHourlyRate(base),d12=Math.round((8*1.5+4*2.0)*rate),n8=Math.round(8*nU),n12=d12+n8,d8=Math.round(8*1.5*rate),nh8=d8+n8;
-        document.getElementById('price_day_hol12').innerText=`${d12.toLocaleString()}원`;
-        document.getElementById('price_night_hol12').innerText=`${n12.toLocaleString()}원`;
-        document.getElementById('price_day_hol8').innerText=`${d8.toLocaleString()}원`;
-        document.getElementById('price_night_hol8').innerText=`${nh8.toLocaleString()}원`;
-        document.getElementById('ot_rate_table_body').innerHTML=[1,2,3,4,5,6].map(h=>`<tr><td class="py-2 px-2.5">${h}시간</td><td class="py-2 px-2.5 text-right text-blue-700">+${Math.round(h*1.5*rate).toLocaleString()}원</td><td class="py-2 px-2.5 text-right text-indigo-700">+${Math.round(h*1.5*rate+h*nU).toLocaleString()}원</td></tr>`).join('');
-        document.getElementById('price_night_1h').innerText=`${Math.round(nU).toLocaleString()}원`;
-        document.getElementById('price_night_8h').innerText=`+${n8.toLocaleString()}원`;
-        document.getElementById('price_night_40h').innerText=`+${Math.round(40*nU).toLocaleString()}원`;
+      renderRateTable(base, rate) {
+        setText('rate_tab_base', `${base.toLocaleString()}원`);
+        setText('rate_tab_hourly', `${Math.round(rate).toLocaleString()}원/h`);
+        const nU = this.getNightHourlyRate(base), d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nU), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8;
+        const netFactor = 0.86;
+        setText('price_day_hol12', `${d12.toLocaleString()}원`);
+        setText('net_day_hol12', `세후 약 ${(d12 * netFactor / 10000).toFixed(1)}만`);
+        setText('price_night_hol12', `${n12.toLocaleString()}원`);
+        setText('net_night_hol12', `세후 약 ${(n12 * netFactor / 10000).toFixed(1)}만`);
+        setText('price_day_hol8', `${d8.toLocaleString()}원`);
+        setText('net_day_hol8', `세후 약 ${(d8 * netFactor / 10000).toFixed(1)}만`);
+        setText('price_night_hol8', `${nh8.toLocaleString()}원`);
+        setText('net_night_hol8', `세후 약 ${(nh8 * netFactor / 10000).toFixed(1)}만`);
+        setHtml('ot_rate_table_body', [1, 2, 3, 4, 5, 6].map(h => `<tr><td class="py-2 px-2.5">${h}시간</td><td class="py-2 px-2.5 text-right text-blue-700">+${Math.round(h * 1.5 * rate).toLocaleString()}원</td><td class="py-2 px-2.5 text-right text-indigo-700">+${Math.round(h * 1.5 * rate + h * nU).toLocaleString()}원</td></tr>`).join(''));
+        setText('price_night_1h', `${Math.round(nU).toLocaleString()}원`);
+        setText('price_night_8h', `+${n8.toLocaleString()}원`);
+        setText('price_night_40h', `+${Math.round(40 * nU).toLocaleString()}원`);
       }
     };
-    window.addEventListener('DOMContentLoaded',()=>App.init());
+
+    window.addEventListener('DOMContentLoaded', () => App.init());
   </script>
 </body>
 </html>
