@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.1</title>
+  <title>스마트 월급·퇴직금 계산기 v8.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -58,7 +58,7 @@
         <button onclick="App.switchTab('settings')" class="shrink-0 bg-emerald-950/90 border border-emerald-500/50 px-2 py-1 rounded-xl text-right active:scale-95 transition nowrap">
           <div class="flex items-center justify-end gap-1">
             <span class="text-[9px] font-bold text-emerald-300">🌴남은연차</span>
-            <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">11일(88h)</strong>
+            <strong id="top_vacation_badge" class="text-[10.5px] font-black text-emerald-400 tracking-tighter tnum">0일(0h)</strong>
           </div>
           <div id="top_vacation_money" class="text-[9px] font-extrabold text-amber-300 tracking-tighter tnum">미사용시 +0만원</div>
         </button>
@@ -72,7 +72,7 @@
           <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
             <div class="flex items-center gap-1 shrink-0">
               <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
-              <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight px-0.5 min-w-[104px] text-center">2026. 10 일정</h2>
+              <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight px-0.5 min-w-[104px] text-center">일정 달력</h2>
               <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
               <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
             </div>
@@ -252,11 +252,11 @@
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div>
               <label class="block text-[10px] font-bold text-slate-600 mb-0.5">인상 전 기본급 (원)</label>
-              <input type="number" id="retro_old_base" value="2882000" step="1000" oninput="App.renderRetroSimulator()" class="w-full p-1.5 border border-slate-300 rounded-xl font-black text-right bg-slate-50">
+              <input type="number" id="retro_old_base" value="0" step="1000" oninput="App.renderRetroSimulator()" class="w-full p-1.5 border border-slate-300 rounded-xl font-black text-right bg-slate-50">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-emerald-800 mb-0.5">인상 후 기본급 (원)</label>
-              <input type="number" id="retro_new_base" value="3005500" step="1000" oninput="App.renderRetroSimulator()" class="w-full p-1.5 border-2 border-emerald-500 rounded-xl font-black text-right bg-white text-emerald-900">
+              <input type="number" id="retro_new_base" value="0" step="1000" oninput="App.renderRetroSimulator()" class="w-full p-1.5 border-2 border-emerald-500 rounded-xl font-black text-right bg-white text-emerald-900">
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
@@ -304,13 +304,13 @@
           <div class="text-center min-w-0"><span id="sev_sub_period" class="text-[10px] font-extrabold text-blue-600 block truncate">직전 3개월 급여 연동</span><h2 id="sev_month_title" class="text-sm font-black text-slate-900 truncate">예상퇴직금 조회</h2></div>
           <div class="flex items-center gap-1 shrink-0">
             <button onclick="App.changeSeveranceMonth(1)" class="w-8 h-8 bg-slate-100 active:bg-slate-200 rounded-xl font-black text-xs text-slate-700">▶</button>
-            <button onclick="App.resetSeveranceToOct()" class="px-2 h-8 bg-amber-100 text-amber-900 rounded-xl font-black text-[10px] nowrap">10월기준</button>
+            <button onclick="App.resetSeveranceToOct()" class="px-2 h-8 bg-amber-100 text-amber-900 rounded-xl font-black text-[10px] nowrap">당월기준</button>
           </div>
         </div>
         <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-3.5 shadow-md space-y-3">
           <div class="flex items-start justify-between gap-2 nowrap">
             <div class="min-w-0">
-              <div class="flex items-center gap-1.5 flex-wrap"><span class="text-[11px] font-extrabold text-emerald-400">차감지급액 (세후 실수령 퇴직금)</span><span id="sev_verified_badge" class="hidden text-[8.5px] font-black bg-sky-400 text-slate-950 px-1.5 py-0.5 rounded-full">✔조회표일치</span></div>
+              <div class="flex items-center gap-1.5 flex-wrap"><span class="text-[11px] font-extrabold text-emerald-400">차감지급액 (세후 실수령 퇴직금)</span></div>
               <strong id="sev_net_pay" class="text-2xl sm:text-3xl font-black tracking-tight text-white block mt-0.5 tnum">0원</strong>
             </div>
             <button onclick="App.toggleSeveranceTenureMode()" id="btn_sev_tenure_mode" class="shrink-0 text-[9.5px] font-black bg-indigo-600/90 border border-indigo-400/50 px-2 py-1 rounded-xl text-indigo-100 active:scale-95">근속: 월단위연동</button>
@@ -387,7 +387,7 @@
       <div id="tab_settings" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-3.5 shadow-md border border-sky-500/40 space-y-3">
           <div class="flex items-center justify-between gap-1 nowrap">
-            <div class="flex items-center gap-1.5 min-w-0"><span class="text-base shrink-0">☁️</span><h2 class="text-sm font-black text-white truncate">깃허브 원터치 클라우드 백업</h2></div>
+            <div class="flex items-center gap-1.5 min-w-0"><span class="text-base shrink-0">☁️</span><h2 class="text-sm font-black text-white truncate">깃허브 비공개 클라우드 금고</h2></div>
             <span id="gh_sync_status_badge" class="text-[9.5px] font-black px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 shrink-0">열쇠 미등록</span>
           </div>
           <div class="space-y-1.5 text-xs">
@@ -412,13 +412,13 @@
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
           <div class="flex items-center justify-between nowrap">
-            <h2 class="text-sm font-black text-slate-900">🌴 연차 · 기본급 · 4대보험 기준 설정</h2>
+            <h2 class="text-sm font-black text-slate-900">🌴 연차 · 기본급 · 4대보험 · 입사일 설정</h2>
             <span class="text-[10px] font-bold text-emerald-700">연 1~2회만 갱신</span>
           </div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
-              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">11일</strong></div>
-              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">21일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">10일</strong></div></div>
+              <div><span class="text-[10px] font-bold text-emerald-800 block">현재 남은 연차 (시간차 반영)</span><strong id="set_remain_vac" class="text-xl font-black text-emerald-700">0일</strong></div>
+              <div class="text-right text-[11px] text-emerald-900 space-y-0.5"><div>총 부여: <strong id="set_total_vac_label">0일</strong></div><div>달력 차감: <strong id="set_calendar_used_vac">0일</strong></div></div>
             </div>
             <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-center text-xs">
               <span class="font-extrabold text-emerald-950">💰 미사용 시 예상 연차수당(세전)</span>
@@ -435,20 +435,24 @@
           </details>
 
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="21" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+            <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="15" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
             <div><label class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
           </div>
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
             <div>
               <label class="block font-bold text-blue-800 mb-1 nowrap">✎ 현재 월 기본급 (원)</label>
-              <input type="number" id="input_base_pay" value="3005500" step="1000" onchange="App.saveSettings()" class="w-full p-2 border-2 border-blue-500 rounded-xl font-black text-right text-slate-900 tnum">
+              <input type="number" id="input_base_pay" value="0" step="1000" placeholder="0" onchange="App.saveSettings()" class="w-full p-2 border-2 border-blue-500 rounded-xl font-black text-right text-slate-900 tnum">
               <span class="text-[9px] text-slate-400 block mt-0.5">임단협 후 연 1회 갱신</span>
             </div>
             <div>
               <label class="block font-bold text-rose-800 mb-1 nowrap">🛡️ 월 고정 4대보험 합계</label>
-              <input type="number" id="input_fixed_ins" value="768100" step="100" onchange="App.saveSettings()" class="w-full p-2 border-2 border-rose-400 rounded-xl font-black text-right text-slate-900 tnum">
-              <span class="text-[9px] text-slate-400 block mt-0.5">건보399,080+연금313,020+고용56,000</span>
+              <input type="number" id="input_fixed_ins" value="0" step="100" placeholder="0" onchange="App.saveSettings()" class="w-full p-2 border-2 border-rose-400 rounded-xl font-black text-right text-slate-900 tnum">
+              <span class="text-[9px] text-slate-400 block mt-0.5">건보+국민연금+고용보험 합계</span>
             </div>
+          </div>
+          <div class="pt-2 border-t border-slate-100 text-xs">
+            <label class="block font-bold text-indigo-900 mb-1 nowrap">📅 입사일 (퇴직금 기산일)</label>
+            <input type="date" id="input_hire_date" value="2020-01-01" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center text-slate-900">
           </div>
         </div>
 
@@ -462,15 +466,14 @@
         </div>
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-2.5">
-          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드 백업 및 실데이터 복구</h2><span class="text-[10px] font-bold text-emerald-600">2중 금고 자동보호중</span></div>
+          <div class="flex items-center justify-between nowrap"><h2 class="text-sm font-black text-slate-900">💾 수동 코드 백업 및 복원</h2><span class="text-[10px] font-bold text-emerald-600">개인정보 100% 기기 내 격리</span></div>
           <div class="grid grid-cols-2 gap-2 text-xs pt-1">
             <button onclick="App.copyBackupCode()" class="py-2 px-3 bg-slate-800 text-white font-black rounded-xl nowrap">📋 백업코드 복사</button>
-            <button onclick="App.toggleRestoreBox()" class="py-2 px-3 bg-slate-200 text-slate-800 font-black rounded-xl nowrap">📥 코드 붙여넣어 복원</button>
+            <button onclick="App.toggleRestoreBox()" class="py-2 px-3 bg-emerald-600 text-white font-black rounded-xl nowrap">📥 코드 붙여넣어 복원</button>
           </div>
-          <button onclick="App.applyVerifiedJanToOctData(true)" class="w-full py-2 px-3 bg-emerald-50 border border-emerald-300 text-emerald-800 font-black rounded-xl text-xs nowrap">🔄 1~10월 급상여 지급 현황 내장데이터 다시 불러오기 (메모 유지)</button>
           <div id="restore_code_box" class="hidden pt-2 space-y-2">
-            <textarea id="textarea_restore_code" rows="3" placeholder="백업코드를 붙여넣으세요..." class="w-full p-2.5 border border-blue-300 rounded-xl text-[11px] font-mono bg-slate-50"></textarea>
-            <button onclick="App.restoreFromCode()" class="w-full py-2.5 bg-emerald-600 text-white font-black rounded-xl text-xs nowrap">✔️ 이 백업코드로 데이터 즉시 복원하기</button>
+            <textarea id="textarea_restore_code" rows="3" placeholder="백업코드를 여기에 붙여넣으세요..." class="w-full p-2.5 border border-blue-300 rounded-xl text-[11px] font-mono bg-slate-50"></textarea>
+            <button onclick="App.restoreFromCode()" class="w-full py-2.5 bg-emerald-600 text-white font-black rounded-xl text-xs nowrap">✔️ 이 백업코드로 데이터 즉시 복원하기 (메모 유지)</button>
           </div>
         </div>
       </div>
@@ -580,175 +583,6 @@
       { id: 'REQ_EDU', label: '🏫필수교육', cls: 'bg-teal-100 text-teal-900 border border-teal-400', type: 'REQ_EDU', hours: 0 },
       { id: 'CLEAR', label: '🧹지우개', cls: 'bg-slate-800 text-white', type: 'DEFAULT', hours: 0 }
     ];
-
-    // 1~10월 실제 근태표 검증 데이터
-    const VERIFIED_RECORDS_1_TO_10 = {
-      '2025-12-22': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2025-12-23': { type: 'OT', hours: 3, shift: 'EARLY' },
-      '2025-12-24': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2025-12-25': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'MID' },
-      '2025-12-26': { type: 'NORMAL', hours: 0, shift: 'MID' },
-      '2025-12-30': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2025-12-31': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'EARLY', compHol: true },
-      '2026-01-02': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'EARLY' },
-      '2026-01-07': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-01-10': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-01-14': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-01-18': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-01-20': { type: 'OT', hours: 4, shift: 'EARLY' },
-
-      '2026-01-24': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-01-25': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-01-26': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'NIGHT' },
-      '2026-01-30': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-01-31': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-02-04': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-02-06': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-02-08': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-02-12': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-02-14': { type: 'HOLIDAY', hours: 9.6667, holKind: 'DAY', shift: 'EARLY' },
-      '2026-02-19': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-
-      '2026-02-21': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-02-25': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-02-26': { type: 'OT', hours: 4, shift: 'MID' },
-      '2026-03-01': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-03-02': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-03-04': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-03-05': { type: 'OT', hours: 2, shift: 'EARLY' },
-      '2026-03-07': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-03-10': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'NIGHT' },
-      '2026-03-11': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'NIGHT' },
-      '2026-03-12': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-03-13': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-03-14': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-03-18': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-03-19': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-03-20': { type: 'OT', hours: 4, shift: 'NIGHT' },
-
-      '2026-03-23': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-03-25': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-03-26': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-03-28': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-03-29': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-04-01': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-04-02': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-04-04': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-04-06': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-04-09': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-04-10': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'MID', compHol: true },
-      '2026-04-14': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-04-15': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-04-16': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-04-18': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-04-19': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-04-20': { type: 'OT', hours: 4, shift: 'NIGHT' },
-
-      '2026-04-22': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-04-25': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-04-27': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'MID' },
-      '2026-04-30': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-05-01': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'MID' },
-      '2026-05-04': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-05-05': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-05-07': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'EARLY' },
-      '2026-05-15': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-05-16': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-05-19': { type: 'REQ_EDU', hours: 0, shift: 'MID' },
-      '2026-05-20': { type: 'REQ_EDU', hours: 0, shift: 'MID' },
-
-      '2026-05-25': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'EARLY' },
-      '2026-05-26': { type: 'EDU_ALLOW', hours: 0, shift: 'EARLY' },
-      '2026-05-27': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-05-28': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-05-29': { type: 'EDU_ALLOW', hours: 0, shift: 'EARLY' },
-      '2026-05-30': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-06-01': { type: 'EDU_ALLOW', hours: 0, shift: 'NIGHT' },
-      '2026-06-03': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-06-04': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-06-05': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-06-06': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-06-09': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-06-10': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-06-11': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-06-12': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
-      '2026-06-15': { type: 'GONGGA', hours: 0, vacDays: 0, shift: 'EARLY' },
-      '2026-06-18': { type: 'OT', hours: 2, shift: 'EARLY' },
-      '2026-06-19': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-06-20': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-
-      '2026-06-21': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-06-24': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-06-25': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-06-27': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-06-30': { type: 'OT', hours: 4, shift: 'MID' },
-      '2026-07-01': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-07-03': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-07-04': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-07-06': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-07-09': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-07-11': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-07-12': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-07-14': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-07-17': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-07-18': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-07-20': { type: 'OT', hours: 4, shift: 'EARLY' },
-
-      '2026-07-21': { type: 'NORMAL', hours: 0, shift: 'MID' },
-      '2026-07-22': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-07-23': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'MID' },
-      '2026-07-24': { type: 'LEAVE', hours: 0, vacDays: 1, shift: 'MID' },
-      '2026-07-31': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-08-01': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-08-03': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-08-04': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-08-05': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-08-06': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-08-07': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-08-08': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-08-13': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
-      '2026-08-14': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
-      '2026-08-17': { type: 'HOLIDAY', hours: 8, holKind: 'DAY', shift: 'EARLY' },
-      '2026-08-19': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-08-20': { type: 'OT', hours: 4, shift: 'EARLY' },
-
-      '2026-08-21': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-08-22': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-08-23': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-08-24': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-08-27': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-08-29': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-09-09': { type: 'EDU_ALLOW', hours: 0, shift: 'EARLY' },
-      '2026-09-12': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-09-13': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-09-18': { type: 'OT', hours: 4, shift: 'NIGHT' },
-      '2026-09-19': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-
-      '2026-09-23': { type: 'LEAVE', hours: 0, vacDays: 0.5, shift: 'MID' },
-      '2026-09-30': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-10-01': { type: 'OT', hours: 4, shift: 'EARLY' },
-      '2026-10-03': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' },
-      '2026-10-04': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-10-05': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT', compHol: true },
-      '2026-10-09': { type: 'HOLIDAY', hours: 8, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-10-10': { type: 'HOLIDAY', hours: 12, holKind: 'NIGHT', shift: 'NIGHT' },
-      '2026-10-14': { type: 'OT', hours: 5, shift: 'MID' },
-      '2026-10-18': { type: 'HOLIDAY', hours: 12, holKind: 'DAY', shift: 'EARLY' }
-    };
-
-    // 1~10월 급상여 지급 현황표 검증 데이터 (급여 / 상여 / 지급계 / 공제계 / 차감지급액)
-    const VERIFIED_EXTRAS_1_TO_10 = {
-      '2026-01': { customBasePay: 2882000, exactWage: 6233901, exactBonus: 0, exactGross: 6233901, exactDed: 1521699, exactNet: 4712202, exactTax: 446610, exactIns: 638330, nonSevOffset: 31200, manualHolBonus: null },
-      '2026-02': { customBasePay: 2882000, exactWage: 7279133, exactBonus: 7925500, exactGross: 15204633, exactDed: 3713972, exactNet: 11490661, exactTax: 2726970, exactIns: 558640, nonSevOffset: 30086, manualHolBonus: true },
-      '2026-03': { customBasePay: 3005500, exactWage: 7629344, exactBonus: 0, exactGross: 7629344, exactDed: 1708670, exactNet: 5920674, exactTax: 724110, exactIns: 558640, nonSevOffset: 28808, manualHolBonus: null },
-      '2026-04': { customBasePay: 3005500, exactWage: 8527194, exactBonus: 3005500, exactGross: 11532694, exactDed: 3229648, exactNet: 8303046, exactTax: 1654710, exactIns: 1096900, nonSevOffset: 27858, manualHolBonus: null },
-      '2026-05': { customBasePay: 3005500, exactWage: 7282344, exactBonus: 0, exactGross: 7282344, exactDed: 1834132, exactNet: 5448212, exactTax: 645120, exactIns: 757650, nonSevOffset: 25683, manualHolBonus: null },
-      '2026-06': { customBasePay: 3005500, exactWage: 7640629, exactBonus: 3005500, exactGross: 10646129, exactDed: 2623888, exactNet: 8022241, exactTax: 1435800, exactIns: 757650, eduHours: 4, nonSevOffset: 300897, manualHolBonus: null },
-      '2026-07': { customBasePay: 3005500, exactWage: 9347346, exactBonus: 0, exactGross: 9347346, exactDed: 2344134, exactNet: 7003212, exactTax: 1131760, exactIns: 768100, nonSevOffset: 23543, manualHolBonus: null },
-      '2026-08': { customBasePay: 3005500, exactWage: 7327676, exactBonus: 3005500, exactGross: 10333176, exactDed: 2565871, exactNet: 7767305, exactTax: 1372000, exactIns: 768100, nonSevOffset: 28502, manualHolBonus: null },
-      '2026-09': { customBasePay: 3005500, exactWage: 8190510, exactBonus: 3005500, exactGross: 11196010, exactDed: 1701920, exactNet: 9494090, exactTax: 854210, exactIns: 768100, eduHours: 3.58, nonSevOffset: 3567, manualHolBonus: true },
-      '2026-10': { customBasePay: 3005500, exactWage: 7065478, exactBonus: 3005500, exactGross: 10070978, exactDed: 3137060, exactNet: 6933918, exactTax: 2254650, exactIns: 768100, nonSevOffset: 19998, manualHolBonus: null }
-    };
 
     const AUTO_MEMO_GARBAGE = new Set(['필수교육(09~18시)', '교육수당(150%)', '공가(종합검진)']);
 
@@ -863,9 +697,10 @@
       payViewYear: 2026, payViewMonth: 11,
       reportYear: 2026, sevYear: 2026, sevMonth: 10, sevUseExactMonths: true,
 
-      basePay: 3005500, fixedInsurance: 768100, totalVacation: 21, priorUsedVacation: 0, shiftOffset: 0,
+      // 소스코드 기본값은 모두 0 또는 범용 초기값으로 설정 (개인정보 0%)
+      basePay: 0, retroOldBase: 0, fixedInsurance: 0, totalVacation: 15, priorUsedVacation: 0,
+      hireDate: '2020-01-01', shiftOffset: 0,
       records: {}, monthExtras: {},
-      seededJanToOct_v81: false,
 
       stampMode: false,
       activeStampId: 'OT4',
@@ -903,9 +738,6 @@
           const vd = await DualVault.loadSnapshot();
           if (vd) { this.loadStateObject(vd); localStorage.setItem(this.STORAGE_KEY, JSON.stringify(vd)); }
         }
-        if (!this.seededJanToOct_v81) {
-          this.applyVerifiedJanToOctData(false);
-        }
         this.resetBothViewsToToday();
         this.syncSettingsInputs();
         this.updateGithubUiStatus();
@@ -921,38 +753,6 @@
           const ev = this.currentGridCells[Number(cell.dataset.cellIdx)];
           if (ev) this.onCellTap(ev);
         });
-      },
-
-      // 1월~10월 실제 근태표 + 급상여 지급 현황표 데이터 반영 (개인 메모 및 11월 이후 데이터 보존)
-      applyVerifiedJanToOctData(askConfirm = false) {
-        if (askConfirm && !confirm('1월~10월의 실제 근태표 및 급상여 지급 현황 내장 데이터를 적용하시겠습니까?\n(직접 적어둔 개인 스케줄 메모와 11월 이후 기록은 그대로 유지됩니다.)')) return;
-        const start = new Date(2025, 11, 21, 12, 0, 0), end = new Date(2026, 9, 20, 12, 0, 0);
-        for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
-          const k = this.formatKey(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
-          const prev = this.records[k] || {};
-          const rawMemo = (prev.memo || '').trim();
-          const cleanMemo = AUTO_MEMO_GARBAGE.has(rawMemo) ? '' : rawMemo;
-          const ver = VERIFIED_RECORDS_1_TO_10[k];
-          if (ver) {
-            this.records[k] = { ...ver, memo: cleanMemo, memoColor: prev.memoColor };
-          } else if (cleanMemo) {
-            this.records[k] = { memo: cleanMemo, memoColor: prev.memoColor };
-          } else {
-            delete this.records[k];
-          }
-        }
-        Object.entries(VERIFIED_EXTRAS_1_TO_10).forEach(([mk, ex]) => {
-          this.monthExtras[mk] = { ...ex };
-        });
-        this.basePay = 3005500;
-        this.fixedInsurance = 768100;
-        this.totalVacation = 21;
-        this.priorUsedVacation = 0;
-        this.seededJanToOct_v81 = true;
-        this.save(true);
-        this.syncSettingsInputs();
-        this.render();
-        if (askConfirm) alert('✔ 1~10월 급상여 지급 현황 데이터(지급계 99,476,555원 / 차감지급액 75,095,561원)가 100% 반영되었습니다!');
       },
 
       initStampPalette() {
@@ -1032,6 +832,7 @@
       renderRetroSimulator() {
         const oldB = Number($('retro_old_base')?.value) || 0;
         const newB = Number($('retro_new_base')?.value) || this.basePay;
+        this.retroOldBase = oldB;
         let sm = Number($('retro_start_m')?.value) || 3;
         let em = Number($('retro_end_m')?.value) || 7;
         if (sm > em) [sm, em] = [em, sm];
@@ -1050,7 +851,7 @@
           const dHolB = Math.round(c.sumHolBaseH * 1.5 * newRate) - Math.round(c.sumHolBaseH * 1.5 * oldRate);
           const dHolO = Math.round(c.sumHolOverH * 2.0 * newRate) - Math.round(c.sumHolOverH * 2.0 * oldRate);
           const dNight = Math.round(c.sumNightH * newNightU) - Math.round(c.sumNightH * oldNightU);
-          const mDiff = Math.max(0, dBase + dBonus + dOt + dHolB + dHolO + dNight);
+          const mDiff = (oldB > 0 && newB > oldB) ? Math.max(0, dBase + dBonus + dOt + dHolB + dHolO + dNight) : 0;
           totalDiffGross += mDiff;
           rows.push(`<div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-200">
             <span class="font-bold text-slate-700">${m}월 <span class="text-[9.5px] text-slate-500">(잔${c.sumOtH}h·특${c.holCount}회·야${c.sumNightH}h${c.isEven ? '·상여' : ''})</span></span>
@@ -1235,7 +1036,7 @@
           const r = await fetch(`https://api.github.com/gists/${gid}?_t=${Date.now()}`, { headers: this.getGithubHeaders(t), cache: 'no-store' });
           const d = await r.json();
           const raw = (d.files?.[this.GIST_FILENAME] || d.files?.[this.LEGACY_GIST_FILENAME])?.content;
-          this.loadStateObject(JSON.parse(raw));
+          this.loadStateObject(JSON.parse(raw), true);
           this.ghToken = t; this.ghGistId = gid;
           if (this.priorUsedVacation < 0) this.priorUsedVacation = 0;
           this.save(true); this.syncSettingsInputs(); this.render();
@@ -1273,14 +1074,25 @@
         return Number.isInteger(h) ? `${h}h` : `${Number(h.toFixed(2))}h`;
       },
 
-      loadStateObject(p) {
+      loadStateObject(p, mergeExistingMemos = false) {
         if (p.basePay !== undefined) this.basePay = Number(p.basePay);
-        if (p.fixedInsurance !== undefined) this.fixedInsurance = Number(p.fixedInsurance) || 768100;
+        if (p.retroOldBase !== undefined) this.retroOldBase = Number(p.retroOldBase) || 0;
+        if (p.fixedInsurance !== undefined) this.fixedInsurance = Number(p.fixedInsurance) || 0;
         if (p.totalVacation !== undefined) this.totalVacation = Number(p.totalVacation);
         if (p.priorUsedVacation !== undefined) this.priorUsedVacation = Math.max(0, Number(p.priorUsedVacation) || 0);
+        if (p.hireDate !== undefined) this.hireDate = p.hireDate || '2020-01-01';
         if (p.shiftOffset !== undefined) this.shiftOffset = Number(p.shiftOffset) || 0;
         if (p.records && typeof p.records === 'object') {
-          this.records = p.records;
+          const prevRecords = this.records || {};
+          const nextRecords = { ...p.records };
+          if (mergeExistingMemos) {
+            Object.entries(prevRecords).forEach(([k, oldRec]) => {
+              if (oldRec && oldRec.memo && (!nextRecords[k] || !nextRecords[k].memo)) {
+                nextRecords[k] = { ...(nextRecords[k] || {}), memo: oldRec.memo, memoColor: oldRec.memoColor };
+              }
+            });
+          }
+          this.records = nextRecords;
           Object.entries(this.records).forEach(([k, r]) => {
             if (!r) return;
             const m = (r.memo || '').trim();
@@ -1290,14 +1102,13 @@
           });
         }
         if (p.monthExtras && typeof p.monthExtras === 'object') {
-          this.monthExtras = p.monthExtras;
+          this.monthExtras = { ...(mergeExistingMemos ? this.monthExtras : {}), ...p.monthExtras };
           Object.values(this.monthExtras).forEach(ex => {
             if (ex && ex.exactGross !== undefined && ex.exactDed !== undefined && ex.exactNet === undefined) {
               ex.exactNet = ex.exactGross - ex.exactDed;
             }
           });
         }
-        if (p.seededJanToOct_v81 !== undefined) this.seededJanToOct_v81 = Boolean(p.seededJanToOct_v81);
         if (p.ghToken !== undefined) this.ghToken = p.ghToken;
         if (p.ghGistId !== undefined) this.ghGistId = p.ghGistId;
         if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
@@ -1307,10 +1118,11 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.1', exportedAt: new Date().toISOString(),
-          basePay: this.basePay, fixedInsurance: this.fixedInsurance, totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
-          shiftOffset: this.shiftOffset, records: this.records, monthExtras: this.monthExtras,
-          seededJanToOct_v81: this.seededJanToOct_v81,
+          version: '8.2', exportedAt: new Date().toISOString(),
+          basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
+          totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
+          hireDate: this.hireDate, shiftOffset: this.shiftOffset,
+          records: this.records, monthExtras: this.monthExtras,
           ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync
         };
         if (inc) p.ghToken = this.ghToken;
@@ -1369,7 +1181,14 @@
       restoreFromCode() {
         const raw = $('textarea_restore_code').value.trim();
         if (!raw) return;
-        try { this.loadStateObject(JSON.parse(raw)); this.save(); this.syncSettingsInputs(); this.render(); alert('복원 완료!'); this.switchTab('home'); } catch (e) { alert('코드 형식 오류'); }
+        try {
+          this.loadStateObject(JSON.parse(raw), true);
+          this.save();
+          this.syncSettingsInputs();
+          this.render();
+          alert('✔ 백업코드 복원이 완료되었습니다! (기존 메모 유지)');
+          this.switchTab('home');
+        } catch (e) { alert('코드 형식 오류입니다.'); }
       },
       getTodayInfo() {
         const n = new Date(), y = n.getFullYear(), m = n.getMonth() + 1, d = n.getDate(), dow = n.getDay();
@@ -1385,13 +1204,10 @@
       getLmsAllowance(b = this.basePay) { return (!b || b <= 0) ? 0 : Math.round(b / 44); },
       getHourlyRate(b = this.basePay) {
         if (!b || b <= 0) return 0;
-        if (b === 2882000) return 22949.2559;
-        if (b === 3005500) return 23897.616;
-        return (b + (Math.ceil(b * (8 / 12)) + 1) + 50000 + 130000 + this.getLmsAllowance(b)) / 220;
+        return (b + (Math.ceil(b * (8 / 12)) + 1) + 180000 + this.getLmsAllowance(b)) / 220;
       },
       getNightHourlyRate(b = this.basePay) {
         if (!b || b <= 0) return 0;
-        if (b === 3005500) return 11948.82;
         return 0.5 * this.getHourlyRate(b);
       },
       getCalendarUsedVacationDays() {
@@ -1415,9 +1231,11 @@
       syncSettingsInputs() {
         $('input_total_vac').value = this.totalVacation;
         $('input_prior_used_vac').value = this.priorUsedVacation;
-        $('input_base_pay').value = this.basePay;
-        if ($('input_fixed_ins')) $('input_fixed_ins').value = this.fixedInsurance;
-        if ($('retro_new_base')) $('retro_new_base').value = this.basePay;
+        $('input_base_pay').value = this.basePay || '';
+        if ($('input_fixed_ins')) $('input_fixed_ins').value = this.fixedInsurance || '';
+        if ($('input_hire_date')) $('input_hire_date').value = this.hireDate || '2020-01-01';
+        if ($('retro_old_base')) $('retro_old_base').value = this.retroOldBase || '';
+        if ($('retro_new_base')) $('retro_new_base').value = this.basePay || '';
         if ($('input_gh_token')) $('input_gh_token').value = this.ghToken || '';
         if ($('chk_gh_auto_sync')) $('chk_gh_auto_sync').checked = this.ghAutoSync;
       },
@@ -1425,8 +1243,9 @@
         this.totalVacation = Number($('input_total_vac').value) || 0;
         this.priorUsedVacation = Number($('input_prior_used_vac').value) || 0;
         this.basePay = Number($('input_base_pay').value) || 0;
-        if ($('input_fixed_ins')) this.fixedInsurance = Number($('input_fixed_ins').value) || 768100;
-        if ($('retro_new_base')) $('retro_new_base').value = this.basePay;
+        if ($('input_fixed_ins')) this.fixedInsurance = Number($('input_fixed_ins').value) || 0;
+        if ($('input_hire_date')) this.hireDate = $('input_hire_date').value || '2020-01-01';
+        if ($('retro_new_base')) $('retro_new_base').value = this.basePay || '';
         this.save(); this.render();
       },
 
@@ -1453,7 +1272,6 @@
         if (bRaw === '') delete ex.exactBonus;
         else ex.exactBonus = Number(bRaw);
 
-        // 급여·상여 입력값 변경 시 구버전 exactGross/exactDed는 재계산되도록 정리
         delete ex.exactGross;
         delete ex.exactDed;
 
@@ -1540,11 +1358,11 @@
         if (!base || base <= 0 || nbGross <= 0) return 0;
         let bt = 0;
         if (nbGross <= 5000000) bt = Math.max(0, (nbGross - 3500000) * 0.12);
-        else if (nbGross <= 6233901) bt = 180000 + (nbGross - 5000000) * 0.183167;
-        else if (nbGross <= 6721792) bt = 406010 + (nbGross - 6233901) * 0.135276;
-        else if (nbGross <= 7333072) bt = 472010 + (nbGross - 6721792) * 0.201086;
-        else if (nbGross <= 8192719) bt = 594930 + (nbGross - 7333072) * 0.211284;
-        else bt = 776560 + (nbGross - 8192719) * 0.220577;
+        else if (nbGross <= 6250000) bt = 180000 + (nbGross - 5000000) * 0.183;
+        else if (nbGross <= 6750000) bt = 408750 + (nbGross - 6250000) * 0.135;
+        else if (nbGross <= 7350000) bt = 476250 + (nbGross - 6750000) * 0.201;
+        else if (nbGross <= 8200000) bt = 596850 + (nbGross - 7350000) * 0.211;
+        else bt = 776200 + (nbGross - 8200000) * 0.221;
         let bTax = 0;
         if (regBonus > 0) bTax += regBonus * (prevHol ? 0.2508 : 0.217);
         if (prevHol) bTax += base * 0.2508;
@@ -1592,7 +1410,6 @@
         const regBonusPay = (hasBase && isEven) ? appliedBase : 0, holBonusPay = (hasBase && hasHol) ? appliedBase : 0;
         const fixedAllow = hasBase ? 180000 : 0;
 
-        // 달력 기준 순수 산출값 (① 예상 급여 / ② 예상 상여 / ③ 예상 차감지급액)
         const autoWage = hasBase ? (appliedBase + fixedAllow + lmsPay + otPay + holBasePay + holOverPay + nightPay + eduPay) : 0;
         const autoBonus = regBonusPay + holBonusPay;
         const autoGross = autoWage + autoBonus;
@@ -1602,7 +1419,6 @@
         const autoDed = totalTax + fixedInsurances + unionFee;
         const autoNet = autoGross - autoDed;
 
-        // 급상여 지급 현황표 실제 입력값 반영 (① 급여 / ② 상여 / ③ 차감지급액)
         const hasExactWage = ex.exactWage !== undefined && ex.exactWage >= 0;
         const hasExactBonus = ex.exactBonus !== undefined && ex.exactBonus >= 0;
         const hasExactNet = ex.exactNet !== undefined && ex.exactNet > 0;
@@ -1629,7 +1445,6 @@
 
         const isVerifiedSlip = hasExactWage || hasExactBonus || hasExactNet || hasExactGross;
 
-        // 퇴직금 산정용 월 급여: 현황표 '급여' 칸 금액 (주택자금이자지원 등 비평균임금 오프셋만 차감)
         const nonSevOffset = ex.nonSevOffset || 0;
         const coreMonthlyWage = hasExactWage ? Math.max(0, finalWage - nonSevOffset) : autoWage;
 
@@ -1651,7 +1466,11 @@
         else if (this.sevMonth < 1) { this.sevMonth = 12; this.sevYear--; }
         this.renderSeveranceTab();
       },
-      resetSeveranceToOct() { this.sevYear = 2026; this.sevMonth = 10; this.renderSeveranceTab(); },
+      resetSeveranceToOct() {
+        const t = this.getTodayInfo();
+        this.sevYear = t.y; this.sevMonth = t.m;
+        this.renderSeveranceTab();
+      },
       toggleSeveranceTenureMode() { this.sevUseExactMonths = !this.sevUseExactMonths; this.renderSeveranceTab(); },
 
       calculateSeveranceSummary(ty, tm) {
@@ -1662,13 +1481,18 @@
           months.push(this.calculateMonthSummary(y, m));
         }
         const lb = months[2].appliedBase || this.basePay;
-        const avg3M = months.reduce((a, c) => a + c.coreMonthlyWage, 0) / 3;
-        const bonusInc = (lb * (8 / 12)) + 64961.6667;
-        const avgWage = Math.round((avg3M + bonusInc) / 10) * 10;
-        const tmCnt = Math.max(12, (ty - 2012) * 12 + (tm - 10)), tyInt = Math.floor(tmCnt / 12), tmRem = tmCnt % 12;
+        const hasBase = lb > 0;
+        const avg3M = hasBase ? (months.reduce((a, c) => a + c.coreMonthlyWage, 0) / 3) : 0;
+        const bonusInc = hasBase ? ((lb * (8 / 12)) + 64961.6667) : 0;
+        const avgWage = hasBase ? (Math.round((avg3M + bonusInc) / 10) * 10) : 0;
+
+        const [hy, hm, hd] = (this.hireDate || '2020-01-01').split('-').map(Number);
+        const baseM = (hd || 1) <= 15 ? (hm - 1) : hm;
+        const tmCnt = Math.max(12, (ty - (hy || 2020)) * 12 + (tm - baseM));
+        const tyInt = Math.floor(tmCnt / 12), tmRem = tmCnt % 12;
         const tf = this.sevUseExactMonths ? (tyInt + (tmRem / 12)) : tyInt;
-        const gross = Math.round(avgWage * tf);
-        const itRaw = tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096));
+        const gross = hasBase ? Math.round(avgWage * tf) : 0;
+        const itRaw = hasBase ? (tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096))) : 0;
         const sIt = Math.max(0, Math.round(itRaw / 10) * 10), sLt = Math.floor((sIt * 0.1) / 10) * 10, tTax = sIt + sLt;
         return {
           targetY: ty, targetM: tm, lastDay: new Date(ty, tm, 0).getDate(), months,
@@ -1680,13 +1504,14 @@
 
       renderSeveranceTab() {
         const s = this.calculateSeveranceSummary(this.sevYear, this.sevMonth);
+        const hireStr = (this.hireDate || '2020-01-01').replace(/-/g, '.');
         setText('sev_sub_period', `직전 3개월 (${s.months.map(c => c.payM + '월').join('·')}) 급여 실시간 연동`);
         setText('sev_month_title', `${s.targetY}년 ${s.targetM}월 예상퇴직금 조회`);
         setText('btn_sev_tenure_mode', this.sevUseExactMonths ? '근속: 월단위연동' : '근속: 연단위고정');
         setText('sev_net_pay', `${s.netSeverance.toLocaleString()}원`);
         setText('sev_gross_pay', `${s.grossSeverance.toLocaleString()}원`);
         setText('sev_total_tax', `-${s.totalSevTax.toLocaleString()}원`);
-        setText('sev_dates_info', `2012.11.09 ~ ${s.targetY}.${String(s.targetM).padStart(2, '0')}.${String(s.lastDay).padStart(2, '0')}`);
+        setText('sev_dates_info', `${hireStr} ~ ${s.targetY}.${String(s.targetM).padStart(2, '0')}.${String(s.lastDay).padStart(2, '0')}`);
         setText('sev_avg_wage', `${s.avgWage.toLocaleString()}원`);
         setText('sev_tenure_text', `${s.tenYearsInt}년 ${String(s.tenMonthsRem).padStart(2, '0')}개월 (${s.tenureFactor.toFixed(2)}년)`);
         setText('sev_tax_detail', `-${s.sevIncomeTax.toLocaleString()}원 / -${s.sevLocalTax.toLocaleString()}원`);
@@ -1987,7 +1812,9 @@
 
         const diffNotice = $('slip_diff_notice');
         if (diffNotice) {
-          if (calc.isVerifiedSlip) {
+          if (this.basePay <= 0 && !calc.isVerifiedSlip) {
+            diffNotice.innerHTML = `🔒 <strong>개인정보 보호 모드:</strong> 처음 사용 시 <strong class="text-blue-700 cursor-pointer underline" onclick="App.switchTab('settings')">[⚙️설정·백업]</strong> 탭에서 백업코드를 복원하거나 기본급을 입력해 주세요.`;
+          } else if (calc.isVerifiedSlip) {
             const wDiff = calc.finalWage - calc.autoWage;
             const nDiff = calc.finalNet - calc.autoNet;
             const wAcc = calc.finalWage > 0 ? Math.max(0, 100 - (Math.abs(wDiff) / calc.finalWage * 100)).toFixed(1) : '100.0';
