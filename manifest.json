@@ -1,5 +1,6 @@
 {
   "id": "/",
+  "lang": "ko",
   "name": "스마트 월급계산기",
   "short_name": "월급계산기",
   "description": "스마트 월급 및 퇴직금 계산기",
