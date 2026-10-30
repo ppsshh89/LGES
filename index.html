@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.7</title>
+  <title>스마트 월급·퇴직금 계산기 v8.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -38,12 +38,12 @@
     .tnum { font-variant-numeric: tabular-nums; }
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2vw, 8.5px); font-weight: 800; letter-spacing: -.05em; line-height: 1.2; padding: 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
     .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
-    @keyframes focusPulse { 0%, 100% { box-shadow: inset 0 0 0 3px #f59e0b; background: #fef3c7; } 50% { box-shadow: inset 0 0 0 3px #ea580c; background: #fde68a; } }
-    .cell-focused { animation: focusPulse .75s ease-in-out 3; box-shadow: inset 0 0 0 2.5px #f59e0b !important; z-index: 20; }
-    @keyframes slideL { from { opacity: .55; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes slideR { from { opacity: .55; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
-    .swipe-left-anim { animation: slideL .18s ease-out; }
-    .swipe-right-anim { animation: slideR .18s ease-out; }
+    @keyframes focusPulse { 0%, 100% { box-shadow: inset 0 0 0 3px #f59e0b !important; background: #fef3c7 !important; } 50% { box-shadow: inset 0 0 0 3px #ea580c !important; background: #fde68a !important; } }
+    .cell-focused { animation: focusPulse .6s ease-in-out 3; box-shadow: inset 0 0 0 2.5px #f59e0b !important; z-index: 20; }
+    @keyframes slideL { from { opacity: .7; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideR { from { opacity: .7; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+    .swipe-left-anim { animation: slideL .12s ease-out; }
+    .swipe-right-anim { animation: slideR .12s ease-out; }
   </style>
 </head>
 <body>
@@ -67,25 +67,25 @@
     </header>
 
     <main id="app_main_container" class="flex-1 w-full space-y-1.5 pb-4">
-      <!-- TAB 1: 달력 & 홈 (화면 어디서든 좌우 스와이프 가능) -->
+      <!-- TAB 1: 달력 & 홈 -->
       <div id="tab_home" class="space-y-1.5 w-full" style="touch-action:pan-y;">
         <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden">
-          <!-- 상단 1번째 줄: 중복 버튼 제거 & 깔끔한 월 이동 헤더 -->
+          <!-- 상단 1번째 줄: 월 이동 헤더 -->
           <div class="px-3 py-1.5 flex items-center justify-between gap-2 nowrap w-full box-border">
-            <button onclick="App.changeMonth(-1)" class="w-8 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center active:scale-95 transition">◀</button>
+            <button type="button" id="btn_prev_month" class="w-8 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center active:scale-95 transition">◀</button>
             <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight text-center flex-1">일정 달력</h2>
-            <button onclick="App.changeMonth(1)" class="w-8 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center active:scale-95 transition">▶</button>
+            <button type="button" id="btn_next_month" class="w-8 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center active:scale-95 transition">▶</button>
           </div>
 
           <!-- 상단 2번째 줄: 오늘날짜/급여기간 + 도장입력 토글 바 -->
           <div class="px-2 h-7 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-1.5 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
             <span id="subbar_left_text" class="truncate">📅 달력 및 급여 계산기</span>
-            <button id="btn_stamp_toggle" onclick="App.toggleStampMode()" class="shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-slate-300 bg-white text-slate-700 shadow-sm active:scale-95 transition">🖌️ 도장입력 OFF</button>
+            <button type="button" id="btn_stamp_toggle" class="shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-slate-300 bg-white text-slate-700 shadow-sm active:scale-95 transition">🖌️ 도장입력 OFF</button>
           </div>
           <div id="stamp_palette_bar" class="hidden bg-amber-50/95 border-t border-amber-200 px-1.5 py-1.5 space-y-1">
             <div class="flex items-center justify-between px-1 text-[9.5px] font-extrabold text-amber-900">
               <span>⚡ 도장 선택 후 날짜를 톡톡 터치하세요 (같은 도장 재터치 시 해제)</span>
-              <button onclick="App.toggleStampMode()" class="text-rose-600 font-black">닫기 ✕</button>
+              <button type="button" onclick="App.toggleStampMode()" class="text-rose-600 font-black">닫기 ✕</button>
             </div>
             <div id="stamp_btns_grid" class="grid grid-cols-6 gap-1 text-[9.5px] font-black"></div>
           </div>
@@ -95,14 +95,18 @@
           </div>
           <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px] w-full"></div>
 
-          <!-- 달력 바로 밑 엄지손가락 전용 컨트롤 바 (눈이 편안한 통일 톤 & 오늘 불빛 반응) -->
-          <div class="px-2 py-1.5 bg-slate-100 border-t border-slate-200 flex items-center gap-1.5 w-full box-border">
-            <button type="button" onclick="App.goToTodayMonth(true, true)" class="px-3.5 py-1.5 rounded-xl bg-white active:bg-amber-50 text-slate-700 font-extrabold text-xs border border-slate-300/90 shadow-sm flex items-center justify-center gap-1 shrink-0 active:scale-95 transition nowrap">
-              <span>📍</span><span>오늘</span>
-            </button>
-            <div class="grid grid-cols-2 gap-1 flex-1 bg-slate-200/80 p-0.5 rounded-xl border border-slate-300/70">
-              <button type="button" id="btm_view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="py-1.5 rounded-lg text-xs font-black transition bg-white text-blue-700 shadow-sm border border-slate-200/80 active:scale-95">📝 메모뷰</button>
-              <button type="button" id="btm_view_btn_PAY" onclick="App.setCalendarView('PAY')" class="py-1.5 rounded-lg text-xs font-bold transition text-slate-500 active:scale-95">💰 급여뷰</button>
+          <!-- 달력 바로 밑: 중앙 기준 80% 폭 · 좌우 여백 · 3개 동일 크기 고속 반응 버튼 바 -->
+          <div class="py-1.5 bg-slate-100 border-t border-slate-200 w-full box-border">
+            <div class="w-[80%] mx-auto grid grid-cols-3 gap-1.5 bg-slate-200/80 p-1 rounded-xl border border-slate-300/70 box-border">
+              <button type="button" id="btn_ctrl_today" class="w-full py-1.5 rounded-lg text-[11.5px] font-extrabold transition bg-white/80 active:bg-amber-50 text-slate-700 border border-slate-200/90 shadow-sm flex items-center justify-center gap-0.5 active:scale-95 nowrap">
+                <span>📍</span><span>오늘로</span>
+              </button>
+              <button type="button" id="btm_view_btn_MEMO" class="w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-0.5 active:scale-95 nowrap">
+                <span>📝</span><span>메모뷰</span>
+              </button>
+              <button type="button" id="btm_view_btn_PAY" class="w-full py-1.5 rounded-lg text-[11.5px] font-bold transition text-slate-500 flex items-center justify-center gap-0.5 active:scale-95 nowrap">
+                <span>💰</span><span>급여뷰</span>
+              </button>
             </div>
           </div>
         </div>
@@ -490,7 +494,7 @@
       </div>
     </main>
 
-    <!-- 하단 네비게이션 (달력·홈 재터치 시 오늘 달력으로 즉시 복귀 + 불빛 표시) -->
+    <!-- 하단 네비게이션 -->
     <nav class="fixed-bottom-nav bg-white/95 backdrop-blur border-t border-slate-300 px-0.5 py-2 grid grid-cols-5 text-center text-[10px] tracking-tighter font-bold text-slate-400 nowrap">
       <button id="nav_home" onclick="App.switchTab('home', true)" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report', true)" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
@@ -708,7 +712,6 @@
       payViewYear: 2026, payViewMonth: 11,
       reportYear: 2026, sevYear: 2026, sevMonth: 10, sevUseExactMonths: true,
 
-      // 소스코드 기본값은 모두 0 또는 범용 초기값으로 설정 (개인정보 0%)
       basePay: 0, retroOldBase: 0, fixedInsurance: 0, totalVacation: 15, priorUsedVacation: 0,
       hireDate: '2020-01-01', shiftOffset: 0,
       records: {}, monthExtras: {},
@@ -736,6 +739,7 @@
         this.initModalButtons();
         this.initStampPalette();
         this.initRetroSelectors();
+        this.initFastControlButtons();
         this.initSwipeGesture();
         this.initGridDelegation();
 
@@ -753,6 +757,47 @@
         this.syncSettingsInputs();
         this.updateGithubUiStatus();
         this.render();
+      },
+
+      // 슬라이드 직후에도 딜레이 없이 0.01초 만에 반응하는 고속 터치 엔진
+      bindFastTap(id, handler) {
+        const el = $(id);
+        if (!el) return;
+        let sx = 0, sy = 0, lastTouchTime = 0;
+        el.addEventListener('touchstart', e => {
+          if (e.touches.length === 1) {
+            sx = e.touches[0].clientX;
+            sy = e.touches[0].clientY;
+          }
+        }, { passive: true });
+        el.addEventListener('touchend', e => {
+          if (!e.changedTouches || e.changedTouches.length !== 1) return;
+          const dx = Math.abs(e.changedTouches[0].clientX - sx);
+          const dy = Math.abs(e.changedTouches[0].clientY - sy);
+          if (dx < 24 && dy < 24) {
+            e.preventDefault();
+            e.stopPropagation();
+            lastTouchTime = Date.now();
+            handler();
+          }
+        }, { passive: false });
+        el.addEventListener('click', e => {
+          if (Date.now() - lastTouchTime < 450) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          handler();
+        });
+      },
+
+      initFastControlButtons() {
+        this.bindFastTap('btn_ctrl_today', () => this.goToTodayMonth(true, true));
+        this.bindFastTap('btm_view_btn_MEMO', () => this.setCalendarView('MEMO'));
+        this.bindFastTap('btm_view_btn_PAY', () => this.setCalendarView('PAY'));
+        this.bindFastTap('btn_prev_month', () => this.changeMonth(-1));
+        this.bindFastTap('btn_next_month', () => this.changeMonth(1));
+        this.bindFastTap('btn_stamp_toggle', () => this.toggleStampMode());
       },
 
       initGridDelegation() {
@@ -939,20 +984,31 @@
         this.memoPayOffset = 0;
         this.calendarView = 'MEMO';
         this.syncViewButtonsUI();
-        this.flashDateCell(this.formatKey(y, m, d));
+        const k = this.formatKey(y, m, d);
+        this.focusedDateKey = k;
         this.render(false);
+        this.triggerFocusFlash(k);
         this.scrollToTopClean();
       },
 
-      // 특정 날짜(또는 오늘 날짜) 셀에 반짝임 포커스 효과를 주는 헬퍼
-      flashDateCell(dateKey) {
-        this.focusedDateKey = null;
+      // DOM 전체를 재렌더링하지 않고 해당 날짜 셀만 즉시 반짝이게 처리
+      triggerFocusFlash(dateKey) {
         clearTimeout(this.focusClearTimer);
         this.focusedDateKey = dateKey;
+        const grid = $('calendar_grid');
+        if (grid) {
+          grid.querySelectorAll('.cell-focused').forEach(el => el.classList.remove('cell-focused'));
+          const target = grid.querySelector(`[data-date-key="${dateKey}"]`);
+          if (target) {
+            void target.offsetWidth;
+            target.classList.add('cell-focused');
+          }
+        }
         this.focusClearTimer = setTimeout(() => {
           this.focusedDateKey = null;
-          this.render(true);
-        }, 2500);
+          const g = $('calendar_grid');
+          if (g) g.querySelectorAll('.cell-focused').forEach(el => el.classList.remove('cell-focused'));
+        }, 1900);
       },
 
       scrollToTopClean() {
@@ -967,22 +1023,35 @@
         this.save(); this.syncSettingsInputs(); this.render();
       },
 
-      // 달력·홈 탭 전체 화면에서 좌우 스와이프 시 이전달/다음달 전환 (버튼 터치 시 스와이프 간섭 완벽 차단)
+      // 좌우 슬라이드 시 상하 관성 스크롤이 발생해 버튼 터치가 씹히는 현상 원천 차단
       initSwipeGesture() {
         const z = $('tab_home');
         if (!z) return;
-        let sx = 0, sy = 0, ignoreSwipe = false;
+        let sx = 0, sy = 0, ignoreSwipe = false, isHorizSwipe = false;
         z.addEventListener('touchstart', e => {
           if (e.touches.length === 1) {
             ignoreSwipe = Boolean(e.target?.closest('button, input, textarea, select, a, summary'));
+            isHorizSwipe = false;
             sx = e.touches[0].clientX;
             sy = e.touches[0].clientY;
           }
         }, { passive: true });
+        z.addEventListener('touchmove', e => {
+          if (ignoreSwipe || !e.touches || e.touches.length !== 1) return;
+          const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+          if (!isHorizSwipe && Math.abs(dx) > 14 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+            isHorizSwipe = true;
+          }
+          if (isHorizSwipe && e.cancelable) {
+            e.preventDefault();
+          }
+        }, { passive: false });
         z.addEventListener('touchend', e => {
           if (ignoreSwipe || !e.changedTouches || e.changedTouches.length !== 1) return;
           const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
-          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) this.changeMonth(dx < 0 ? 1 : -1);
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+            this.changeMonth(dx < 0 ? 1 : -1);
+          }
         }, { passive: true });
       },
 
@@ -1137,7 +1206,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.7', exportedAt: new Date().toISOString(),
+          version: '8.8', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
@@ -1159,11 +1228,11 @@
         }
       },
 
-      // 하단 메모뷰/급여뷰 버튼 스타일 동기화 (시선을 뺏지 않는 통일된 소프트 화이트 탭 디자인)
+      // 하단 3개 버튼(오늘로 · 메모뷰 · 급여뷰) 눈이 편안한 통일 스타일 동기화
       syncViewButtonsUI() {
         const v = this.calendarView;
-        const activeCls = 'py-1.5 rounded-lg text-xs font-black transition bg-white text-blue-700 shadow-sm border border-slate-200/80 active:scale-95';
-        const inactiveCls = 'py-1.5 rounded-lg text-xs font-bold transition text-slate-500 active:scale-95';
+        const activeCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-0.5 active:scale-95 nowrap';
+        const inactiveCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-bold transition text-slate-500 flex items-center justify-center gap-0.5 active:scale-95 nowrap';
 
         const btmMemo = $('btm_view_btn_MEMO'), btmPay = $('btm_view_btn_PAY');
         if (btmMemo) btmMemo.className = (v === 'MEMO') ? activeCls : inactiveCls;
@@ -1224,7 +1293,7 @@
         return { y, m, d, dow, dayName: this.DAY_KOR[dow], key: this.formatKey(y, m, d) };
       },
 
-      // 오늘 버튼 클릭 시 해당 월로 즉시 이동 + 오늘 날짜 칸 반짝임(불빛) 효과 실행
+      // 오늘로 버튼 클릭 시 즉시 해당 월로 이동 & 오늘 날짜 칸 반짝임(불빛) 표시
       goToTodayMonth(r = true, flashToday = true) {
         const t = this.getTodayInfo();
         if (this.calendarView === 'MEMO') {
@@ -1237,10 +1306,9 @@
           this.payViewYear = py;
           this.payViewMonth = pm;
         }
-        if (flashToday) {
-          this.flashDateCell(t.key);
-        }
+        if (flashToday) this.focusedDateKey = t.key;
         if (r) this.render();
+        if (flashToday) this.triggerFocusFlash(t.key);
       },
 
       getLmsAllowance(b = this.basePay) { return (!b || b <= 0) ? 0 : Math.round(b / 44); },
@@ -1261,7 +1329,6 @@
       },
 
       switchTab(tab, fromNav = false) {
-        // 이미 달력·홈 탭을 보고 있을 때 하단 '달력·홈' 버튼을 다시 누르면 오늘 날짜 달력으로 즉시 복귀 + 불빛 효과
         if (fromNav && this.activeTab === 'home' && tab === 'home') {
           this.goToTodayMonth(true, true);
           this.scrollToTopClean();
@@ -1304,14 +1371,12 @@
         return this.monthExtras[k];
       },
 
-      // 명절상여 스위치 (자동 ➔ 강제ON ➔ 강제OFF 순환)
       toggleManualHolBonus() {
         const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
         ex.manualHolBonus = (ex.manualHolBonus === null || ex.manualHolBonus === undefined) ? true : (ex.manualHolBonus === true ? false : null);
         this.save(); this.render();
       },
 
-      // 2개월 스마트 연동 명절상여 판별기
       resolveHolidayBonusStatus(payY, payM) {
         const ex = this.getMonthExtra(payY, payM);
         const appliedBase = ex.customBasePay || this.basePay;
@@ -1320,7 +1385,6 @@
         let prevY = payY, prevM = payM - 1; if (prevM < 1) { prevM = 12; prevY -= 1; }
         let nextY = payY, nextM = payM + 1; if (nextM > 12) { nextM = 1; nextY += 1; }
         const prevEx = this.getMonthExtra(prevY, prevM);
-        const nextEx = this.getMonthExtra(nextY, nextM);
         const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM);
         const nextFest = KoreanHolidayEngine.getFestivalInCalendarMonth(nextY, nextM);
 
@@ -1487,7 +1551,6 @@
         const actualWorkHours = (normalWorkDays * 8) + sumOtH + eduH + sumHolBaseH + sumHolOverH;
         const weeklyAvgHours = hasBase ? (actualWorkHours / (paidDays / 7)) : 0;
 
-        // 2개월 스마트 연동 명절상여 확인
         const holStatus = this.resolveHolidayBonusStatus(payY, payM);
         const hasHol = holStatus.hasHol;
         const autoHolName = holStatus.name;
@@ -1987,7 +2050,7 @@
                 chips.push(`<div class="memo-chip" style="background:${pal.bg};border:1px solid ${pal.border}">${this.escapeHtml(ln)}</div>`);
               });
             }
-            htmlParts.push(`<div data-cell-idx="${idx}" class="p-1 ${ch} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cs}">${this.buildCellHeaderHtml(dl, dc, isT, ev.badgeKey)}${ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center mb-0.5">${ev.holidayName}</div>` : ''}<div class="flex flex-col gap-[1.5px] w-full">${chips.join('')}</div></div>`);
+            htmlParts.push(`<div data-cell-idx="${idx}" data-date-key="${ev.key}" class="p-1 ${ch} min-w-0 overflow-hidden flex flex-col justify-start cursor-pointer active:scale-95 transition ${cs}">${this.buildCellHeaderHtml(dl, dc, isT, ev.badgeKey)}${ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 leading-tight truncate text-center mb-0.5">${ev.holidayName}</div>` : ''}<div class="flex flex-col gap-[1.5px] w-full">${chips.join('')}</div></div>`);
           });
         } else {
           const fd = calc.evaluated[0].dow, tc = fd + calc.evaluated.length, ch = (Math.ceil(tc / 7) >= 6) ? 'min-h-[72px]' : 'min-h-[86px]';
@@ -2010,7 +2073,7 @@
             const isT = (ev.key === ti.key), isF = (ev.key === this.focusedDateKey);
             if (isT) cs += ' cell-today'; if (isF) cs += ' cell-focused';
             const dc = ev.isSundayOrHol ? 'text-red-600' : (ev.isSaturday ? 'text-blue-600' : 'text-slate-900');
-            htmlParts.push(`<div data-cell-idx="${idx}" class="p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${ch} min-w-0 overflow-hidden ${cs}">${this.buildCellHeaderHtml(`${ev.m}.${ev.d}`, dc, isT, ev.badgeKey)}${ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 truncate text-center">${ev.holidayName}</div>` : '<div class="h-[9px]"></div>'}<div class="text-center leading-none my-0.5">${sh}</div><div class="flex items-center justify-end text-[7.5px] font-extrabold leading-none"><span class="${ev.nightHours > 0 ? 'text-purple-800' : 'text-transparent'}">야${ev.nightHours}h</span></div></div>`);
+            htmlParts.push(`<div data-cell-idx="${idx}" data-date-key="${ev.key}" class="p-1 cursor-pointer transition active:scale-95 flex flex-col justify-between ${ch} min-w-0 overflow-hidden ${cs}">${this.buildCellHeaderHtml(`${ev.m}.${ev.d}`, dc, isT, ev.badgeKey)}${ev.holidayName ? `<div class="text-[7.5px] font-extrabold text-red-600 truncate text-center">${ev.holidayName}</div>` : '<div class="h-[9px]"></div>'}<div class="text-center leading-none my-0.5">${sh}</div><div class="flex items-center justify-end text-[7.5px] font-extrabold leading-none"><span class="${ev.nightHours > 0 ? 'text-purple-800' : 'text-transparent'}">야${ev.nightHours}h</span></div></div>`);
           });
         }
 
