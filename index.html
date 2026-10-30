@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.3</title>
+  <title>스마트 월급·퇴직금 계산기 v8.5</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -66,9 +66,9 @@
     </header>
 
     <main id="app_main_container" class="flex-1 w-full space-y-1.5 pb-4">
-      <!-- TAB 1: 달력 & 홈 -->
-      <div id="tab_home" class="space-y-1.5 w-full">
-        <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden" style="touch-action:pan-y;">
+      <!-- TAB 1: 달력 & 홈 (화면 어디서든 좌우 스와이프 가능) -->
+      <div id="tab_home" class="space-y-1.5 w-full" style="touch-action:pan-y;">
+        <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden">
           <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
             <div class="flex items-center gap-1 shrink-0">
               <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
@@ -144,14 +144,13 @@
             </details>
           </div>
 
-          <!-- 급상여 지급 현황 1:1 매칭 3칸 입력 카드 -->
+          <!-- 급상여 지급 현황 1:1 매칭 3칸 입력 카드 (명절상여 스마트 연동 스위치 복구) -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border-2 border-blue-200 space-y-2">
             <div class="flex items-center justify-between nowrap gap-1">
               <span id="extra_section_title" class="text-xs font-black text-slate-900 truncate">📊 급상여 지급 현황 실제값 입력</span>
               <div class="flex items-center gap-1 shrink-0">
-                <button onclick="App.openRetroCalcInReport()" class="text-[9.5px] font-black px-2 py-0.5 rounded-lg bg-emerald-600 text-white shadow-sm">📈 소급가상계산</button>
-                <button id="btn_toggle_hol_bonus" onclick="App.toggleManualHolBonus()" class="text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900">🌕 명절:자동</button>
-                <button onclick="App.clearMonthSlipInputs()" class="text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600">비우기</button>
+                <button id="btn_toggle_hol_bonus" onclick="App.toggleManualHolBonus()" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900">🌕 명절:자동</button>
+                <button onclick="App.clearMonthSlipInputs()" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600">비우기</button>
               </div>
             </div>
 
@@ -831,10 +830,6 @@
         }
         sm.innerHTML = hS; em.innerHTML = hE;
       },
-      openRetroCalcInReport() {
-        this.switchTab('report');
-        setTimeout(() => $('retro_calc_card')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
-      },
       renderRetroSimulator() {
         const oldB = Number($('retro_old_base')?.value) || 0;
         const newB = Number($('retro_new_base')?.value) || this.basePay;
@@ -961,13 +956,21 @@
         this.save(); this.syncSettingsInputs(); this.render();
       },
 
+      // 달력·홈 탭 전체 화면에서 좌우 스와이프 시 이전달/다음달 전환
       initSwipeGesture() {
-        const z = $('calendar_swipe_zone');
+        const z = $('tab_home');
         if (!z) return;
-        let sx = 0, sy = 0;
-        z.addEventListener('touchstart', e => { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+        let sx = 0, sy = 0, ignoreSwipe = false;
+        z.addEventListener('touchstart', e => {
+          if (e.touches.length === 1) {
+            const tag = e.target?.tagName;
+            ignoreSwipe = (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+            sx = e.touches[0].clientX;
+            sy = e.touches[0].clientY;
+          }
+        }, { passive: true });
         z.addEventListener('touchend', e => {
-          if (!e.changedTouches || e.changedTouches.length !== 1) return;
+          if (ignoreSwipe || !e.changedTouches || e.changedTouches.length !== 1) return;
           const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
           if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) this.changeMonth(dx < 0 ? 1 : -1);
         }, { passive: true });
@@ -1124,7 +1127,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.3', exportedAt: new Date().toISOString(),
+          version: '8.5', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
@@ -1261,11 +1264,57 @@
         if (!this.monthExtras[k]) this.monthExtras[k] = { manualHolBonus: null };
         return this.monthExtras[k];
       },
+
+      // 명절상여 스위치 (자동 ➔ 강제ON ➔ 강제OFF 순환)
       toggleManualHolBonus() {
         const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
         ex.manualHolBonus = (ex.manualHolBonus === null || ex.manualHolBonus === undefined) ? true : (ex.manualHolBonus === true ? false : null);
         this.save(); this.render();
       },
+
+      // 2개월 스마트 연동 명절상여 판별기 (10월 초 추석을 9월에 앞당겨 받을 때 9월 ON & 10월 중복 자동 차단)
+      resolveHolidayBonusStatus(payY, payM) {
+        const ex = this.getMonthExtra(payY, payM);
+        const appliedBase = ex.customBasePay || this.basePay;
+        const fest = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
+
+        let prevY = payY, prevM = payM - 1; if (prevM < 1) { prevM = 12; prevY -= 1; }
+        let nextY = payY, nextM = payM + 1; if (nextM > 12) { nextM = 1; nextY += 1; }
+        const prevEx = this.getMonthExtra(prevY, prevM);
+        const nextEx = this.getMonthExtra(nextY, nextM);
+        const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM);
+        const nextFest = KoreanHolidayEngine.getFestivalInCalendarMonth(nextY, nextM);
+
+        // 1. 사용자가 직접 강제 ON/OFF를 지정한 경우 최우선
+        if (ex.manualHolBonus === true) {
+          return { hasHol: true, name: fest?.name || nextFest?.name || prevFest?.name || '명절' };
+        }
+        if (ex.manualHolBonus === false) {
+          return { hasHol: false, name: null };
+        }
+
+        // 2. 자동 모드일 때: 다음 달(예: 10월 초)에 명절이 있는데 이번 달(예: 9월) 상여 칸에 이미 명절상여가 앞당겨 입력된 경우 자동 ON
+        if (!fest && nextFest && ex.exactBonus !== undefined && appliedBase > 0) {
+          const expectedRegBonus = (payM % 2 === 0) ? appliedBase : 0;
+          if (ex.exactBonus >= expectedRegBonus + (appliedBase * 0.8)) {
+            return { hasHol: true, name: nextFest.name };
+          }
+        }
+
+        // 3. 자동 모드일 때: 이번 달(예: 10월 초)에 달력상 명절이 있지만, 직전 달(예: 9월)에 이미 앞당겨 받은 경우 중복 자동 OFF
+        if (fest && !prevFest) {
+          const prevBase = prevEx.customBasePay || this.basePay;
+          const prevRegBonus = (prevM % 2 === 0) ? prevBase : 0;
+          const prevClaimedManually = (prevEx.manualHolBonus === true);
+          const prevClaimedByBonusInput = (prevEx.exactBonus !== undefined && prevBase > 0 && prevEx.exactBonus >= prevRegBonus + (prevBase * 0.8));
+          if (prevClaimedManually || prevClaimedByBonusInput) {
+            return { hasHol: false, name: null };
+          }
+        }
+
+        return { hasHol: Boolean(fest), name: fest ? fest.name : null };
+      },
+
       onExtraInput() {
         const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
         const wRaw = ($('input_exact_wage').value || '').trim();
@@ -1402,14 +1451,13 @@
         const actualWorkHours = (normalWorkDays * 8) + sumOtH + eduH + sumHolBaseH + sumHolOverH;
         const weeklyAvgHours = hasBase ? (actualWorkHours / (paidDays / 7)) : 0;
 
-        const fest = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
-        let hasHol = Boolean(fest);
-        if (ex.manualHolBonus === true) hasHol = true; else if (ex.manualHolBonus === false) hasHol = false;
-        const autoHolName = hasHol ? (fest ? fest.name : '명절') : null;
+        // 2개월 스마트 연동 명절상여 확인
+        const holStatus = this.resolveHolidayBonusStatus(payY, payM);
+        const hasHol = holStatus.hasHol;
+        const autoHolName = holStatus.name;
 
         let py = payY, pm = payM - 1; if (pm < 1) { pm = 12; py -= 1; }
-        const pFest = KoreanHolidayEngine.getFestivalInCalendarMonth(py, pm), pEx = this.getMonthExtra(py, pm);
-        const prevHadHolBonus = (pEx.manualHolBonus === true) || (pEx.manualHolBonus !== false && Boolean(pFest));
+        const prevHadHolBonus = this.resolveHolidayBonusStatus(py, pm).hasHol;
 
         const isEven = (payM % 2 === 0);
         const otPay = Math.round(sumOtH * 1.5 * rate), holBasePay = Math.round(sumHolBaseH * 1.5 * rate), holOverPay = Math.round(sumHolOverH * 2.0 * rate), nightPay = Math.round(sumNightH * nightUnit), eduPay = Math.round(eduH * 1.5 * rate);
@@ -1834,7 +1882,7 @@
         const ahb = $('auto_hol_bonus_badge'), ahn = $('auto_hol_bonus_notice');
         if (calc.autoHolName) {
           ahb.innerText = `🌕${calc.autoHolName}상여`;
-          setText('auto_hol_bonus_text', `🌕 ${calc.autoHolName} 명절상여(+100%) 적용됨`);
+          setText('auto_hol_bonus_text', `🌕 ${calc.autoHolName} 명절상여(+100%) 적용됨 (인접월 중복 자동방지)`);
           ahb.classList.remove('hidden'); ahn.classList.remove('hidden');
         } else {
           ahb.classList.add('hidden'); ahn.classList.add('hidden');
