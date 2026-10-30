@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.9</title>
+  <title>스마트 월급·퇴직금 계산기 v9.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -128,6 +128,7 @@
                   <span id="even_odd_badge" class="text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300 nowrap">홀짝상여</span>
                   <span id="auto_hol_bonus_badge" class="hidden text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 nowrap">🌕명절상여</span>
                   <span id="verified_slip_badge" class="hidden text-[8.5px] font-black bg-sky-400 text-slate-950 px-1.5 py-0.5 rounded-full nowrap">✔현황표확정</span>
+                  <span id="retro_included_badge" class="hidden text-[8.5px] font-black bg-emerald-400 text-slate-950 px-1.5 py-0.5 rounded-full nowrap">📈소급포함</span>
                 </div>
               </div>
               <div id="hero_net_pay" class="text-xl sm:text-2xl font-black tracking-tight text-white shrink-0 nowrap tnum">0원</div>
@@ -154,7 +155,7 @@
             </details>
           </div>
 
-          <!-- 급상여 지급 현황 1:1 매칭 통합 입력 카드 (급여·상여·세후 + 당월 기본급·4대보험) -->
+          <!-- 급상여 지급 현황 + 월급표 소급분 통합 입력 카드 (①~⑦) -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border-2 border-blue-200 space-y-2">
             <div class="flex items-center justify-between nowrap gap-1">
               <span id="extra_section_title" class="text-xs font-black text-slate-900 truncate">📊 급상여 지급 현황 실제값 입력</span>
@@ -169,7 +170,7 @@
               <span class="text-[8.5px] bg-amber-500 text-white font-black px-1.5 py-0.5 rounded shrink-0 ml-1">반영중</span>
             </div>
 
-            <!-- 1줄: 급여 / 상여 / 차감지급액(세후) -->
+            <!-- 1줄: ① 급여 / ② 상여 / ③ 차감지급액(세후) -->
             <div class="grid grid-cols-3 gap-1.5 text-xs">
               <div class="bg-sky-50/80 p-2 rounded-xl border border-sky-200">
                 <label class="text-[9.5px] font-extrabold text-sky-950 block mb-0.5 nowrap">① 급여 (근로급여)</label>
@@ -183,13 +184,13 @@
               </div>
               <div class="bg-emerald-50/80 p-2 rounded-xl border border-emerald-300">
                 <label class="text-[9.5px] font-extrabold text-emerald-950 block mb-0.5 nowrap">③ 차감지급액(세후)</label>
-                <span class="text-[8px] font-bold text-emerald-700 block mb-1 nowrap">실제 통장 입금액</span>
+                <span class="text-[8px] font-bold text-emerald-700 block mb-1 nowrap">지급현황표 세후금액</span>
                 <input type="number" id="input_exact_net" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-emerald-400 rounded-lg font-black text-right bg-white text-emerald-900 text-[11px] tnum">
               </div>
             </div>
 
-            <!-- 2줄: 당월 기본급 / 당월 4대보험 합계 (인상·변경 시에만 입력, 과거 달 보호 & 이후 달 자동 이월) -->
-            <div class="grid grid-cols-2 gap-1.5 text-xs pt-0.5">
+            <!-- 2줄: ④ 당월 기본급 / ⑤ 당월 4대보험 합계 -->
+            <div class="grid grid-cols-2 gap-1.5 text-xs">
               <div class="bg-blue-50/50 px-2 py-1.5 rounded-xl border border-blue-200/90">
                 <div class="flex items-center justify-between mb-0.5 nowrap">
                   <label class="text-[9.5px] font-extrabold text-blue-950">④ 당월 기본급</label>
@@ -203,6 +204,24 @@
                   <span id="badge_month_ins_state" class="text-[8px] font-bold text-rose-600">이전달 유지</span>
                 </div>
                 <input type="number" id="input_month_fixed_ins" step="100" placeholder="변동 시에만 입력" oninput="App.onExtraInput()" class="w-full p-1 border border-rose-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
+              </div>
+            </div>
+
+            <!-- 3줄: ⑥ 소급분(지급) / ⑦ 소급분(공제) (해당하는 달만 선택 입력) -->
+            <div class="bg-amber-50/60 p-2 rounded-xl border border-amber-200/90 space-y-1.5">
+              <div class="flex items-center justify-between nowrap">
+                <span class="text-[9.5px] font-black text-amber-950">📈 임금협상 소급분 반영 <span class="font-bold text-amber-700">(소급분이 있는 달만 월급표 보고 입력 · 선택)</span></span>
+                <span id="badge_retro_net_info" class="hidden text-[8.5px] font-black bg-amber-200/90 text-amber-950 px-1.5 py-0.5 rounded">소급실수령 +0원</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <div>
+                  <label class="text-[9px] font-extrabold text-amber-900 block mb-0.5 nowrap">⑥ 소급분(지급 · 세전)</label>
+                  <input type="number" id="input_retro_gross" step="10" placeholder="0 (평소 공란)" oninput="App.onExtraInput()" class="w-full p-1 border border-amber-300 rounded-lg font-black text-right bg-white text-amber-950 text-[11px] tnum">
+                </div>
+                <div>
+                  <label class="text-[9px] font-extrabold text-rose-800 block mb-0.5 nowrap">⑦ 소급분(공제 · 세금등)</label>
+                  <input type="number" id="input_retro_ded" step="10" placeholder="0 (평소 공란)" oninput="App.onExtraInput()" class="w-full p-1 border border-rose-300 rounded-lg font-black text-right bg-white text-rose-900 text-[11px] tnum">
+                </div>
               </div>
             </div>
 
@@ -243,7 +262,7 @@
         </div>
         <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white rounded-3xl p-3.5 shadow-md space-y-2.5">
           <div class="flex justify-between items-start gap-2 nowrap">
-            <div class="min-w-0"><span class="text-[11px] font-bold text-emerald-400 block truncate">연간 예상 세후 실수령 총액 (연차수당 포함)</span><strong id="rep_total_net" class="text-2xl font-black tracking-tight mt-0.5 block tnum">0원</strong></div>
+            <div class="min-w-0"><span class="text-[11px] font-bold text-emerald-400 block truncate">연간 실제 세후 실수령 총액 (소급분·연차수당 포함)</span><strong id="rep_total_net" class="text-2xl font-black tracking-tight mt-0.5 block tnum">0원</strong></div>
             <span class="text-[9.5px] font-black bg-indigo-600 px-2 py-0.5 rounded-full shrink-0">1~12월 합산</span>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-700/80 nowrap">
@@ -252,7 +271,7 @@
           </div>
           <div class="grid grid-cols-3 gap-1.5 text-[10px] nowrap tnum">
             <div class="bg-slate-800/60 px-2 py-1.5 rounded-xl"><span class="text-slate-400 text-[8.5px] block">① 급여 합계</span><strong id="rep_sum_wage" class="text-white font-black">0원</strong></div>
-            <div class="bg-slate-800/60 px-2 py-1.5 rounded-xl"><span class="text-slate-400 text-[8.5px] block">② 상여 합계</span><strong id="rep_sum_bonus" class="text-indigo-300 font-black">0원</strong></div>
+            <div class="bg-slate-800/60 px-2 py-1.5 rounded-xl"><span class="text-slate-400 text-[8.5px] block">② 상여·소급 합계</span><strong id="rep_sum_bonus" class="text-indigo-300 font-black">0원</strong></div>
             <div class="bg-slate-800/60 px-2 py-1.5 rounded-xl"><span class="text-slate-400 text-[8.5px] block">공제계 합계</span><strong id="rep_sum_ded" class="text-rose-300 font-black">-0원</strong></div>
           </div>
           <div class="bg-slate-950/60 rounded-2xl p-2 grid grid-cols-4 gap-1 text-center text-[11px] nowrap">
@@ -275,7 +294,7 @@
             </div>
           </div>
           <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl px-2.5 py-1.5 text-[10px] font-bold leading-snug">
-            💡 <strong>안심하세요!</strong> 이 계산기는 타결 후 받을 소급금을 미리 구경해 보는 <strong>독립된 가상 계산기</strong>입니다. 숫자를 바꾸거나 기간을 그대로 두셔도 <strong>내 실제 월급·연봉·퇴직금에는 전혀 반영되지 않습니다.</strong>
+            💡 <strong>안심하세요!</strong> 이 계산기는 타결 후 받을 소급금을 미리 구경해 보는 <strong>독립된 가상 계산기</strong>입니다. 실제 받은 소급분 반영은 홈 화면의 <strong>⑥·⑦번 칸</strong>에 입력해 주세요.
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div>
@@ -315,10 +334,10 @@
         </div>
 
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200">
-          <div class="flex items-center justify-between mb-2 px-0.5 nowrap"><h3 class="text-xs font-black text-slate-800">📅 급상여 지급 현황표 (터치 시 해당월 이동)</h3><span class="text-[10px] text-slate-400 font-bold">단위: 원</span></div>
+          <div class="flex items-center justify-between mb-2 px-0.5 nowrap"><h3 class="text-xs font-black text-slate-800">📅 급상여 지급 현황표 (실제 수령액 기준 · 터치 시 이동)</h3><span class="text-[10px] text-slate-400 font-bold">단위: 원</span></div>
           <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs w-full">
             <table class="w-full table-fixed text-left border-collapse nowrap">
-              <thead><tr class="bg-slate-100 text-slate-600 text-[9.5px] font-black tracking-tighter"><th class="py-2 pl-2 pr-0.5 w-[18%]">해당연월</th><th class="py-2 px-0.5 text-right w-[27%]">급여(상여제외)</th><th class="py-2 px-0.5 text-right w-[27%]">지급계(세전)</th><th class="py-2 pl-0.5 pr-2 text-right w-[28%]">차감지급액</th></tr></thead>
+              <thead><tr class="bg-slate-100 text-slate-600 text-[9.5px] font-black tracking-tighter"><th class="py-2 pl-2 pr-0.5 w-[20%]">해당연월</th><th class="py-2 px-0.5 text-right w-[26%]">급여(상여제외)</th><th class="py-2 px-0.5 text-right w-[27%]">지급계(세전)</th><th class="py-2 pl-0.5 pr-2 text-right w-[27%]">차감지급액</th></tr></thead>
               <tbody id="rep_monthly_tbody" class="divide-y divide-slate-100 text-[10px] tnum"></tbody>
             </table>
           </div>
@@ -358,12 +377,12 @@
           <div class="flex items-center justify-between gap-1 nowrap"><h3 class="text-xs font-black text-slate-900">📊 직전 3개월 평균임금 산출 내역</h3><span class="text-[9.5px] text-blue-600 font-bold shrink-0">터치 시 급여뷰 이동</span></div>
           <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs w-full">
             <table class="w-full table-fixed text-left border-collapse nowrap">
-              <thead><tr class="bg-slate-100 text-slate-600 text-[10px] font-black tracking-tighter"><th class="py-2 pl-2.5 pr-1 w-[27%]">산입 급여월</th><th class="py-2 px-1 text-center w-[41%]">근태 (잔업·특근·야간)</th><th class="py-2 pl-1 pr-2.5 text-right w-[32%]">월 급여(상여·성과제외)</th></tr></thead>
+              <thead><tr class="bg-slate-100 text-slate-600 text-[10px] font-black tracking-tighter"><th class="py-2 pl-2.5 pr-1 w-[27%]">산입 급여월</th><th class="py-2 px-1 text-center w-[41%]">근태 (잔업·특근·야간)</th><th class="py-2 pl-1 pr-2.5 text-right w-[32%]">월 급여(상여·소급제외)</th></tr></thead>
               <tbody id="sev_3month_tbody" class="divide-y divide-slate-100 text-[10.5px] tnum"></tbody>
             </table>
           </div>
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1 text-[10.5px] nowrap">
-            <div class="flex justify-between items-center gap-2 text-slate-600"><span class="truncate">① 직전 3개월 급여 평균 (상여·성과금 제외)</span><strong id="sev_part_3m_avg" class="text-slate-900 font-black shrink-0 tnum">0원</strong></div>
+            <div class="flex justify-between items-center gap-2 text-slate-600"><span class="truncate">① 직전 3개월 급여 평균 (상여·소급분 제외)</span><strong id="sev_part_3m_avg" class="text-slate-900 font-black shrink-0 tnum">0원</strong></div>
             <div class="flex justify-between items-center gap-2 text-slate-600"><span class="truncate">② 연간 상여(800%)·부가수당 1/12 산입</span><strong id="sev_part_bonus_avg" class="text-indigo-700 font-black shrink-0 tnum">+0원</strong></div>
             <div class="flex justify-between items-center gap-2 pt-1 border-t border-slate-200 text-slate-900 font-extrabold"><span class="truncate">= 최종 산정 평균임금 (① + ②)</span><strong id="sev_part_total_avg" class="text-blue-700 font-black shrink-0 tnum">0원</strong></div>
           </div>
@@ -1216,7 +1235,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.9', exportedAt: new Date().toISOString(),
+          version: '9.0', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
@@ -1319,7 +1338,6 @@
         if (flashToday) this.triggerFocusFlash(t.key);
       },
 
-      // 월별 기본급 & 4대보험 합계 이월 조회 엔진 (과거 달 보호 + 이후 달 자동 이월)
       resolveEffectiveBaseInfo(payY, payM) {
         const targetKey = this.getMonthKey(payY, payM);
         const ex = this.monthExtras[targetKey];
@@ -1471,6 +1489,8 @@
         const nRaw = ($('input_exact_net')?.value || '').trim();
         const baseRaw = ($('input_month_base_pay')?.value || '').trim();
         const insRaw = ($('input_month_fixed_ins')?.value || '').trim();
+        const rgRaw = ($('input_retro_gross')?.value || '').trim();
+        const rdRaw = ($('input_retro_ded')?.value || '').trim();
 
         if (wRaw === '') delete ex.exactWage;
         else ex.exactWage = Number(wRaw);
@@ -1490,6 +1510,12 @@
         if (insRaw === '' || Number(insRaw) < 0) delete ex.exactIns;
         else ex.exactIns = Number(insRaw);
 
+        if (rgRaw === '' || Number(rgRaw) <= 0) delete ex.retroGross;
+        else ex.retroGross = Number(rgRaw);
+
+        if (rdRaw === '' || Number(rdRaw) <= 0) delete ex.retroDed;
+        else ex.retroDed = Number(rdRaw);
+
         this.save();
         this.render(true);
       },
@@ -1502,6 +1528,8 @@
         delete ex.exactDed;
         delete ex.customBasePay;
         delete ex.exactIns;
+        delete ex.retroGross;
+        delete ex.retroDed;
         this.save();
         this.render(false);
       },
@@ -1642,24 +1670,34 @@
 
         const finalWage = hasExactWage ? ex.exactWage : autoWage;
         const finalBonus = hasExactBonus ? ex.exactBonus : autoBonus;
-        const finalGross = (hasExactWage || hasExactBonus) ? (finalWage + finalBonus) : (hasExactGross ? ex.exactGross : autoGross);
+        const baseGross = (hasExactWage || hasExactBonus) ? (finalWage + finalBonus) : (hasExactGross ? ex.exactGross : autoGross);
 
-        let finalNet = autoNet;
-        let finalDed = autoDed;
+        let baseNet = autoNet;
+        let baseDed = autoDed;
 
         if (hasExactNet) {
-          finalNet = ex.exactNet;
-          finalDed = Math.max(0, finalGross - finalNet);
+          baseNet = ex.exactNet;
+          baseDed = Math.max(0, baseGross - baseNet);
         } else if (ex.exactDed !== undefined) {
-          finalDed = ex.exactDed;
-          finalNet = finalGross - finalDed;
+          baseDed = ex.exactDed;
+          baseNet = baseGross - baseDed;
         } else if (hasExactWage || hasExactBonus) {
           const estTaxForFinal = this.estimateMonthlyIncomeTax(finalWage, isEven ? appliedBase : 0, prevHadHolBonus, appliedBase);
-          finalDed = estTaxForFinal + fixedInsurances + unionFee;
-          finalNet = finalGross - finalDed;
+          baseDed = estTaxForFinal + fixedInsurances + unionFee;
+          baseNet = baseGross - baseDed;
         }
 
-        const isVerifiedSlip = hasExactWage || hasExactBonus || hasExactNet || hasExactGross;
+        // ⑥ 소급분(지급) & ⑦ 소급분(공제) 합산 (실제 통장 수령액 및 연간리포트 반영 / 퇴직금 평균임금은 보호)
+        const retroGross = Number(ex.retroGross) || 0;
+        const retroDed = Number(ex.retroDed) || 0;
+        const retroNet = retroGross - retroDed;
+        const hasRetro = retroGross > 0 || retroDed > 0;
+
+        const finalGross = baseGross + retroGross;
+        const finalDed = Math.max(0, baseDed + retroDed);
+        const finalNet = baseNet + retroNet;
+
+        const isVerifiedSlip = hasExactWage || hasExactBonus || hasExactNet || hasExactGross || hasRetro;
 
         const nonSevOffset = ex.nonSevOffset || 0;
         const coreMonthlyWage = hasExactWage ? Math.max(0, finalWage - nonSevOffset) : autoWage;
@@ -1672,6 +1710,7 @@
           timeGongsu, moneyGongsu, weeklyAvgHours, coreMonthlyWage, lmsPay,
           regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay, totalTax,
           fixedInsurances, unionFee, autoWage, autoBonus, autoGross, autoDed, autoNet,
+          baseGross, baseDed, baseNet, retroGross, retroDed, retroNet, hasRetro,
           finalWage, finalBonus, wageDiff, finalGross, finalDed, finalNet
         });
       },
@@ -2009,11 +2048,21 @@
         eb.innerText = calc.isEven ? '짝수상여 100%' : '홀수달';
         eb.className = `text-[8.5px] font-black px-1.5 py-0.5 rounded-full nowrap ${calc.isEven ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'}`;
         $('verified_slip_badge').classList.toggle('hidden', !calc.isVerifiedSlip);
+        $('retro_included_badge')?.classList.toggle('hidden', !calc.hasRetro);
+
+        const retroBadgeInfo = $('badge_retro_net_info');
+        if (retroBadgeInfo) {
+          if (calc.hasRetro) {
+            retroBadgeInfo.innerText = `소급실수령 ${calc.retroNet >= 0 ? '+' : ''}${calc.retroNet.toLocaleString()}원`;
+            retroBadgeInfo.classList.remove('hidden');
+          } else {
+            retroBadgeInfo.classList.add('hidden');
+          }
+        }
 
         const holMode = calc.ex.manualHolBonus;
         setText('btn_toggle_hol_bonus', holMode === true ? '🌕 명절:강제ON' : (holMode === false ? '🌕 명절:강제OFF' : '🌕 명절:자동'));
 
-        // 당월 기본급 · 4대보험 상태 배지 업데이트
         const baseStateEl = $('badge_month_base_state');
         if (baseStateEl) {
           if (calc.baseInfo.source === 'THIS_MONTH') {
@@ -2047,6 +2096,7 @@
         if (!skipInput) {
           const wIn = $('input_exact_wage'), bIn = $('input_exact_bonus'), nIn = $('input_exact_net');
           const mBaseIn = $('input_month_base_pay'), mInsIn = $('input_month_fixed_ins');
+          const rgIn = $('input_retro_gross'), rdIn = $('input_retro_ded');
           if (wIn) {
             wIn.placeholder = `예상 ${calc.autoWage.toLocaleString()}`;
             wIn.value = calc.ex.exactWage !== undefined ? calc.ex.exactWage : '';
@@ -2067,8 +2117,9 @@
             mInsIn.placeholder = calc.fixedInsurances > 0 ? `적용중 ${calc.fixedInsurances.toLocaleString()}` : '4대보험 합계';
             mInsIn.value = calc.ex.exactIns !== undefined ? calc.ex.exactIns : '';
           }
+          if (rgIn) rgIn.value = calc.ex.retroGross !== undefined ? calc.ex.retroGross : '';
+          if (rdIn) rdIn.value = calc.ex.retroDed !== undefined ? calc.ex.retroDed : '';
         } else {
-          // 입력 중에도 상단 예상금액 placeholder는 최신 기본급·보험료에 맞춰 실시간 갱신
           const wIn = $('input_exact_wage'), bIn = $('input_exact_bonus'), nIn = $('input_exact_net');
           if (wIn) wIn.placeholder = `예상 ${calc.autoWage.toLocaleString()}`;
           if (bIn) bIn.placeholder = `예상 ${calc.autoBonus.toLocaleString()}`;
@@ -2081,12 +2132,15 @@
             diffNotice.innerHTML = `🔒 <strong>개인정보 보호 모드:</strong> 위 <strong>④ 당월 기본급</strong>에 기본급을 입력하거나, <strong class="text-blue-700 cursor-pointer underline" onclick="App.switchTab('settings')">[⚙️설정·백업]</strong> 탭에서 백업코드를 복원해 주세요.`;
           } else if (calc.isVerifiedSlip) {
             const wDiff = calc.finalWage - calc.autoWage;
-            const nDiff = calc.finalNet - calc.autoNet;
+            const nDiff = calc.baseNet - calc.autoNet;
             const wAcc = calc.finalWage > 0 ? Math.max(0, 100 - (Math.abs(wDiff) / calc.finalWage * 100)).toFixed(1) : '100.0';
+            const retroLine = calc.hasRetro
+              ? `<div class="text-[9.5px] text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded mt-1 font-extrabold">💰 소급분 포함 최종 실수령액: <strong>${calc.finalNet.toLocaleString()}원</strong> (현황표 ${calc.baseNet.toLocaleString()}원 + 소급실수령 ${calc.retroNet >= 0 ? '+' : ''}${calc.retroNet.toLocaleString()}원)</div>`
+              : '';
             diffNotice.innerHTML = `<div class="flex items-center justify-between text-blue-800"><span>✔ <strong>현황표 확정됨</strong> (근태 급여 적중률 <strong>${wAcc}%</strong>)</span><span>퇴직금산입: <strong>${calc.coreMonthlyWage.toLocaleString()}원</strong></span></div>
-            <div class="text-[9.5px] text-slate-600 mt-0.5">• 달력 예상 대비: 급여 <strong class="${wDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${wDiff >= 0 ? '+' : ''}${wDiff.toLocaleString()}원</strong> / 실수령 <strong class="${nDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${nDiff >= 0 ? '+' : ''}${nDiff.toLocaleString()}원</strong></div>`;
+            <div class="text-[9.5px] text-slate-600 mt-0.5">• 달력 예상 대비: 급여 <strong class="${wDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${wDiff >= 0 ? '+' : ''}${wDiff.toLocaleString()}원</strong> / 현황표세후 <strong class="${nDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${nDiff >= 0 ? '+' : ''}${nDiff.toLocaleString()}원</strong></div>${retroLine}`;
           } else {
-            diffNotice.innerHTML = `💡 월급날 명세서의 <strong>①급여 · ②상여 · ③세후</strong>를 입력하면 확정됩니다. 기본급·4대보험이 오른 달엔 <strong>④·⑤번</strong>에 적으면 과거 달은 보호되고 이후 달에 자동 이월됩니다.`;
+            diffNotice.innerHTML = `💡 평소엔 <strong>①급여 · ②상여 · ③세후</strong>만 입력하면 확정되며, 소급분이 있는 달에만 <strong>⑥·⑦번</strong>에 적어주시면 실제 받은 월급과 연간리포트에 자동 합산됩니다.`;
           }
         }
 
@@ -2123,9 +2177,14 @@
           <div class="flex justify-between text-purple-300"><span>• 야간근무수당 (${calc.sumNightH}h)</span><strong>+${calc.nightPay.toLocaleString()}원</strong></div>
           ${calc.wageDiff !== 0 ? `<div class="flex justify-between text-amber-200"><span>• 기타 급여항목 차액 (교육·지원금 등)</span><strong>${calc.wageDiff > 0 ? '+' : ''}${calc.wageDiff.toLocaleString()}원</strong></div>` : ''}
           <div class="font-bold text-indigo-300 pt-1 border-t border-slate-700 flex justify-between"><span>[② 상여 내역 (정기·명절·성과)]</span><span>합계 ${calc.finalBonus.toLocaleString()}원</span></div>
-          <div class="font-bold text-rose-300 pt-1 border-t border-slate-700 flex justify-between"><span>[③ 공제계 내역]</span><span>-${calc.finalDed.toLocaleString()}원</span></div>
+          ${calc.hasRetro ? `
+          <div class="font-bold text-amber-300 pt-1 border-t border-slate-700 flex justify-between"><span>[⑥·⑦ 임금협상 소급분 정산]</span><span>실수령 ${calc.retroNet >= 0 ? '+' : ''}${calc.retroNet.toLocaleString()}원</span></div>
+          <div class="flex justify-between text-amber-200"><span>• ⑥ 소급분(지급 · 퇴직금평균 제외)</span><strong>+${calc.retroGross.toLocaleString()}원</strong></div>
+          <div class="flex justify-between text-rose-300"><span>• ⑦ 소급분(공제 · 소득세·조합비 등)</span><strong>-${calc.retroDed.toLocaleString()}원</strong></div>
+          ` : ''}
+          <div class="font-bold text-rose-300 pt-1 border-t border-slate-700 flex justify-between"><span>[③ 총 공제계 내역${calc.hasRetro ? ' (소급공제 포함)' : ''}]</span><span>-${calc.finalDed.toLocaleString()}원</span></div>
           <div class="flex justify-between text-slate-300"><span>• 4대보험(${calc.fixedInsurances.toLocaleString()}) + 노조비(${calc.unionFee.toLocaleString()})</span><strong>-${(calc.fixedInsurances + calc.unionFee).toLocaleString()}원</strong></div>
-          <div class="flex justify-between text-slate-300"><span>• 소득세·주민세 및 기타공제</span><strong>-${Math.max(0, calc.finalDed - calc.fixedInsurances - calc.unionFee).toLocaleString()}원</strong></div>
+          <div class="flex justify-between text-slate-300"><span>• 소득세·주민세 및 기타공제${calc.hasRetro ? ' (소급공제 포함)' : ''}</span><strong>-${Math.max(0, calc.finalDed - calc.fixedInsurances - calc.unionFee).toLocaleString()}원</strong></div>
         `);
 
         const grid = $('calendar_grid');
@@ -2205,9 +2264,10 @@
         const rows = [];
         for (let m = 1; m <= 12; m++) {
           const c = this.calculateMonthSummary(y, m);
-          tg += c.finalGross; tn += c.finalNet; tw += c.finalWage; tb += c.finalBonus; td += c.finalDed;
+          tg += c.finalGross; tn += c.finalNet; tw += c.finalWage; tb += (c.finalBonus + c.retroGross); td += c.finalDed;
           to += c.sumOtH; thc += c.holCount; thh += (c.sumHolBaseH + c.sumHolOverH); tni += c.sumNightH;
-          rows.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2 font-extrabold">${m}월${c.isVerifiedSlip ? '<span class="ml-0.5 text-[8.5px] text-sky-600">✔</span>' : ''}</td><td class="py-2 px-0.5 text-right text-slate-600">${Math.round(c.finalWage).toLocaleString()}</td><td class="py-2 px-0.5 text-right font-bold text-slate-800">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 pr-2 text-right font-black text-emerald-700">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
+          const tags = `${c.isVerifiedSlip ? '<span class="ml-0.5 text-[8.5px] text-sky-600">✔</span>' : ''}${c.hasRetro ? '<span class="ml-0.5 text-[8px] bg-amber-100 text-amber-900 px-1 rounded font-black">소급</span>' : ''}`;
+          rows.push(`<tr onclick="App.jumpToMonthFromReport(${y},${m})" class="cursor-pointer hover:bg-slate-50"><td class="py-2 pl-2 font-extrabold">${m}월${tags}</td><td class="py-2 px-0.5 text-right text-slate-600">${Math.round(c.finalWage).toLocaleString()}</td><td class="py-2 px-0.5 text-right font-bold text-slate-800">${Math.round(c.finalGross).toLocaleString()}</td><td class="py-2 pr-2 text-right font-black text-emerald-700">${Math.round(c.finalNet).toLocaleString()}</td></tr>`);
         }
         rows.push(`<tr class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300"><td class="py-2 pl-2">합계</td><td class="py-2 px-0.5 text-right">${Math.round(tw).toLocaleString()}</td><td class="py-2 px-0.5 text-right text-blue-800">${Math.round(tg).toLocaleString()}</td><td class="py-2 pr-2 text-right text-emerald-800">${Math.round(tn).toLocaleString()}</td></tr>`);
 
