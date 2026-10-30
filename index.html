@@ -11,11 +11,12 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.6</title>
+  <title>스마트 월급·퇴직금 계산기 v8.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
     html, body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; width: 100%; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
+    button, input, select, textarea { touch-action: manipulation; }
     .mobile-app-shell { max-width: 430px; width: 100%; min-height: 100dvh; margin: 0 auto; background: #f1f5f9; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,.35); display: flex; flex-direction: column; overflow-x: hidden; box-sizing: border-box; padding-bottom: 68px; }
     .fixed-bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; z-index: 40; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 14px rgba(15,23,42,0.08); }
     .badge-EARLY { background: #f7d600; color: #2b2b2b; }
@@ -69,21 +70,14 @@
       <!-- TAB 1: 달력 & 홈 (화면 어디서든 좌우 스와이프 가능) -->
       <div id="tab_home" class="space-y-1.5 w-full" style="touch-action:pan-y;">
         <div id="calendar_swipe_zone" class="bg-white shadow-sm border-b border-slate-200 w-full overflow-hidden">
-          <!-- 상단 1번째 줄 (기존 그대로 유지) -->
-          <div class="px-2 py-1 flex items-center justify-between gap-1 nowrap w-full box-border">
-            <div class="flex items-center gap-1 shrink-0">
-              <button onclick="App.changeMonth(-1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">◀</button>
-              <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight px-0.5 min-w-[104px] text-center">일정 달력</h2>
-              <button onclick="App.changeMonth(1)" class="w-7 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center">▶</button>
-              <button onclick="App.goToTodayMonth()" class="px-2 h-7 bg-amber-100 text-amber-900 rounded-lg font-black text-[10px]">오늘</button>
-            </div>
-            <div class="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 shrink-0">
-              <button id="view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm">📝메모뷰</button>
-              <button id="view_btn_PAY" onclick="App.setCalendarView('PAY')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500">💰급여뷰</button>
-            </div>
+          <!-- 상단 1번째 줄: 중복 버튼 제거 & 깔끔한 월 이동 헤더 -->
+          <div class="px-3 py-1.5 flex items-center justify-between gap-2 nowrap w-full box-border">
+            <button onclick="App.changeMonth(-1)" class="w-8 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center active:scale-95 transition">◀</button>
+            <h2 id="big_ym_title" class="text-[16px] font-black text-slate-900 tracking-tight text-center flex-1">일정 달력</h2>
+            <button onclick="App.changeMonth(1)" class="w-8 h-7 bg-slate-100 active:bg-slate-200 rounded-lg font-black text-xs text-slate-700 flex items-center justify-center active:scale-95 transition">▶</button>
           </div>
 
-          <!-- 상단 2번째 줄: 오늘날짜/급여기간 + 도장입력 토글 바 (기존 그대로 유지) -->
+          <!-- 상단 2번째 줄: 오늘날짜/급여기간 + 도장입력 토글 바 -->
           <div class="px-2 h-7 text-[10.5px] font-extrabold text-blue-800 flex items-center justify-between gap-1.5 bg-blue-50/70 border-t border-blue-100 w-full box-border overflow-hidden">
             <span id="subbar_left_text" class="truncate">📅 달력 및 급여 계산기</span>
             <button id="btn_stamp_toggle" onclick="App.toggleStampMode()" class="shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-black border border-slate-300 bg-white text-slate-700 shadow-sm active:scale-95 transition">🖌️ 도장입력 OFF</button>
@@ -101,14 +95,14 @@
           </div>
           <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px] w-full"></div>
 
-          <!-- 달력 바로 밑 엄지손가락 전용 컨트롤 바 (오늘 / 메모뷰 / 급여뷰) -->
-          <div class="px-2 py-1.5 bg-slate-100/90 border-t border-slate-200 flex items-center gap-1.5 w-full box-border">
-            <button onclick="App.goToTodayMonth()" class="px-3.5 py-2 rounded-xl bg-amber-100 active:bg-amber-200 text-amber-950 font-black text-xs border border-amber-300 shadow-sm flex items-center justify-center gap-1 shrink-0 active:scale-95 transition nowrap">
+          <!-- 달력 바로 밑 엄지손가락 전용 컨트롤 바 (눈이 편안한 통일 톤 & 오늘 불빛 반응) -->
+          <div class="px-2 py-1.5 bg-slate-100 border-t border-slate-200 flex items-center gap-1.5 w-full box-border">
+            <button type="button" onclick="App.goToTodayMonth(true, true)" class="px-3.5 py-1.5 rounded-xl bg-white active:bg-amber-50 text-slate-700 font-extrabold text-xs border border-slate-300/90 shadow-sm flex items-center justify-center gap-1 shrink-0 active:scale-95 transition nowrap">
               <span>📍</span><span>오늘</span>
             </button>
-            <div class="grid grid-cols-2 gap-1 flex-1 bg-slate-200/90 p-0.5 rounded-xl border border-slate-300/80">
-              <button id="btm_view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="py-1.5 rounded-lg text-xs font-black transition bg-slate-900 text-white shadow-sm active:scale-95">📝 메모뷰</button>
-              <button id="btm_view_btn_PAY" onclick="App.setCalendarView('PAY')" class="py-1.5 rounded-lg text-xs font-bold transition text-slate-600 active:scale-95">💰 급여뷰</button>
+            <div class="grid grid-cols-2 gap-1 flex-1 bg-slate-200/80 p-0.5 rounded-xl border border-slate-300/70">
+              <button type="button" id="btm_view_btn_MEMO" onclick="App.setCalendarView('MEMO')" class="py-1.5 rounded-lg text-xs font-black transition bg-white text-blue-700 shadow-sm border border-slate-200/80 active:scale-95">📝 메모뷰</button>
+              <button type="button" id="btm_view_btn_PAY" onclick="App.setCalendarView('PAY')" class="py-1.5 rounded-lg text-xs font-bold transition text-slate-500 active:scale-95">💰 급여뷰</button>
             </div>
           </div>
         </div>
@@ -496,7 +490,7 @@
       </div>
     </main>
 
-    <!-- 하단 네비게이션 (달력·홈 재터치 시 오늘 달력으로 즉시 복귀) -->
+    <!-- 하단 네비게이션 (달력·홈 재터치 시 오늘 달력으로 즉시 복귀 + 불빛 표시) -->
     <nav class="fixed-bottom-nav bg-white/95 backdrop-blur border-t border-slate-300 px-0.5 py-2 grid grid-cols-5 text-center text-[10px] tracking-tighter font-bold text-slate-400 nowrap">
       <button id="nav_home" onclick="App.switchTab('home', true)" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition bottom-nav-active"><span class="text-base leading-none">📅</span><span>달력·홈</span></button>
       <button id="nav_report" onclick="App.switchTab('report', true)" class="py-0.5 flex flex-col items-center gap-0.5 active:scale-95 transition"><span class="text-base leading-none">📊</span><span>연간리포트</span></button>
@@ -945,14 +939,20 @@
         this.memoPayOffset = 0;
         this.calendarView = 'MEMO';
         this.syncViewButtonsUI();
-        this.focusedDateKey = this.formatKey(y, m, d);
+        this.flashDateCell(this.formatKey(y, m, d));
         this.render(false);
         this.scrollToTopClean();
+      },
+
+      // 특정 날짜(또는 오늘 날짜) 셀에 반짝임 포커스 효과를 주는 헬퍼
+      flashDateCell(dateKey) {
+        this.focusedDateKey = null;
         clearTimeout(this.focusClearTimer);
+        this.focusedDateKey = dateKey;
         this.focusClearTimer = setTimeout(() => {
           this.focusedDateKey = null;
           this.render(true);
-        }, 3500);
+        }, 2500);
       },
 
       scrollToTopClean() {
@@ -967,15 +967,14 @@
         this.save(); this.syncSettingsInputs(); this.render();
       },
 
-      // 달력·홈 탭 전체 화면에서 좌우 스와이프 시 이전달/다음달 전환
+      // 달력·홈 탭 전체 화면에서 좌우 스와이프 시 이전달/다음달 전환 (버튼 터치 시 스와이프 간섭 완벽 차단)
       initSwipeGesture() {
         const z = $('tab_home');
         if (!z) return;
         let sx = 0, sy = 0, ignoreSwipe = false;
         z.addEventListener('touchstart', e => {
           if (e.touches.length === 1) {
-            const tag = e.target?.tagName;
-            ignoreSwipe = (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+            ignoreSwipe = Boolean(e.target?.closest('button, input, textarea, select, a, summary'));
             sx = e.touches[0].clientX;
             sy = e.touches[0].clientY;
           }
@@ -1138,7 +1137,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.6', exportedAt: new Date().toISOString(),
+          version: '8.7', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
@@ -1160,16 +1159,15 @@
         }
       },
 
-      // 상단·하단 메모뷰/급여뷰 버튼 스타일 동시 동기화
+      // 하단 메모뷰/급여뷰 버튼 스타일 동기화 (시선을 뺏지 않는 통일된 소프트 화이트 탭 디자인)
       syncViewButtonsUI() {
         const v = this.calendarView;
-        const topMemo = $('view_btn_MEMO'), topPay = $('view_btn_PAY');
-        if (topMemo) topMemo.className = v === 'MEMO' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-slate-900 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
-        if (topPay) topPay.className = v === 'PAY' ? 'px-2.5 py-1 rounded-lg text-[10.5px] font-black transition bg-blue-600 text-white shadow-sm' : 'px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition text-slate-500';
+        const activeCls = 'py-1.5 rounded-lg text-xs font-black transition bg-white text-blue-700 shadow-sm border border-slate-200/80 active:scale-95';
+        const inactiveCls = 'py-1.5 rounded-lg text-xs font-bold transition text-slate-500 active:scale-95';
 
         const btmMemo = $('btm_view_btn_MEMO'), btmPay = $('btm_view_btn_PAY');
-        if (btmMemo) btmMemo.className = v === 'MEMO' ? 'py-1.5 rounded-lg text-xs font-black transition bg-slate-900 text-white shadow-sm active:scale-95' : 'py-1.5 rounded-lg text-xs font-bold transition text-slate-600 active:scale-95';
-        if (btmPay) btmPay.className = v === 'PAY' ? 'py-1.5 rounded-lg text-xs font-black transition bg-blue-600 text-white shadow-sm active:scale-95' : 'py-1.5 rounded-lg text-xs font-bold transition text-slate-600 active:scale-95';
+        if (btmMemo) btmMemo.className = (v === 'MEMO') ? activeCls : inactiveCls;
+        if (btmPay) btmPay.className = (v === 'PAY') ? activeCls : inactiveCls;
       },
 
       setCalendarView(v) {
@@ -1225,10 +1223,23 @@
         const n = new Date(), y = n.getFullYear(), m = n.getMonth() + 1, d = n.getDate(), dow = n.getDay();
         return { y, m, d, dow, dayName: this.DAY_KOR[dow], key: this.formatKey(y, m, d) };
       },
-      goToTodayMonth(r = true) {
+
+      // 오늘 버튼 클릭 시 해당 월로 즉시 이동 + 오늘 날짜 칸 반짝임(불빛) 효과 실행
+      goToTodayMonth(r = true, flashToday = true) {
         const t = this.getTodayInfo();
-        if (this.calendarView === 'MEMO') { this.memoYear = t.y; this.memoMonth = t.m; this.memoPayOffset = (t.d <= 25) ? 0 : 1; }
-        else { let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m; if (pm > 12) { pm = 1; py += 1; } this.payViewYear = py; this.payViewMonth = pm; }
+        if (this.calendarView === 'MEMO') {
+          this.memoYear = t.y;
+          this.memoMonth = t.m;
+          this.memoPayOffset = (t.d <= 25) ? 0 : 1;
+        } else {
+          let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
+          if (pm > 12) { pm = 1; py += 1; }
+          this.payViewYear = py;
+          this.payViewMonth = pm;
+        }
+        if (flashToday) {
+          this.flashDateCell(t.key);
+        }
         if (r) this.render();
       },
 
@@ -1250,9 +1261,9 @@
       },
 
       switchTab(tab, fromNav = false) {
-        // 이미 달력·홈 탭을 보고 있을 때 하단 '달력·홈' 버튼을 다시 누르면 오늘 날짜 달력으로 즉시 복귀
+        // 이미 달력·홈 탭을 보고 있을 때 하단 '달력·홈' 버튼을 다시 누르면 오늘 날짜 달력으로 즉시 복귀 + 불빛 효과
         if (fromNav && this.activeTab === 'home' && tab === 'home') {
-          this.goToTodayMonth(true);
+          this.goToTodayMonth(true, true);
           this.scrollToTopClean();
           return;
         }
@@ -1300,7 +1311,7 @@
         this.save(); this.render();
       },
 
-      // 2개월 스마트 연동 명절상여 판별기 (10월 초 추석을 9월에 앞당겨 받을 때 9월 ON & 10월 중복 자동 차단)
+      // 2개월 스마트 연동 명절상여 판별기
       resolveHolidayBonusStatus(payY, payM) {
         const ex = this.getMonthExtra(payY, payM);
         const appliedBase = ex.customBasePay || this.basePay;
@@ -1313,7 +1324,6 @@
         const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM);
         const nextFest = KoreanHolidayEngine.getFestivalInCalendarMonth(nextY, nextM);
 
-        // 1. 사용자가 직접 강제 ON/OFF를 지정한 경우 최우선
         if (ex.manualHolBonus === true) {
           return { hasHol: true, name: fest?.name || nextFest?.name || prevFest?.name || '명절' };
         }
@@ -1321,7 +1331,6 @@
           return { hasHol: false, name: null };
         }
 
-        // 2. 자동 모드일 때: 다음 달(예: 10월 초)에 명절이 있는데 이번 달(예: 9월) 상여 칸에 이미 명절상여가 앞당겨 입력된 경우 자동 ON
         if (!fest && nextFest && ex.exactBonus !== undefined && appliedBase > 0) {
           const expectedRegBonus = (payM % 2 === 0) ? appliedBase : 0;
           if (ex.exactBonus >= expectedRegBonus + (appliedBase * 0.8)) {
@@ -1329,7 +1338,6 @@
           }
         }
 
-        // 3. 자동 모드일 때: 이번 달(예: 10월 초)에 달력상 명절이 있지만, 직전 달(예: 9월)에 이미 앞당겨 받은 경우 중복 자동 OFF
         if (fest && !prevFest) {
           const prevBase = prevEx.customBasePay || this.basePay;
           const prevRegBonus = (prevM % 2 === 0) ? prevBase : 0;
