@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.2</title>
+  <title>스마트 월급·퇴직금 계산기 v8.3</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -149,7 +149,7 @@
             <div class="flex items-center justify-between nowrap gap-1">
               <span id="extra_section_title" class="text-xs font-black text-slate-900 truncate">📊 급상여 지급 현황 실제값 입력</span>
               <div class="flex items-center gap-1 shrink-0">
-                <button onclick="App.openRetroCalcInReport()" class="text-[9.5px] font-black px-2 py-0.5 rounded-lg bg-emerald-600 text-white shadow-sm">📈 소급계산기</button>
+                <button onclick="App.openRetroCalcInReport()" class="text-[9.5px] font-black px-2 py-0.5 rounded-lg bg-emerald-600 text-white shadow-sm">📈 소급가상계산</button>
                 <button id="btn_toggle_hol_bonus" onclick="App.toggleManualHolBonus()" class="text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900">🌕 명절:자동</button>
                 <button onclick="App.clearMonthSlipInputs()" class="text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600">비우기</button>
               </div>
@@ -212,7 +212,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: 연간 리포트 & 임금협상 소급금 계산기 -->
+      <!-- TAB 2: 연간 리포트 & 임금협상 소급금 가상 계산기 -->
       <div id="tab_report" class="hidden space-y-2.5 px-2 pt-2">
         <div class="bg-white rounded-2xl p-2.5 shadow-sm border border-slate-200 flex items-center justify-between">
           <button onclick="App.changeReportYear(-1)" class="w-8 h-8 bg-slate-100 rounded-xl font-black text-xs text-slate-700">◀</button>
@@ -241,13 +241,19 @@
           </div>
         </div>
 
-        <!-- 임금협상 소급금 자동 계산기 -->
+        <!-- 임금협상 소급금 가상 계산기 (독립형 모의계산 안내 포함) -->
         <div id="retro_calc_card" class="bg-white rounded-2xl p-3 shadow-sm border-2 border-emerald-500 space-y-2.5">
-          <div class="flex items-center justify-between nowrap">
+          <div class="flex items-center justify-between nowrap gap-1">
             <div>
-              <span class="text-[9.5px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">BASE-UP SIMULATOR</span>
-              <h3 class="text-xs font-black text-slate-900 mt-0.5">📈 임금협상 소급금 자동 계산기 (실제 잔업·특근 연동)</h3>
+              <div class="flex items-center gap-1">
+                <span class="text-[9.5px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">VIRTUAL SIMULATOR</span>
+                <span class="text-[9px] font-extrabold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-300">독립형 가상 계산기</span>
+              </div>
+              <h3 class="text-xs font-black text-slate-900 mt-1">📈 임금협상 소급금 가상 계산기 (단순 미리보기용)</h3>
             </div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl px-2.5 py-1.5 text-[10px] font-bold leading-snug">
+            💡 <strong>안심하세요!</strong> 이 계산기는 타결 후 받을 소급금을 미리 구경해 보는 <strong>독립된 가상 계산기</strong>입니다. 숫자를 바꾸거나 기간을 그대로 두셔도 <strong>내 실제 월급·연봉·퇴직금에는 전혀 반영되지 않습니다.</strong>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div>
@@ -271,17 +277,17 @@
           </div>
           <div class="bg-emerald-950 text-white rounded-2xl p-2.5 space-y-1.5 tnum">
             <div class="flex justify-between items-center">
-              <span class="text-[10.5px] font-bold text-emerald-300">예상 소급금 총액 (세전)</span>
+              <span class="text-[10.5px] font-bold text-emerald-300">가상 소급금 총액 (세전 미리보기)</span>
               <strong id="retro_total_gross" class="text-base font-black text-amber-300">+0원</strong>
             </div>
             <div class="flex justify-between items-center text-[10.5px] border-t border-emerald-800/80 pt-1">
-              <span class="text-slate-300">예상 세후 실수령 (세금 약 12% 공제 시)</span>
+              <span class="text-slate-300">가상 세후 실수령 (세금 약 12% 가정)</span>
               <strong id="retro_total_net" class="font-black text-emerald-400">약 +0원</strong>
             </div>
-            <div id="retro_summary_sub" class="text-[9.5px] text-slate-300">기본급 인상분 + 연장·특근·야간·상여 차액 자동 합산</div>
+            <div id="retro_summary_sub" class="text-[9.5px] text-slate-300">※ 달력에 찍힌 잔업·특근 시간을 빌려와 모의 계산만 수행합니다 (실제 급여·연봉과 무관)</div>
           </div>
           <details class="text-[10.5px]">
-            <summary class="cursor-pointer font-extrabold text-emerald-800 flex justify-between py-0.5"><span>📋 월별 소급금 산출 상세 내역 보기</span><span>펼치기 ▼</span></summary>
+            <summary class="cursor-pointer font-extrabold text-emerald-800 flex justify-between py-0.5"><span>📋 월별 가상 소급금 산출 내역 보기</span><span>펼치기 ▼</span></summary>
             <div id="retro_month_detail_list" class="mt-1.5 pt-1.5 border-t border-slate-200 space-y-1 tnum"></div>
           </details>
         </div>
@@ -1118,7 +1124,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.2', exportedAt: new Date().toISOString(),
+          version: '8.3', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
