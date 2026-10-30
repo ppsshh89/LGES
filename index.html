@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v8.8</title>
+  <title>스마트 월급·퇴직금 계산기 v8.9</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -154,7 +154,7 @@
             </details>
           </div>
 
-          <!-- 급상여 지급 현황 1:1 매칭 3칸 입력 카드 -->
+          <!-- 급상여 지급 현황 1:1 매칭 통합 입력 카드 (급여·상여·세후 + 당월 기본급·4대보험) -->
           <div class="bg-white rounded-2xl p-2.5 shadow-sm border-2 border-blue-200 space-y-2">
             <div class="flex items-center justify-between nowrap gap-1">
               <span id="extra_section_title" class="text-xs font-black text-slate-900 truncate">📊 급상여 지급 현황 실제값 입력</span>
@@ -169,27 +169,40 @@
               <span class="text-[8.5px] bg-amber-500 text-white font-black px-1.5 py-0.5 rounded shrink-0 ml-1">반영중</span>
             </div>
 
+            <!-- 1줄: 급여 / 상여 / 차감지급액(세후) -->
             <div class="grid grid-cols-3 gap-1.5 text-xs">
               <div class="bg-sky-50/80 p-2 rounded-xl border border-sky-200">
                 <label class="text-[9.5px] font-extrabold text-sky-950 block mb-0.5 nowrap">① 급여 (근로급여)</label>
                 <span class="text-[8px] font-bold text-sky-700 block mb-1 nowrap">퇴직금 3개월평균 직결</span>
-                <div class="flex items-center gap-0.5">
-                  <input type="number" id="input_exact_wage" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-sky-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
-                </div>
+                <input type="number" id="input_exact_wage" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-sky-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
               </div>
               <div class="bg-indigo-50/80 p-2 rounded-xl border border-indigo-200">
                 <label class="text-[9.5px] font-extrabold text-indigo-950 block mb-0.5 nowrap">② 상여 (상여·성과)</label>
                 <span class="text-[8px] font-bold text-indigo-700 block mb-1 nowrap">연봉합산·퇴직금제외</span>
-                <div class="flex items-center gap-0.5">
-                  <input type="number" id="input_exact_bonus" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-indigo-300 rounded-lg font-black text-right bg-white text-indigo-900 text-[11px] tnum">
-                </div>
+                <input type="number" id="input_exact_bonus" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-indigo-300 rounded-lg font-black text-right bg-white text-indigo-900 text-[11px] tnum">
               </div>
               <div class="bg-emerald-50/80 p-2 rounded-xl border border-emerald-300">
                 <label class="text-[9.5px] font-extrabold text-emerald-950 block mb-0.5 nowrap">③ 차감지급액(세후)</label>
                 <span class="text-[8px] font-bold text-emerald-700 block mb-1 nowrap">실제 통장 입금액</span>
-                <div class="flex items-center gap-0.5">
-                  <input type="number" id="input_exact_net" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-emerald-400 rounded-lg font-black text-right bg-white text-emerald-900 text-[11px] tnum">
+                <input type="number" id="input_exact_net" step="10" placeholder="자동계산" oninput="App.onExtraInput()" class="w-full p-1 border border-emerald-400 rounded-lg font-black text-right bg-white text-emerald-900 text-[11px] tnum">
+              </div>
+            </div>
+
+            <!-- 2줄: 당월 기본급 / 당월 4대보험 합계 (인상·변경 시에만 입력, 과거 달 보호 & 이후 달 자동 이월) -->
+            <div class="grid grid-cols-2 gap-1.5 text-xs pt-0.5">
+              <div class="bg-blue-50/50 px-2 py-1.5 rounded-xl border border-blue-200/90">
+                <div class="flex items-center justify-between mb-0.5 nowrap">
+                  <label class="text-[9.5px] font-extrabold text-blue-950">④ 당월 기본급</label>
+                  <span id="badge_month_base_state" class="text-[8px] font-bold text-blue-600">이전달 유지</span>
                 </div>
+                <input type="number" id="input_month_base_pay" step="1000" placeholder="변동 시에만 입력" oninput="App.onExtraInput()" class="w-full p-1 border border-blue-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
+              </div>
+              <div class="bg-rose-50/50 px-2 py-1.5 rounded-xl border border-rose-200/90">
+                <div class="flex items-center justify-between mb-0.5 nowrap">
+                  <label class="text-[9.5px] font-extrabold text-rose-950">⑤ 당월 4대보험 합계</label>
+                  <span id="badge_month_ins_state" class="text-[8px] font-bold text-rose-600">이전달 유지</span>
+                </div>
+                <input type="number" id="input_month_fixed_ins" step="100" placeholder="변동 시에만 입력" oninput="App.onExtraInput()" class="w-full p-1 border border-rose-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
               </div>
             </div>
 
@@ -427,8 +440,8 @@
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
           <div class="flex items-center justify-between nowrap">
-            <h2 class="text-sm font-black text-slate-900">🌴 연차 · 기본급 · 4대보험 · 입사일 설정</h2>
-            <span class="text-[10px] font-bold text-emerald-700">연 1~2회만 갱신</span>
+            <h2 class="text-sm font-black text-slate-900">🌴 연차 · 기본 설정값 · 입사일 관리</h2>
+            <span class="text-[10px] font-bold text-emerald-700">연초 기본값 기준</span>
           </div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
@@ -455,14 +468,14 @@
           </div>
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
             <div>
-              <label class="block font-bold text-blue-800 mb-1 nowrap">✎ 현재 월 기본급 (원)</label>
+              <label class="block font-bold text-blue-800 mb-1 nowrap">✎ 기본 월 기본급 (원)</label>
               <input type="number" id="input_base_pay" value="0" step="1000" placeholder="0" onchange="App.saveSettings()" class="w-full p-2 border-2 border-blue-500 rounded-xl font-black text-right text-slate-900 tnum">
-              <span class="text-[9px] text-slate-400 block mt-0.5">임단협 후 연 1회 갱신</span>
+              <span class="text-[9px] text-slate-400 block mt-0.5">연중 인상 시 홈 화면 ④번에 입력</span>
             </div>
             <div>
-              <label class="block font-bold text-rose-800 mb-1 nowrap">🛡️ 월 고정 4대보험 합계</label>
+              <label class="block font-bold text-rose-800 mb-1 nowrap">🛡️ 기본 4대보험 합계</label>
               <input type="number" id="input_fixed_ins" value="0" step="100" placeholder="0" onchange="App.saveSettings()" class="w-full p-2 border-2 border-rose-400 rounded-xl font-black text-right text-slate-900 tnum">
-              <span class="text-[9px] text-slate-400 block mt-0.5">건보+국민연금+고용보험 합계</span>
+              <span class="text-[9px] text-slate-400 block mt-0.5">연중 변동 시 홈 화면 ⑤번에 입력</span>
             </div>
           </div>
           <div class="pt-2 border-t border-slate-100 text-xs">
@@ -759,7 +772,6 @@
         this.render();
       },
 
-      // 슬라이드 직후에도 딜레이 없이 0.01초 만에 반응하는 고속 터치 엔진
       bindFastTap(id, handler) {
         const el = $(id);
         if (!el) return;
@@ -991,7 +1003,6 @@
         this.scrollToTopClean();
       },
 
-      // DOM 전체를 재렌더링하지 않고 해당 날짜 셀만 즉시 반짝이게 처리
       triggerFocusFlash(dateKey) {
         clearTimeout(this.focusClearTimer);
         this.focusedDateKey = dateKey;
@@ -1023,7 +1034,6 @@
         this.save(); this.syncSettingsInputs(); this.render();
       },
 
-      // 좌우 슬라이드 시 상하 관성 스크롤이 발생해 버튼 터치가 씹히는 현상 원천 차단
       initSwipeGesture() {
         const z = $('tab_home');
         if (!z) return;
@@ -1206,7 +1216,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '8.8', exportedAt: new Date().toISOString(),
+          version: '8.9', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
@@ -1228,7 +1238,6 @@
         }
       },
 
-      // 하단 3개 버튼(오늘로 · 메모뷰 · 급여뷰) 눈이 편안한 통일 스타일 동기화
       syncViewButtonsUI() {
         const v = this.calendarView;
         const activeCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-0.5 active:scale-95 nowrap';
@@ -1293,7 +1302,6 @@
         return { y, m, d, dow, dayName: this.DAY_KOR[dow], key: this.formatKey(y, m, d) };
       },
 
-      // 오늘로 버튼 클릭 시 즉시 해당 월로 이동 & 오늘 날짜 칸 반짝임(불빛) 표시
       goToTodayMonth(r = true, flashToday = true) {
         const t = this.getTodayInfo();
         if (this.calendarView === 'MEMO') {
@@ -1309,6 +1317,47 @@
         if (flashToday) this.focusedDateKey = t.key;
         if (r) this.render();
         if (flashToday) this.triggerFocusFlash(t.key);
+      },
+
+      // 월별 기본급 & 4대보험 합계 이월 조회 엔진 (과거 달 보호 + 이후 달 자동 이월)
+      resolveEffectiveBaseInfo(payY, payM) {
+        const targetKey = this.getMonthKey(payY, payM);
+        const ex = this.monthExtras[targetKey];
+        if (ex && ex.customBasePay !== undefined && ex.customBasePay > 0) {
+          return { val: ex.customBasePay, source: 'THIS_MONTH', fromKey: targetKey };
+        }
+        let bestKey = '';
+        let bestVal = 0;
+        for (const [k, v] of Object.entries(this.monthExtras)) {
+          if (k < targetKey && v && v.customBasePay !== undefined && v.customBasePay > 0 && k > bestKey) {
+            bestKey = k;
+            bestVal = v.customBasePay;
+          }
+        }
+        if (bestVal > 0) {
+          return { val: bestVal, source: 'CARRIED', fromKey: bestKey };
+        }
+        return { val: this.basePay || 0, source: 'DEFAULT', fromKey: null };
+      },
+
+      resolveEffectiveInsInfo(payY, payM) {
+        const targetKey = this.getMonthKey(payY, payM);
+        const ex = this.monthExtras[targetKey];
+        if (ex && ex.exactIns !== undefined && ex.exactIns >= 0) {
+          return { val: ex.exactIns, source: 'THIS_MONTH', fromKey: targetKey };
+        }
+        let bestKey = '';
+        let bestVal = null;
+        for (const [k, v] of Object.entries(this.monthExtras)) {
+          if (k < targetKey && v && v.exactIns !== undefined && v.exactIns >= 0 && k > bestKey) {
+            bestKey = k;
+            bestVal = v.exactIns;
+          }
+        }
+        if (bestVal !== null) {
+          return { val: bestVal, source: 'CARRIED', fromKey: bestKey };
+        }
+        return { val: this.fixedInsurance || 0, source: 'DEFAULT', fromKey: null };
       },
 
       getLmsAllowance(b = this.basePay) { return (!b || b <= 0) ? 0 : Math.round(b / 44); },
@@ -1379,7 +1428,7 @@
 
       resolveHolidayBonusStatus(payY, payM) {
         const ex = this.getMonthExtra(payY, payM);
-        const appliedBase = ex.customBasePay || this.basePay;
+        const appliedBase = this.resolveEffectiveBaseInfo(payY, payM).val;
         const fest = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
 
         let prevY = payY, prevM = payM - 1; if (prevM < 1) { prevM = 12; prevY -= 1; }
@@ -1403,7 +1452,7 @@
         }
 
         if (fest && !prevFest) {
-          const prevBase = prevEx.customBasePay || this.basePay;
+          const prevBase = this.resolveEffectiveBaseInfo(prevY, prevM).val;
           const prevRegBonus = (prevM % 2 === 0) ? prevBase : 0;
           const prevClaimedManually = (prevEx.manualHolBonus === true);
           const prevClaimedByBonusInput = (prevEx.exactBonus !== undefined && prevBase > 0 && prevEx.exactBonus >= prevRegBonus + (prevBase * 0.8));
@@ -1417,9 +1466,11 @@
 
       onExtraInput() {
         const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
-        const wRaw = ($('input_exact_wage').value || '').trim();
-        const bRaw = ($('input_exact_bonus').value || '').trim();
-        const nRaw = ($('input_exact_net').value || '').trim();
+        const wRaw = ($('input_exact_wage')?.value || '').trim();
+        const bRaw = ($('input_exact_bonus')?.value || '').trim();
+        const nRaw = ($('input_exact_net')?.value || '').trim();
+        const baseRaw = ($('input_month_base_pay')?.value || '').trim();
+        const insRaw = ($('input_month_fixed_ins')?.value || '').trim();
 
         if (wRaw === '') delete ex.exactWage;
         else ex.exactWage = Number(wRaw);
@@ -1433,6 +1484,12 @@
         if (nRaw === '') delete ex.exactNet;
         else ex.exactNet = Number(nRaw);
 
+        if (baseRaw === '' || Number(baseRaw) <= 0) delete ex.customBasePay;
+        else ex.customBasePay = Number(baseRaw);
+
+        if (insRaw === '' || Number(insRaw) < 0) delete ex.exactIns;
+        else ex.exactIns = Number(insRaw);
+
         this.save();
         this.render(true);
       },
@@ -1443,6 +1500,8 @@
         delete ex.exactGross;
         delete ex.exactNet;
         delete ex.exactDed;
+        delete ex.customBasePay;
+        delete ex.exactIns;
         this.save();
         this.render(false);
       },
@@ -1529,7 +1588,11 @@
         const cacheKey = `${payY}-${payM}`;
         if (this.summaryCache[cacheKey]) return this.summaryCache[cacheKey];
 
-        const ex = this.getMonthExtra(payY, payM), appliedBase = ex.customBasePay || this.basePay, hasBase = appliedBase > 0;
+        const ex = this.getMonthExtra(payY, payM);
+        const baseInfo = this.resolveEffectiveBaseInfo(payY, payM);
+        const insInfo = this.resolveEffectiveInsInfo(payY, payM);
+        const appliedBase = baseInfo.val;
+        const hasBase = appliedBase > 0;
         const rate = this.getHourlyRate(appliedBase), nightUnit = this.getNightHourlyRate(appliedBase), lmsPay = this.getLmsAllowance(appliedBase), unionFee = hasBase ? Math.floor(appliedBase * 0.02) : 0;
         const cutoffDates = this.getCutoffDates(payY, payM);
         let sumOtH = 0, sumHolBaseH = 0, sumHolOverH = 0, sumNightH = 0, holCount = 0, monthVacDays = 0, normalWorkDays = 0;
@@ -1568,7 +1631,7 @@
         const autoGross = autoWage + autoBonus;
 
         const totalTax = ex.exactTax !== undefined ? ex.exactTax : this.estimateMonthlyIncomeTax(autoWage, regBonusPay, prevHadHolBonus, appliedBase);
-        const fixedInsurances = ex.exactIns !== undefined ? ex.exactIns : (hasBase ? this.fixedInsurance : 0);
+        const fixedInsurances = hasBase ? insInfo.val : (ex.exactIns !== undefined ? ex.exactIns : 0);
         const autoDed = totalTax + fixedInsurances + unionFee;
         const autoNet = autoGross - autoDed;
 
@@ -1604,7 +1667,7 @@
         const wageDiff = finalWage - autoWage;
 
         return (this.summaryCache[cacheKey] = {
-          payY, payM, appliedBase, rate, cutoffDates, evaluated, autoHolName, isEven, ex, isVerifiedSlip, prevHadHolBonus,
+          payY, payM, appliedBase, baseInfo, insInfo, rate, cutoffDates, evaluated, autoHolName, isEven, ex, isVerifiedSlip, prevHadHolBonus,
           sumOtH, eduH, sumHolBaseH, sumHolOverH, sumNightH, holCount, monthVacDays, paidDays, workDays,
           timeGongsu, moneyGongsu, weeklyAvgHours, coreMonthlyWage, lmsPay,
           regBonusPay, holBonusPay, otPay, holBasePay, holOverPay, nightPay, eduPay, totalTax,
@@ -1635,21 +1698,21 @@
         }
         const lb = months[2].appliedBase || this.basePay;
         const hasBase = lb > 0;
-        const avg3M = hasBase ? (months.reduce((a, c) => a + c.coreMonthlyWage, 0) / 3) : 0;
+        const avg3M = (hasBase || months.some(c => c.coreMonthlyWage > 0)) ? (months.reduce((a, c) => a + c.coreMonthlyWage, 0) / 3) : 0;
         const bonusInc = hasBase ? ((lb * (8 / 12)) + 64961.6667) : 0;
-        const avgWage = hasBase ? (Math.round((avg3M + bonusInc) / 10) * 10) : 0;
+        const avgWage = (avg3M > 0 || hasBase) ? (Math.round((avg3M + bonusInc) / 10) * 10) : 0;
 
         const [hy, hm, hd] = (this.hireDate || '2020-01-01').split('-').map(Number);
         const baseM = (hd || 1) <= 15 ? (hm - 1) : hm;
         const tmCnt = Math.max(12, (ty - (hy || 2020)) * 12 + (tm - baseM));
         const tyInt = Math.floor(tmCnt / 12), tmRem = tmCnt % 12;
         const tf = this.sevUseExactMonths ? (tyInt + (tmRem / 12)) : tyInt;
-        const gross = hasBase ? Math.round(avgWage * tf) : 0;
-        const itRaw = hasBase ? (tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096))) : 0;
+        const gross = avgWage > 0 ? Math.round(avgWage * tf) : 0;
+        const itRaw = avgWage > 0 ? (tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096))) : 0;
         const sIt = Math.max(0, Math.round(itRaw / 10) * 10), sLt = Math.floor((sIt * 0.1) / 10) * 10, tTax = sIt + sLt;
         return {
           targetY: ty, targetM: tm, lastDay: new Date(ty, tm, 0).getDate(), months,
-          avg3MWage: Math.round(avg3M), bonusMonthlyInclusion: Math.round(bonusInc), avgWage,
+          latestBase: lb, avg3MWage: Math.round(avg3M), bonusMonthlyInclusion: Math.round(bonusInc), avgWage,
           tenYearsInt: tyInt, tenMonthsRem: tmRem, tenureFactor: tf,
           grossSeverance: gross, sevIncomeTax: sIt, sevLocalTax: sLt, totalSevTax: tTax, netSeverance: gross - tTax
         };
@@ -1676,7 +1739,8 @@
         setText('sev_part_bonus_avg', `+${s.bonusMonthlyInclusion.toLocaleString()}원`);
         setText('sev_part_total_avg', `${s.avgWage.toLocaleString()}원`);
 
-        const rate = this.getHourlyRate(this.basePay), nUnit = this.getNightHourlyRate(this.basePay), mult = s.tenureFactor / 3;
+        const activeBase = s.latestBase || this.basePay;
+        const rate = this.getHourlyRate(activeBase), nUnit = this.getNightHourlyRate(activeBase), mult = s.tenureFactor / 3;
         setText('sev_boost_tenure_badge', `${s.tenYearsInt}년 근속 (×${mult.toFixed(2)}배)`);
         const d12 = Math.round((8 * 1.5 + 4 * 2.0) * rate), n8 = Math.round(8 * nUnit), n12 = d12 + n8, d8 = Math.round(8 * 1.5 * rate), nh8 = d8 + n8, ot4 = Math.round(4 * 1.5 * rate);
         const bN12 = Math.round(n12 * mult), bD12 = Math.round(d12 * mult), bN8 = Math.round(nh8 * mult), bOt4 = Math.round(ot4 * mult);
@@ -1873,11 +1937,12 @@
         this.syncViewButtonsUI();
 
         const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m), rate = calc.rate;
+        const refBase = calc.appliedBase || this.basePay;
         const calUsedVac = this.getCalendarUsedVacationDays();
         const totalUsedVac = Math.max(0, this.priorUsedVacation + calUsedVac);
         const remainVac = Math.max(0, this.totalVacation - totalUsedVac);
         const remainVacHours = Math.round(remainVac * 8 * 10) / 10;
-        const oneDayVacPay = Math.round(8 * this.getHourlyRate(this.basePay));
+        const oneDayVacPay = Math.round(8 * this.getHourlyRate(refBase));
         const unusedVacPay = Math.round(remainVac * oneDayVacPay);
 
         setText('top_vacation_badge', `${this.fmtVacNum(remainVac)}일(${remainVacHours}h)`);
@@ -1901,7 +1966,7 @@
           setText('set_total_vac_label', `${this.totalVacation}일 (${this.totalVacation * 8}h)`);
           setText('set_calendar_used_vac', `${this.fmtVacNum(calUsedVac)}일 (기사용 ${this.fmtVacNum(this.priorUsedVacation)}일)`);
           setText('set_unused_vac_pay', `+${unusedVacPay.toLocaleString()}원`);
-          setText('set_oneday_vac_pay', `(1일 ${oneDayVacPay.toLocaleString()}원 / 1h ${Math.round(this.getHourlyRate(this.basePay)).toLocaleString()}원)`);
+          setText('set_oneday_vac_pay', `(1일 ${oneDayVacPay.toLocaleString()}원 / 1h ${Math.round(this.getHourlyRate(refBase)).toLocaleString()}원)`);
 
           const curWeekShift = this.getDefaultShift(ti.y, ti.m, ti.d);
           ['EARLY', 'MID', 'NIGHT'].forEach(sh => {
@@ -1948,8 +2013,40 @@
         const holMode = calc.ex.manualHolBonus;
         setText('btn_toggle_hol_bonus', holMode === true ? '🌕 명절:강제ON' : (holMode === false ? '🌕 명절:강제OFF' : '🌕 명절:자동'));
 
+        // 당월 기본급 · 4대보험 상태 배지 업데이트
+        const baseStateEl = $('badge_month_base_state');
+        if (baseStateEl) {
+          if (calc.baseInfo.source === 'THIS_MONTH') {
+            baseStateEl.innerText = `✔ ${ap.m}월 변경적용`;
+            baseStateEl.className = 'text-[8px] font-black text-blue-700 bg-blue-100 px-1 rounded';
+          } else if (calc.baseInfo.source === 'CARRIED') {
+            const fm = Number(calc.baseInfo.fromKey.split('-')[1]);
+            baseStateEl.innerText = `↪ ${fm}월분 자동이월`;
+            baseStateEl.className = 'text-[8px] font-bold text-indigo-600';
+          } else {
+            baseStateEl.innerText = '기본설정 유지';
+            baseStateEl.className = 'text-[8px] font-bold text-slate-400';
+          }
+        }
+
+        const insStateEl = $('badge_month_ins_state');
+        if (insStateEl) {
+          if (calc.insInfo.source === 'THIS_MONTH') {
+            insStateEl.innerText = `✔ ${ap.m}월 변경적용`;
+            insStateEl.className = 'text-[8px] font-black text-rose-700 bg-rose-100 px-1 rounded';
+          } else if (calc.insInfo.source === 'CARRIED') {
+            const fm = Number(calc.insInfo.fromKey.split('-')[1]);
+            insStateEl.innerText = `↪ ${fm}월분 자동이월`;
+            insStateEl.className = 'text-[8px] font-bold text-rose-600';
+          } else {
+            insStateEl.innerText = '기본설정 유지';
+            insStateEl.className = 'text-[8px] font-bold text-slate-400';
+          }
+        }
+
         if (!skipInput) {
           const wIn = $('input_exact_wage'), bIn = $('input_exact_bonus'), nIn = $('input_exact_net');
+          const mBaseIn = $('input_month_base_pay'), mInsIn = $('input_month_fixed_ins');
           if (wIn) {
             wIn.placeholder = `예상 ${calc.autoWage.toLocaleString()}`;
             wIn.value = calc.ex.exactWage !== undefined ? calc.ex.exactWage : '';
@@ -1962,12 +2059,26 @@
             nIn.placeholder = `예상 ${calc.autoNet.toLocaleString()}`;
             nIn.value = calc.ex.exactNet !== undefined ? calc.ex.exactNet : '';
           }
+          if (mBaseIn) {
+            mBaseIn.placeholder = calc.appliedBase > 0 ? `적용중 ${calc.appliedBase.toLocaleString()}` : '기본급 입력';
+            mBaseIn.value = calc.ex.customBasePay !== undefined ? calc.ex.customBasePay : '';
+          }
+          if (mInsIn) {
+            mInsIn.placeholder = calc.fixedInsurances > 0 ? `적용중 ${calc.fixedInsurances.toLocaleString()}` : '4대보험 합계';
+            mInsIn.value = calc.ex.exactIns !== undefined ? calc.ex.exactIns : '';
+          }
+        } else {
+          // 입력 중에도 상단 예상금액 placeholder는 최신 기본급·보험료에 맞춰 실시간 갱신
+          const wIn = $('input_exact_wage'), bIn = $('input_exact_bonus'), nIn = $('input_exact_net');
+          if (wIn) wIn.placeholder = `예상 ${calc.autoWage.toLocaleString()}`;
+          if (bIn) bIn.placeholder = `예상 ${calc.autoBonus.toLocaleString()}`;
+          if (nIn) nIn.placeholder = `예상 ${calc.autoNet.toLocaleString()}`;
         }
 
         const diffNotice = $('slip_diff_notice');
         if (diffNotice) {
-          if (this.basePay <= 0 && !calc.isVerifiedSlip) {
-            diffNotice.innerHTML = `🔒 <strong>개인정보 보호 모드:</strong> 처음 사용 시 <strong class="text-blue-700 cursor-pointer underline" onclick="App.switchTab('settings')">[⚙️설정·백업]</strong> 탭에서 백업코드를 복원하거나 기본급을 입력해 주세요.`;
+          if (calc.appliedBase <= 0 && !calc.isVerifiedSlip) {
+            diffNotice.innerHTML = `🔒 <strong>개인정보 보호 모드:</strong> 위 <strong>④ 당월 기본급</strong>에 기본급을 입력하거나, <strong class="text-blue-700 cursor-pointer underline" onclick="App.switchTab('settings')">[⚙️설정·백업]</strong> 탭에서 백업코드를 복원해 주세요.`;
           } else if (calc.isVerifiedSlip) {
             const wDiff = calc.finalWage - calc.autoWage;
             const nDiff = calc.finalNet - calc.autoNet;
@@ -1975,7 +2086,7 @@
             diffNotice.innerHTML = `<div class="flex items-center justify-between text-blue-800"><span>✔ <strong>현황표 확정됨</strong> (근태 급여 적중률 <strong>${wAcc}%</strong>)</span><span>퇴직금산입: <strong>${calc.coreMonthlyWage.toLocaleString()}원</strong></span></div>
             <div class="text-[9.5px] text-slate-600 mt-0.5">• 달력 예상 대비: 급여 <strong class="${wDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${wDiff >= 0 ? '+' : ''}${wDiff.toLocaleString()}원</strong> / 실수령 <strong class="${nDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${nDiff >= 0 ? '+' : ''}${nDiff.toLocaleString()}원</strong></div>`;
           } else {
-            diffNotice.innerHTML = `💡 평소엔 달력 근태만으로 <strong>예상 급여(${calc.autoWage.toLocaleString()}원)</strong>가 자동 계산됩니다. 월급날 현황표의 <strong>급여·상여·차감지급액</strong>을 적으면 적중률과 실제 연봉·퇴직금이 확정됩니다.`;
+            diffNotice.innerHTML = `💡 월급날 명세서의 <strong>①급여 · ②상여 · ③세후</strong>를 입력하면 확정됩니다. 기본급·4대보험이 오른 달엔 <strong>④·⑤번</strong>에 적으면 과거 달은 보호되고 이후 달에 자동 이월됩니다.`;
           }
         }
 
@@ -2088,7 +2199,8 @@
         const y = this.reportYear;
         setText('report_year_title', `${y}년 누적 연봉·특근 리포트`);
         const calUsed = this.getCalendarUsedVacationDays(), totalUsed = Math.max(0, this.priorUsedVacation + calUsed), rem = Math.max(0, this.totalVacation - totalUsed);
-        const unusedPay = (uvPay !== undefined) ? uvPay : Math.round(rem * 8 * this.getHourlyRate(this.basePay));
+        const latestDecBase = this.resolveEffectiveBaseInfo(y, 12).val || this.basePay;
+        const unusedPay = (uvPay !== undefined && uvPay > 0) ? uvPay : Math.round(rem * 8 * this.getHourlyRate(latestDecBase));
         let tg = 0, tn = 0, tw = 0, tb = 0, td = 0, to = 0, thc = 0, thh = 0, tni = 0;
         const rows = [];
         for (let m = 1; m <= 12; m++) {
