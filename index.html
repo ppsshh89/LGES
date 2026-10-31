@@ -791,11 +791,14 @@
         if (saved) {
           try {
             this.loadStateObject(JSON.parse(saved));
-            localStorage.setItem(this.STORAGE_KEY, saved);
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.getExportPayload(true)));
           } catch (e) {}
         } else {
           const vd = await DualVault.loadSnapshot();
-          if (vd) { this.loadStateObject(vd); localStorage.setItem(this.STORAGE_KEY, JSON.stringify(vd)); }
+          if (vd) {
+            this.loadStateObject(vd);
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.getExportPayload(true)));
+          }
         }
         this.resetBothViewsToToday();
         this.syncSettingsInputs();
@@ -1226,7 +1229,13 @@
           this.render(false);
         }
       },
-      jumpToPayMonth(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
+      jumpToPayMonth(y, m) {
+        this.payViewYear = y; this.payViewMonth = m;
+        this.memoYear = y; this.memoMonth = m; this.memoPayOffset = 0;
+        this.calendarView = 'PAY';
+        this.syncViewButtonsUI();
+        this.switchTab('home');
+      },
 
       initModalButtons() {
         const hs = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11];
@@ -1297,15 +1306,17 @@
         if (p.totalVacation !== undefined) this.totalVacation = Number(p.totalVacation) || 15;
         if (p.priorUsedVacation !== undefined) this.priorUsedVacation = Math.max(0, Number(p.priorUsedVacation) || 0);
         if (p.vacationByYear && typeof p.vacationByYear === 'object') {
-          this.vacationByYear = { ...(mergeExistingMemos ? this.vacationByYear : {}), ...p.vacationByYear };
+          this.vacationByYear = { ...p.vacationByYear };
         } else if (p.totalVacation !== undefined || p.priorUsedVacation !== undefined) {
           const activeY = String(this.getActiveVacationYear() || 2026);
           const legacyCfg = {
             total: Number(this.totalVacation ?? 15),
             prior: Math.max(0, Number(this.priorUsedVacation ?? 0))
           };
-          this.vacationByYear['2026'] = { ...legacyCfg };
-          this.vacationByYear[activeY] = { ...legacyCfg };
+          this.vacationByYear = {
+            '2026': { ...legacyCfg },
+            [activeY]: { ...legacyCfg }
+          };
         }
         if (p.hireDate !== undefined) this.hireDate = p.hireDate || '2020-01-01';
         if (p.shiftOffset !== undefined) this.shiftOffset = Number(p.shiftOffset) || 0;
@@ -1334,11 +1345,16 @@
           });
         }
         if (p.monthExtras && typeof p.monthExtras === 'object') {
-          this.monthExtras = { ...(mergeExistingMemos ? this.monthExtras : {}), ...p.monthExtras };
-          Object.values(this.monthExtras).forEach(ex => {
-            if (ex && ex.exactGross !== undefined && ex.exactDed !== undefined && ex.exactNet === undefined) {
-              ex.exactNet = ex.exactGross - ex.exactDed;
+          this.monthExtras = {};
+          Object.entries(p.monthExtras).forEach(([k, ex]) => {
+            if (!ex || typeof ex !== 'object') return;
+            const copy = { ...ex };
+            if (copy.exactGross !== undefined && copy.exactDed !== undefined && copy.exactNet === undefined) {
+              copy.exactNet = copy.exactGross - copy.exactDed;
             }
+            this.monthExtras[k] = copy;
+            const [y, m] = k.split('-').map(Number);
+            if (y && m) this.cleanupMonthExtra(y, m);
           });
         }
         if (p.ghToken !== undefined) this.ghToken = p.ghToken;
@@ -1430,12 +1446,17 @@
 
       onPayTabClick(idx) {
         this.flushPendingSave();
-        if (this.calendarView === 'MEMO') { this.memoPayOffset = idx; this.render(false); }
-        else if (idx === 0) this.changeMonth(-1);
+        if (this.calendarView === 'MEMO') {
+          this.memoPayOffset = idx;
+          this.render(false);
+        } else {
+          this.changeMonth(idx === 0 ? -1 : 1);
+        }
       },
 
       getBaseWeekDiff(y, m, d) {
-        const dow = new Date(y, m - 1, d, 12, 0, 0).getDay(), mon = new Date(y, m - 1, d + (dow === 0 ? -6 : 1 - dow), 12, 0, 0);
+        const dow = new Date(y, m - 1, d, 12, 0, 0).getDay();
+        const mon = new Date(y, m - 1, d + (1 - dow), 12, 0, 0);
         return Math.round((mon.getTime() - this.ANCHOR_MONDAY.getTime()) / (7 * 86400000));
       },
       getDefaultShift(y, m, d) { return this.SHIFT_ORDER[(((this.getBaseWeekDiff(y, m, d) + this.shiftOffset) % 3) + 3) % 3]; },
@@ -1640,26 +1661,42 @@
       },
 
       getMonthKey(y, m) { return `${y}-${String(m).padStart(2, '0')}`; },
-      getMonthExtra(y, m) {
+      getMonthExtra(y, m, create = false) {
         const k = this.getMonthKey(y, m);
-        if (!this.monthExtras[k]) this.monthExtras[k] = { manualHolBonus: null };
-        return this.monthExtras[k];
+        if (create && !this.monthExtras[k]) {
+          this.monthExtras[k] = { manualHolBonus: null };
+        }
+        return this.monthExtras[k] || { manualHolBonus: null };
+      },
+      cleanupMonthExtra(y, m) {
+        const k = this.getMonthKey(y, m), ex = this.monthExtras[k];
+        if (!ex) return;
+        const hasVal = (ex.manualHolBonus !== null && ex.manualHolBonus !== undefined) ||
+          ex.exactWage !== undefined || ex.exactBonus !== undefined ||
+          ex.exactNet !== undefined || ex.exactGross !== undefined ||
+          ex.exactDed !== undefined || ex.exactTax !== undefined ||
+          ex.customBasePay !== undefined || ex.exactIns !== undefined ||
+          ex.retroGross !== undefined || ex.retroDed !== undefined ||
+          ex.nonSevOffset !== undefined;
+        if (!hasVal) delete this.monthExtras[k];
       },
 
       toggleManualHolBonus() {
-        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
+        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m, true);
         ex.manualHolBonus = (ex.manualHolBonus === null || ex.manualHolBonus === undefined) ? true : (ex.manualHolBonus === true ? false : null);
+        this.cleanupMonthExtra(pm.y, pm.m);
         this.save(); this.render();
       },
 
       resolveHolidayBonusStatus(payY, payM) {
-        const ex = this.getMonthExtra(payY, payM);
+        const ex = this.getMonthExtra(payY, payM, false);
         const appliedBase = this.resolveEffectiveBaseInfo(payY, payM).val;
         const fest = KoreanHolidayEngine.getFestivalInCalendarMonth(payY, payM);
 
         let prevY = payY, prevM = payM - 1; if (prevM < 1) { prevM = 12; prevY -= 1; }
         let nextY = payY, nextM = payM + 1; if (nextM > 12) { nextM = 1; nextY += 1; }
-        const prevEx = this.getMonthExtra(prevY, prevM);
+        const prevEx = this.getMonthExtra(prevY, prevM, false);
+        const nextEx = this.getMonthExtra(nextY, nextM, false);
         const prevFest = KoreanHolidayEngine.getFestivalInCalendarMonth(prevY, prevM);
         const nextFest = KoreanHolidayEngine.getFestivalInCalendarMonth(nextY, nextM);
 
@@ -1685,6 +1722,7 @@
           }
         }
 
+        // 전달에 이미 명절상여를 앞당겨 받은 경우 당월 자동상여 중복 방지
         if (fest && !prevFest) {
           const prevBase = this.resolveEffectiveBaseInfo(prevY, prevM).val;
           const prevRegBonus = (prevM % 2 === 0) ? prevBase : 0;
@@ -1695,11 +1733,22 @@
           }
         }
 
+        // 다음 달에 명절상여를 받은 경우(월말 명절 익월 지급) 당월 자동상여 중복 방지
+        if (fest && !nextFest) {
+          const nextBase = this.resolveEffectiveBaseInfo(nextY, nextM).val;
+          const nextRegBonus = (nextM % 2 === 0) ? nextBase : 0;
+          const nextClaimedManually = (nextEx.manualHolBonus === true);
+          const nextClaimedByBonusInput = (nextEx.exactBonus !== undefined && nextBase > 0 && nextEx.exactBonus >= nextRegBonus + (nextBase * 0.8));
+          if (nextClaimedManually || nextClaimedByBonusInput) {
+            return { hasHol: false, name: null };
+          }
+        }
+
         return { hasHol: Boolean(fest), name: fest ? fest.name : null };
       },
 
       onExtraInput() {
-        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
+        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m, true);
         const wRaw = ($('input_exact_wage')?.value || '').trim();
         const bRaw = ($('input_exact_bonus')?.value || '').trim();
         const nRaw = ($('input_exact_net')?.value || '').trim();
@@ -1739,19 +1788,23 @@
         if (rdRaw === '' || Number(rdRaw) <= 0) delete ex.retroDed;
         else ex.retroDed = Number(rdRaw);
 
+        this.cleanupMonthExtra(pm.y, pm.m);
         this.syncFallbackBaseAndIns();
         this.saveDebounced();
         this.render(true);
       },
       clearMonthSlipInputs() {
-        const pm = this.getActivePayYM(), ex = this.getMonthExtra(pm.y, pm.m);
-        delete ex.exactWage;
-        delete ex.exactBonus;
-        delete ex.exactGross;
-        delete ex.exactNet;
-        delete ex.exactDed;
-        delete ex.retroGross;
-        delete ex.retroDed;
+        const pm = this.getActivePayYM(), k = this.getMonthKey(pm.y, pm.m), ex = this.monthExtras[k];
+        if (ex) {
+          delete ex.exactWage;
+          delete ex.exactBonus;
+          delete ex.exactGross;
+          delete ex.exactNet;
+          delete ex.exactDed;
+          delete ex.retroGross;
+          delete ex.retroDed;
+          this.cleanupMonthExtra(pm.y, pm.m);
+        }
         this.save();
         this.render(false);
       },
@@ -1845,7 +1898,7 @@
         const cacheKey = `${payY}-${payM}`;
         if (this.summaryCache[cacheKey]) return this.summaryCache[cacheKey];
 
-        const ex = this.getMonthExtra(payY, payM);
+        const ex = this.getMonthExtra(payY, payM, false);
         const baseInfo = this.resolveEffectiveBaseInfo(payY, payM);
         const insInfo = this.resolveEffectiveInsInfo(payY, payM);
         const appliedBase = baseInfo.val;
@@ -1984,7 +2037,9 @@
         const tyInt = Math.floor(tmCnt / 12), tmRem = tmCnt % 12;
         const tf = this.sevUseExactMonths ? (tyInt + (tmRem / 12)) : tyInt;
         const gross = avgWage > 0 ? Math.round(avgWage * tf) : 0;
-        const itRaw = avgWage > 0 ? (tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096))) : 0;
+        const linearTax = tf * ((4722300 / 14) + ((avgWage - 9579160) * 0.096));
+        const minFallbackTax = gross * 0.032;
+        const itRaw = avgWage > 0 ? Math.max(minFallbackTax, linearTax) : 0;
         const sIt = Math.max(0, Math.round(itRaw / 10) * 10), sLt = Math.floor((sIt * 0.1) / 10) * 10, tTax = sIt + sLt;
         return {
           targetY: ty, targetM: tm, lastDay: new Date(ty, tm, 0).getDate(), months,
@@ -2107,13 +2162,16 @@
         const mt = $('modal_memo_input').value.trim(), c = this.records[k] || {};
         c.memo = mt;
         if (mt && c.memoColor === undefined) c.memoColor = Math.floor(Math.random() * PASTEL_PALETTE.length);
+        if (!c.memo) delete c.memoColor;
         if (!c.memo && !c.type && !c.compHol) delete this.records[k]; else this.records[k] = c;
       },
       saveMemoOnly() { if (!this.selectedDateKey) return; this.syncModalMemoToRecord(this.selectedDateKey); this.closeDayModal(); this.save(); this.render(); },
       rerollMemoColor() {
         if (!this.selectedDateKey) return;
+        const mt = $('modal_memo_input').value.trim();
+        if (!mt) return;
         const c = this.records[this.selectedDateKey] || {};
-        c.memo = $('modal_memo_input').value.trim();
+        c.memo = mt;
         c.memoColor = ((c.memoColor || 0) + 1 + Math.floor(Math.random() * 3)) % PASTEL_PALETTE.length;
         this.records[this.selectedDateKey] = c; this.save(); this.render();
       },
@@ -2194,7 +2252,9 @@
             delete c.hours;
             if (!c.memo && !c.compHol) {
               delete this.records[this.selectedDateKey];
-              this.closeDayModal(); this.save(); this.render();
+              this.save(); this.render();
+              const updatedEv = this.evaluateDay(this.selectedDayInfo.y, this.selectedDayInfo.m, this.selectedDayInfo.d, this.selectedDayInfo.isOtherMonth);
+              this.onCellTap(updatedEv, true);
               return;
             }
           }
@@ -2202,7 +2262,10 @@
           c.shift = ns;
           c.customShift = true;
         }
-        this.records[this.selectedDateKey] = c; this.closeDayModal(); this.save(); this.render();
+        this.records[this.selectedDateKey] = c;
+        this.save(); this.render();
+        const updatedEv = this.evaluateDay(this.selectedDayInfo.y, this.selectedDayInfo.m, this.selectedDayInfo.d, this.selectedDayInfo.isOtherMonth);
+        this.onCellTap(updatedEv, true);
       },
       closeDayModal() { const m = $('day_modal'); m.classList.add('hidden'); m.classList.remove('flex'); this.selectedDateKey = null; },
 
@@ -2222,7 +2285,7 @@
         this.render();
       },
       changeReportYear(d) { this.reportYear += d; this.render(); },
-      jumpToMonthFromReport(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
+      jumpToMonthFromReport(y, m) { this.jumpToPayMonth(y, m); },
       resetCurrentMonth() {
         const pm = this.getActivePayYM();
         if (!confirm(`${pm.m}월 급여 근무 내역 및 현황표(①~③·소급) 입력값을 초기화하시겠습니까? (개인 메모 및 ④기본급·⑤4대보험 설정은 유지됩니다)`)) return;
@@ -2353,10 +2416,11 @@
         } else {
           let pm = this.payViewMonth - 1; if (pm < 1) pm = 12;
           let ppm = pm - 1; if (ppm < 1) ppm = 12;
-          bc.innerText = `${pm}월 급여(${ppm}.21~${pm}.20)`;
-          bn.innerText = `${this.payViewMonth}월 급여(${pm}.21~${this.payViewMonth}.20)`;
-          bc.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 truncate';
-          bn.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-black bg-emerald-400 text-slate-950 truncate';
+          let nm = this.payViewMonth + 1; if (nm > 12) nm = 1;
+          bc.innerText = `◀ ${pm}월 급여(${ppm}.21~${pm}.20)`;
+          bn.innerText = `${nm}월 급여(${this.payViewMonth}.21~${nm}.20) ▶`;
+          bc.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 hover:text-white active:scale-95 transition truncate';
+          bn.className = 'px-1.5 py-0.5 rounded-md text-[9.5px] tracking-tighter font-bold text-slate-300 hover:text-white active:scale-95 transition truncate';
         }
 
         const f = calc.cutoffDates[0], l = calc.cutoffDates[calc.cutoffDates.length - 1];
@@ -2608,7 +2672,7 @@
         }
         rows.push(`<tr class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300"><td class="py-2 pl-2">합계</td><td class="py-2 px-0.5 text-right">${Math.round(tw).toLocaleString()}</td><td class="py-2 px-0.5 text-right text-blue-800">${Math.round(tg).toLocaleString()}</td><td class="py-2 pr-2 text-right text-emerald-800">${Math.round(tn).toLocaleString()}</td></tr>`);
 
-        setText('rep_total_gross', `${(tg + unusedPay).toLocaleString()}원`);
+        setText('rep_total_gross', `${Math.round(tg).toLocaleString()}원`);
         setText('rep_total_net', `${(tn + Math.round(unusedPay * 0.85)).toLocaleString()}원`);
         setText('rep_unused_vac_pay', `+${unusedPay.toLocaleString()}원 (${this.fmtVacNum(rem)}일)`);
         setText('rep_sum_wage', `${Math.round(tw).toLocaleString()}원`);
