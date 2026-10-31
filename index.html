@@ -23,23 +23,37 @@
     .badge-MID { background: #788b91; color: #fff; }
     .badge-NIGHT { background: #3c403f; color: #fff; }
     .badge-OFF { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-    .cell-checked-ot { background: #dbeafe !important; }
-    .cell-checked-night-ot { background: #ede9fe !important; }
-    .cell-checked-hol-day { background: #fee2e2 !important; }
-    .cell-checked-hol-night { background: #f3e8ff !important; }
-    .cell-checked-leave { background: #d1fae5 !important; }
-    .cell-checked-gongga { background: #e0f2fe !important; }
-    .cell-checked-edu { background: #fef3c7 !important; }
-    .cell-checked-req-edu { background: #ccfbf1 !important; }
+    .cell-checked-ot:not(.cell-focused) { background: #dbeafe !important; }
+    .cell-checked-night-ot:not(.cell-focused) { background: #ede9fe !important; }
+    .cell-checked-hol-day:not(.cell-focused) { background: #fee2e2 !important; }
+    .cell-checked-hol-night:not(.cell-focused) { background: #f3e8ff !important; }
+    .cell-checked-leave:not(.cell-focused) { background: #d1fae5 !important; }
+    .cell-checked-gongga:not(.cell-focused) { background: #e0f2fe !important; }
+    .cell-checked-edu:not(.cell-focused) { background: #fef3c7 !important; }
+    .cell-checked-req-edu:not(.cell-focused) { background: #ccfbf1 !important; }
     .month-start-bar { box-shadow: inset 0 2.5px 0 0 #334155; }
-    .cell-today { box-shadow: inset 0 0 0 2px #2563eb !important; z-index: 10; }
+    .cell-today:not(.cell-focused) { box-shadow: inset 0 0 0 2.5px #2563eb !important; background-color: #eff6ff !important; z-index: 10; }
     .bottom-nav-active { color: #2563eb; font-weight: 900; }
     .nowrap { white-space: nowrap; }
     .tnum { font-variant-numeric: tabular-nums; }
     .memo-chip { width: 100%; color: #0f172a; font-size: clamp(7.4px, 2vw, 8.5px); font-weight: 800; letter-spacing: -.05em; line-height: 1.2; padding: 2px; border-radius: 3px; word-break: keep-all; overflow-wrap: break-word; white-space: normal; text-align: left; box-sizing: border-box; }
     .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
-    @keyframes focusPulse { 0%, 100% { box-shadow: inset 0 0 0 3px #f59e0b !important; background: #fef3c7 !important; } 50% { box-shadow: inset 0 0 0 3px #ea580c !important; background: #fde68a !important; } }
-    .cell-focused { animation: focusPulse .6s ease-in-out 3; box-shadow: inset 0 0 0 2.5px #f59e0b !important; z-index: 20; }
+    @keyframes focusPulse {
+      0%, 100% {
+        background-color: #fde047;
+        box-shadow: inset 0 0 0 3.5px #1d4ed8, 0 0 10px rgba(37, 99, 235, 0.55);
+      }
+      50% {
+        background-color: #bfdbfe;
+        box-shadow: inset 0 0 0 3.5px #2563eb, 0 0 4px rgba(37, 99, 235, 0.25);
+      }
+    }
+    #calendar_grid .cell-focused {
+      animation: focusPulse 0.45s ease-in-out 4 !important;
+      box-shadow: inset 0 0 0 3px #2563eb;
+      z-index: 25 !important;
+      position: relative;
+    }
     @keyframes slideL { from { opacity: .7; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes slideR { from { opacity: .7; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
     .swipe-left-anim { animation: slideL .12s ease-out; }
@@ -95,16 +109,13 @@
           </div>
           <div id="calendar_grid" class="grid grid-cols-7 bg-slate-200 gap-[1px] w-full"></div>
 
-          <!-- 달력 바로 밑: 중앙 기준 80% 폭 · 좌우 여백 · 3개 동일 크기 고속 반응 버튼 바 -->
+          <!-- 달력 바로 밑: 중앙 기준 80% 폭 · 좌우 여백 · 2개 동일 크기 고속 반응 버튼 바 -->
           <div class="py-1.5 bg-slate-100 border-t border-slate-200 w-full box-border">
-            <div class="w-[80%] mx-auto grid grid-cols-3 gap-1.5 bg-slate-200/80 p-1 rounded-xl border border-slate-300/70 box-border">
-              <button type="button" id="btn_ctrl_today" class="w-full py-1.5 rounded-lg text-[11.5px] font-extrabold transition bg-white/80 active:bg-amber-50 text-slate-700 border border-slate-200/90 shadow-sm flex items-center justify-center gap-0.5 active:scale-95 nowrap">
-                <span>📍</span><span>오늘로</span>
-              </button>
-              <button type="button" id="btm_view_btn_MEMO" class="w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-0.5 active:scale-95 nowrap">
+            <div class="w-[80%] mx-auto grid grid-cols-2 gap-1.5 bg-slate-200/80 p-1 rounded-xl border border-slate-300/70 box-border">
+              <button type="button" id="btm_view_btn_MEMO" class="w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-1 active:scale-95 nowrap">
                 <span>📝</span><span>메모뷰</span>
               </button>
-              <button type="button" id="btm_view_btn_PAY" class="w-full py-1.5 rounded-lg text-[11.5px] font-bold transition text-slate-500 flex items-center justify-center gap-0.5 active:scale-95 nowrap">
+              <button type="button" id="btm_view_btn_PAY" class="w-full py-1.5 rounded-lg text-[11.5px] font-bold transition text-slate-500 flex items-center justify-center gap-1 active:scale-95 nowrap">
                 <span>💰</span><span>급여뷰</span>
               </button>
             </div>
@@ -827,12 +838,20 @@
       },
 
       initFastControlButtons() {
-        this.bindFastTap('btn_ctrl_today', () => this.goToTodayMonth(true, true));
-        this.bindFastTap('btm_view_btn_MEMO', () => this.setCalendarView('MEMO'));
-        this.bindFastTap('btm_view_btn_PAY', () => this.setCalendarView('PAY'));
+        this.bindFastTap('btm_view_btn_MEMO', () => this.onViewButtonTap('MEMO'));
+        this.bindFastTap('btm_view_btn_PAY', () => this.onViewButtonTap('PAY'));
         this.bindFastTap('btn_prev_month', () => this.changeMonth(-1));
         this.bindFastTap('btn_next_month', () => this.changeMonth(1));
         this.bindFastTap('btn_stamp_toggle', () => this.toggleStampMode());
+      },
+
+      onViewButtonTap(v) {
+        this.flushPendingSave();
+        if (this.calendarView === v) {
+          this.goToTodayMonth(true, true);
+        } else {
+          this.setCalendarView(v);
+        }
       },
 
       initGridDelegation() {
@@ -1032,11 +1051,11 @@
         const grid = $('calendar_grid');
         if (grid) {
           grid.querySelectorAll('.cell-focused').forEach(el => el.classList.remove('cell-focused'));
-          const target = grid.querySelector(`[data-date-key="${dateKey}"]`);
-          if (target) {
+          const targets = grid.querySelectorAll(`[data-date-key="${dateKey}"]`);
+          targets.forEach(target => {
             void target.offsetWidth;
             target.classList.add('cell-focused');
-          }
+          });
         }
         this.focusClearTimer = setTimeout(() => {
           this.focusedDateKey = null;
@@ -1263,7 +1282,6 @@
         }
       },
 
-      // [최적화 2] 숫자 타이핑 시 0.22초 디바운스 금고 저장 (UI는 즉시 반응, 디스크 I/O는 타이핑 종료 후 1회 실행)
       saveDebounced() {
         this.invalidateSummaryCache();
         clearTimeout(this.inputSaveTimer);
@@ -1283,8 +1301,8 @@
 
       syncViewButtonsUI() {
         const v = this.calendarView;
-        const activeCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-0.5 active:scale-95 nowrap';
-        const inactiveCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-bold transition text-slate-500 flex items-center justify-center gap-0.5 active:scale-95 nowrap';
+        const activeCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-black transition bg-white text-blue-700 shadow-sm border border-blue-200 flex items-center justify-center gap-1 active:scale-95 nowrap';
+        const inactiveCls = 'w-full py-1.5 rounded-lg text-[11.5px] font-bold transition text-slate-500 flex items-center justify-center gap-1 active:scale-95 nowrap';
 
         const btmMemo = $('btm_view_btn_MEMO'), btmPay = $('btm_view_btn_PAY');
         if (btmMemo) btmMemo.className = (v === 'MEMO') ? activeCls : inactiveCls;
@@ -1307,7 +1325,6 @@
         return { y: this.payViewYear, m: this.payViewMonth };
       },
 
-      // 현재 화면 기준 연차 집계 대상 연도 반환
       getActiveVacationYear() {
         if (this.activeTab === 'report') return this.reportYear;
         return this.calendarView === 'MEMO' ? this.memoYear : this.payViewYear;
@@ -1421,7 +1438,6 @@
         return 0.5 * this.getHourlyRate(b);
       },
 
-      // [최적화 1] 연도별 연차 사용일수 분리 집계 (다른 연도의 휴가가 섞여 차감되는 현상 방지)
       getCalendarUsedVacationDays(targetYear = this.getActiveVacationYear()) {
         let u = 0;
         const prefix = targetYear ? `${targetYear}-` : null;
@@ -1435,7 +1451,14 @@
 
       switchTab(tab, fromNav = false) {
         this.flushPendingSave();
-        if (fromNav && this.activeTab === 'home' && tab === 'home') {
+        if (fromNav && tab === 'home') {
+          this.activeTab = 'home';
+          ['home', 'report', 'severance', 'rates', 'settings'].forEach(t => {
+            $(`tab_${t}`).classList.toggle('hidden', t !== 'home');
+            $(`nav_${t}`).classList.toggle('bottom-nav-active', t === 'home');
+          });
+          this.calendarView = 'MEMO';
+          this.syncViewButtonsUI();
           this.goToTodayMonth(true, true);
           this.scrollToTopClean();
           return;
