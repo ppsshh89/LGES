@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v9.5</title>
+  <title>스마트 월급·퇴직금 계산기 v9.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -910,16 +910,26 @@
             ((preset.type !== 'OT' && preset.type !== 'NIGHT_OT') || Number(curRec.hours) === preset.hours) &&
             (preset.type !== 'HOLIDAY' || (Number(curRec.hours) === preset.hours && curRec.holKind === preset.holKind)) &&
             (preset.type !== 'LEAVE' || Number(curRec.vacDays) === preset.vacDays);
+
+          // 수동으로 고정한 근무조가 있는 경우에만 유지하고, 기본 근무조일 때는 shift 고정 생략
+          const keptShift = (curRec.shift && curRec.shift !== ev.defaultShift) ? curRec.shift : undefined;
+
           if (isSame) {
             this.setWorkRecord(k, null);
           } else if (preset.type === 'HOLIDAY') {
-            this.setWorkRecord(k, { type: 'HOLIDAY', hours: preset.hours, holKind: preset.holKind, shift: preset.holKind === 'NIGHT' ? 'NIGHT' : 'EARLY' });
+            this.setWorkRecord(k, { type: 'HOLIDAY', hours: preset.hours, holKind: preset.holKind });
           } else if (preset.type === 'LEAVE') {
-            this.setWorkRecord(k, { type: 'LEAVE', hours: 0, vacDays: preset.vacDays, shift: ev.shift });
+            const nextRec = { type: 'LEAVE', hours: 0, vacDays: preset.vacDays };
+            if (keptShift) nextRec.shift = keptShift;
+            this.setWorkRecord(k, nextRec);
           } else if (preset.type === 'GONGGA' || preset.type === 'REQ_EDU') {
-            this.setWorkRecord(k, { type: preset.type, hours: 0, vacDays: 0, shift: ev.shift });
+            const nextRec = { type: preset.type, hours: 0, vacDays: 0 };
+            if (keptShift) nextRec.shift = keptShift;
+            this.setWorkRecord(k, nextRec);
           } else {
-            this.setWorkRecord(k, { type: preset.type, hours: preset.hours, shift: ev.shift });
+            const nextRec = { type: preset.type, hours: preset.hours };
+            if (keptShift) nextRec.shift = keptShift;
+            this.setWorkRecord(k, nextRec);
           }
         }
         this.save();
@@ -1244,6 +1254,23 @@
         this.render();
       },
 
+      syncFallbackBaseAndIns() {
+        let latestBaseKey = '', latestBaseVal = 0;
+        let latestInsKey = '', latestInsVal = null;
+        for (const [k, v] of Object.entries(this.monthExtras)) {
+          if (v && v.customBasePay !== undefined && v.customBasePay > 0 && k >= latestBaseKey) {
+            latestBaseKey = k;
+            latestBaseVal = v.customBasePay;
+          }
+          if (v && v.exactIns !== undefined && v.exactIns >= 0 && k >= latestInsKey) {
+            latestInsKey = k;
+            latestInsVal = v.exactIns;
+          }
+        }
+        this.basePay = latestBaseVal > 0 ? latestBaseVal : 0;
+        this.fixedInsurance = latestInsVal !== null ? latestInsVal : 0;
+      },
+
       loadStateObject(p, mergeExistingMemos = false) {
         if (p.basePay !== undefined) this.basePay = Number(p.basePay) || 0;
         if (p.retroOldBase !== undefined) this.retroOldBase = Number(p.retroOldBase) || 0;
@@ -1255,12 +1282,14 @@
         if (p.priorUsedVacation !== undefined) this.priorUsedVacation = Math.max(0, Number(p.priorUsedVacation) || 0);
         if (p.vacationByYear && typeof p.vacationByYear === 'object') {
           this.vacationByYear = { ...(mergeExistingMemos ? this.vacationByYear : {}), ...p.vacationByYear };
-        }
-        if (!this.vacationByYear['2026'] && (p.totalVacation !== undefined || p.priorUsedVacation !== undefined)) {
-          this.vacationByYear['2026'] = {
+        } else if (p.totalVacation !== undefined || p.priorUsedVacation !== undefined) {
+          const activeY = String(this.getActiveVacationYear() || 2026);
+          const legacyCfg = {
             total: Number(this.totalVacation ?? 15),
             prior: Math.max(0, Number(this.priorUsedVacation ?? 0))
           };
+          this.vacationByYear['2026'] = { ...legacyCfg };
+          this.vacationByYear[activeY] = { ...legacyCfg };
         }
         if (p.hireDate !== undefined) this.hireDate = p.hireDate || '2020-01-01';
         if (p.shiftOffset !== undefined) this.shiftOffset = Number(p.shiftOffset) || 0;
@@ -1285,6 +1314,7 @@
               if (!r.memo && !r.compHol) delete this.records[k];
             }
             else if (m === '공가(종합검진)') { r.type = 'GONGGA'; delete r.memo; }
+            if (r.type === 'HOLIDAY') delete r.shift;
           });
         }
         if (p.monthExtras && typeof p.monthExtras === 'object') {
@@ -1305,7 +1335,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '9.5', exportedAt: new Date().toISOString(),
+          version: '9.6', exportedAt: new Date().toISOString(),
           basePay: this.basePay, fixedInsurance: this.fixedInsurance,
           retroOldBase: this.retroOldBase, retroNewBase: this.retroNewBase,
           retroStartM: this.retroStartM, retroEndM: this.retroEndM,
@@ -1395,6 +1425,13 @@
       setThisWeekShift(ts) {
         const t = this.getTodayInfo(), w = this.getBaseWeekDiff(t.y, t.m, t.d);
         this.shiftOffset = (((this.SHIFT_ORDER.indexOf(ts) - (w % 3)) % 3) + 3) % 3;
+        // 근무조 패턴 변경 시 기존 잔업·휴가 등에 자동 묶여 있던 근무조 고정값을 해제하여 새 패턴이 즉시 반영되게 처리
+        Object.entries(this.records).forEach(([k, r]) => {
+          if (r && r.shift && !r.customShift) {
+            delete r.shift;
+            if (!r.type && !r.memo && !r.compHol) delete this.records[k];
+          }
+        });
         this.save(); this.render();
       },
 
@@ -1659,17 +1696,17 @@
         if (nRaw === '') delete ex.exactNet;
         else ex.exactNet = Number(nRaw);
 
-        if (baseRaw === '' || Number(baseRaw) <= 0) delete ex.customBasePay;
-        else {
+        if (baseRaw === '' || Number(baseRaw) <= 0) {
+          delete ex.customBasePay;
+        } else {
           ex.customBasePay = Number(baseRaw);
-          this.basePay = ex.customBasePay;
           if ($('retro_new_base') && !this.retroNewBase) $('retro_new_base').value = ex.customBasePay;
         }
 
-        if (insRaw === '' || Number(insRaw) < 0) delete ex.exactIns;
-        else {
+        if (insRaw === '' || Number(insRaw) < 0) {
+          delete ex.exactIns;
+        } else {
           ex.exactIns = Number(insRaw);
-          this.fixedInsurance = ex.exactIns;
         }
 
         if (rgRaw === '' || Number(rgRaw) <= 0) delete ex.retroGross;
@@ -1678,6 +1715,7 @@
         if (rdRaw === '' || Number(rdRaw) <= 0) delete ex.retroDed;
         else ex.retroDed = Number(rdRaw);
 
+        this.syncFallbackBaseAndIns();
         this.saveDebounced();
         this.render(true);
       },
@@ -1721,7 +1759,6 @@
         let rawType = rec.type === 'EDU_ALLOW' ? null : rec.type;
         let type = rawType || (isRedOffDay ? 'OFF' : 'NORMAL'), holKind = rec.holKind || null;
 
-        // 주말·공휴일(휴무일)에는 특근(HOLIDAY) 외 평일 잔업·연차·정상출근이 잘못 잡히지 않도록 방어
         if (isRedOffDay && type !== 'HOLIDAY') {
           type = 'OFF';
         }
@@ -1837,7 +1874,12 @@
         const hasExactGross = ex.exactGross !== undefined && ex.exactGross > 0;
 
         const finalWage = hasExactWage ? ex.exactWage : autoWage;
-        const impliedZeroBonus = !hasExactBonus && hasExactWage && hasExactNet && (ex.exactNet <= finalWage);
+        // ③ 차감지급액 타이핑 중(절반 미만 금액)에는 오작동하지 않고, 상여 없을 때의 실수령액 범위일 때만 상여 0원 자동 판정
+        const minValidNetForZeroBonus = Math.max(100000, Math.round(finalWage * 0.5));
+        const maxNetForZeroBonus = Math.min(finalWage, Math.round(finalWage - fixedInsurances - unionFee + (appliedBase * 0.25)));
+        const impliedZeroBonus = !hasExactBonus && autoBonus > 0 && hasExactWage && hasExactNet &&
+          (ex.exactNet >= minValidNetForZeroBonus) && (ex.exactNet <= maxNetForZeroBonus);
+
         const finalBonus = hasExactBonus ? ex.exactBonus : (impliedZeroBonus ? 0 : autoBonus);
         const autoHolName = (impliedZeroBonus || (hasExactBonus && ex.exactBonus === 0)) ? null : rawAutoHolName;
         const baseGross = (hasExactWage || hasExactBonus || impliedZeroBonus) ? (finalWage + finalBonus) : (hasExactGross ? ex.exactGross : autoGross);
@@ -1983,6 +2025,8 @@
           delete c.type;
           delete c.hours;
           delete c.vacDays;
+          delete c.shift;
+          delete c.customShift;
         }
         if (!c.memo && !c.type && !c.compHol) delete this.records[this.selectedDateKey];
         else this.records[this.selectedDateKey] = c;
@@ -2067,12 +2111,28 @@
           return;
         }
         this.syncModalMemoToRecord(this.selectedDateKey);
-        let sh = $('modal_shift_select').value;
-        if (type === 'DEFAULT') this.setWorkRecord(this.selectedDateKey, null);
-        else if (type === 'LEAVE') this.setWorkRecord(this.selectedDateKey, { type: 'LEAVE', hours: 0, vacDays: val, shift: sh });
-        else if (type === 'GONGGA' || type === 'REQ_EDU') this.setWorkRecord(this.selectedDateKey, { type, hours: 0, vacDays: 0, shift: sh });
-        else if (type === 'HOLIDAY') { sh = (holKind === 'NIGHT') ? 'NIGHT' : 'EARLY'; this.setWorkRecord(this.selectedDateKey, { type: 'HOLIDAY', hours: val, holKind: holKind || 'DAY', shift: sh }); }
-        else this.setWorkRecord(this.selectedDateKey, { type, hours: val, shift: sh });
+        const sh = $('modal_shift_select').value;
+        const defSh = this.selectedDayInfo?.defaultShift;
+        const prevRec = this.records[this.selectedDateKey] || {};
+        const isCustomShift = (sh !== defSh) || Boolean(prevRec.customShift && sh === prevRec.shift);
+
+        if (type === 'DEFAULT') {
+          this.setWorkRecord(this.selectedDateKey, null);
+        } else if (type === 'HOLIDAY') {
+          this.setWorkRecord(this.selectedDateKey, { type: 'HOLIDAY', hours: val, holKind: holKind || 'DAY' });
+        } else if (type === 'LEAVE') {
+          const nextRec = { type: 'LEAVE', hours: 0, vacDays: val };
+          if (isCustomShift) { nextRec.shift = sh; nextRec.customShift = true; }
+          this.setWorkRecord(this.selectedDateKey, nextRec);
+        } else if (type === 'GONGGA' || type === 'REQ_EDU') {
+          const nextRec = { type, hours: 0, vacDays: 0 };
+          if (isCustomShift) { nextRec.shift = sh; nextRec.customShift = true; }
+          this.setWorkRecord(this.selectedDateKey, nextRec);
+        } else {
+          const nextRec = { type, hours: val };
+          if (isCustomShift) { nextRec.shift = sh; nextRec.customShift = true; }
+          this.setWorkRecord(this.selectedDateKey, nextRec);
+        }
         this.closeDayModal(); this.save(); this.render();
       },
       changeShiftOnly(ns) {
@@ -2087,8 +2147,24 @@
         this.invalidateSummaryCache();
         this.syncModalMemoToRecord(this.selectedDateKey);
         if (tt === 'OFF') tt = 'NORMAL';
-        const c = { ...p, type: tt, hours: p.hours !== undefined ? p.hours : (this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0), vacDays: p.vacDays || this.selectedDayInfo.vacDays || 1, shift: ns };
-        if (c.type === 'HOLIDAY') c.holKind = (ns === 'NIGHT') ? 'NIGHT' : 'DAY';
+        const defSh = this.selectedDayInfo?.defaultShift;
+        const c = { ...p, type: tt, hours: p.hours !== undefined ? p.hours : (this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0), vacDays: p.vacDays || this.selectedDayInfo.vacDays || 1 };
+        if (c.type === 'HOLIDAY') {
+          c.holKind = (ns === 'NIGHT') ? 'NIGHT' : 'DAY';
+          delete c.shift;
+          delete c.customShift;
+        } else if (ns === defSh) {
+          delete c.shift;
+          delete c.customShift;
+          if (c.type === 'NORMAL' && !c.memo && !c.compHol) {
+            delete this.records[this.selectedDateKey];
+            this.closeDayModal(); this.save(); this.render();
+            return;
+          }
+        } else {
+          c.shift = ns;
+          c.customShift = true;
+        }
         this.records[this.selectedDateKey] = c; this.closeDayModal(); this.save(); this.render();
       },
       closeDayModal() { const m = $('day_modal'); m.classList.add('hidden'); m.classList.remove('flex'); this.selectedDateKey = null; },
