@@ -40,17 +40,17 @@
     .work-top-chip { width: 100%; font-size: clamp(7.5px, 2.05vw, 8.6px); font-weight: 900; letter-spacing: -.05em; line-height: 1.15; padding: 1px 0; background: transparent !important; border: none !important; text-align: center; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
     @keyframes focusPulse {
       0%, 100% {
-        background-color: #fde047;
-        box-shadow: inset 0 0 0 3.5px #1d4ed8, 0 0 10px rgba(37, 99, 235, 0.55);
+        background-color: #eff6ff;
+        box-shadow: inset 0 0 0 2.5px #2563eb;
       }
       50% {
         background-color: #bfdbfe;
-        box-shadow: inset 0 0 0 3.5px #2563eb, 0 0 4px rgba(37, 99, 235, 0.25);
+        box-shadow: inset 0 0 0 3px #1d4ed8;
       }
     }
     #calendar_grid .cell-focused {
-      animation: focusPulse 0.45s ease-in-out 4 !important;
-      box-shadow: inset 0 0 0 3px #2563eb;
+      animation: focusPulse 0.45s ease-in-out 2 !important;
+      box-shadow: inset 0 0 0 2.5px #2563eb;
       z-index: 25 !important;
       position: relative;
     }
@@ -1061,7 +1061,7 @@
           this.focusedDateKey = null;
           const g = $('calendar_grid');
           if (g) g.querySelectorAll('.cell-focused').forEach(el => el.classList.remove('cell-focused'));
-        }, 1900);
+        }, 950);
       },
 
       scrollToTopClean() {
