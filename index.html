@@ -1091,7 +1091,16 @@
       removeLeaveRecord(dateKey) {
         const r = this.records[dateKey];
         if (!r) return;
-        if (r.memo || r.compHol) this.records[dateKey] = { memo: r.memo || '', memoColor: r.memoColor, compHol: r.compHol };
+        const next = {};
+        if (r.memo) { next.memo = r.memo; next.memoColor = r.memoColor; }
+        if (r.compHol) next.compHol = r.compHol;
+        if (r.customShift && r.shift) {
+          next.type = 'NORMAL';
+          next.hours = 0;
+          next.shift = r.shift;
+          next.customShift = true;
+        }
+        if (Object.keys(next).length > 0) this.records[dateKey] = next;
         else delete this.records[dateKey];
         this.save(); this.syncSettingsInputs(); this.render();
       },
@@ -1661,8 +1670,16 @@
           return { hasHol: false, name: null };
         }
 
+        const expectedRegBonus = (payM % 2 === 0) ? appliedBase : 0;
+
+        // 당월에 명절이 있더라도 실제 입력한 ②상여가 정기상여 수준 이하라면 명절상여 미지급으로 일원화 판정
+        if (fest && ex.exactBonus !== undefined && ex.exactBonus >= 0) {
+          if (appliedBase > 0 ? (ex.exactBonus < expectedRegBonus + (appliedBase * 0.5)) : (ex.exactBonus === 0)) {
+            return { hasHol: false, name: null };
+          }
+        }
+
         if (!fest && nextFest && ex.exactBonus !== undefined && appliedBase > 0) {
-          const expectedRegBonus = (payM % 2 === 0) ? appliedBase : 0;
           if (ex.exactBonus >= expectedRegBonus + (appliedBase * 0.8)) {
             return { hasHol: true, name: nextFest.name };
           }
@@ -1887,9 +1904,7 @@
           (ex.exactNet >= minValidNetForZeroBonus) && (ex.exactNet <= maxNetForZeroBonus);
 
         const finalBonus = hasExactBonus ? ex.exactBonus : (impliedZeroBonus ? 0 : autoBonus);
-        // 짝수달 정기상여만 입력한 경우에도 명절상여 배지가 자동으로 꺼지도록 판정 보완
-        const noHolInExactBonus = hasExactBonus && (ex.exactBonus < regBonusPay + (appliedBase * 0.5));
-        const autoHolName = (impliedZeroBonus || noHolInExactBonus) ? null : rawAutoHolName;
+        const autoHolName = (impliedZeroBonus || (hasExactBonus && ex.exactBonus === 0 && ex.manualHolBonus !== true)) ? null : rawAutoHolName;
         const baseGross = (hasExactWage || hasExactBonus || impliedZeroBonus) ? (finalWage + finalBonus) : (hasExactGross ? ex.exactGross : autoGross);
 
         let baseNet = autoNet;
@@ -1902,7 +1917,9 @@
           baseDed = ex.exactDed;
           baseNet = baseGross - baseDed;
         } else if (hasExactWage || hasExactBonus) {
-          const estTaxForFinal = this.estimateMonthlyIncomeTax(finalWage, finalBonus, prevHadHolBonus, appliedBase);
+          // 명절상여는 익월(prevHadHolBonus)에 정산되므로 당월 세금 추정 시 명절상여분 중복 과세 제외
+          const taxableRegBonus = Math.max(0, finalBonus - (autoHolName ? appliedBase : 0));
+          const estTaxForFinal = this.estimateMonthlyIncomeTax(finalWage, taxableRegBonus, prevHadHolBonus, appliedBase);
           baseDed = estTaxForFinal + fixedInsurances + unionFee;
           baseNet = baseGross - baseDed;
         }
@@ -2154,9 +2171,17 @@
         }
         this.invalidateSummaryCache();
         this.syncModalMemoToRecord(this.selectedDateKey);
+        const synced = this.records[this.selectedDateKey] || {};
         if (tt === 'OFF') tt = 'NORMAL';
         const defSh = this.selectedDayInfo?.defaultShift;
-        const c = { ...p, type: tt, hours: p.hours !== undefined ? p.hours : (this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0), vacDays: p.vacDays || this.selectedDayInfo.vacDays || 1 };
+        const c = {
+          ...synced,
+          type: tt,
+          hours: p.hours !== undefined ? p.hours : (this.selectedDayInfo.otHours || (this.selectedDayInfo.holBaseHours + this.selectedDayInfo.holOverHours) || 0)
+        };
+        if (tt === 'LEAVE') c.vacDays = p.vacDays !== undefined ? p.vacDays : (this.selectedDayInfo.vacDays || 1);
+        else delete c.vacDays;
+
         if (c.type === 'HOLIDAY') {
           c.holKind = (ns === 'NIGHT') ? 'NIGHT' : 'DAY';
           delete c.shift;
@@ -2164,10 +2189,14 @@
         } else if (ns === defSh) {
           delete c.shift;
           delete c.customShift;
-          if (c.type === 'NORMAL' && !c.memo && !c.compHol) {
-            delete this.records[this.selectedDateKey];
-            this.closeDayModal(); this.save(); this.render();
-            return;
+          if (c.type === 'NORMAL') {
+            delete c.type;
+            delete c.hours;
+            if (!c.memo && !c.compHol) {
+              delete this.records[this.selectedDateKey];
+              this.closeDayModal(); this.save(); this.render();
+              return;
+            }
           }
         } else {
           c.shift = ns;
