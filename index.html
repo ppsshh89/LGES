@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v9.2</title>
+  <title>스마트 월급·퇴직금 계산기 v9.3</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -171,7 +171,7 @@
               <span id="extra_section_title" class="text-xs font-black text-slate-900 truncate">📊 급상여 지급 현황 실제값 입력</span>
               <div class="flex items-center gap-1 shrink-0">
                 <button id="btn_toggle_hol_bonus" onclick="App.toggleManualHolBonus()" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900">🌕 명절:자동</button>
-                <button onclick="App.clearMonthSlipInputs()" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600">비우기</button>
+                <button onclick="App.clearMonthSlipInputs()" title="④기본급·⑤4대보험은 유지하고 ①~③·⑥~⑦만 비웁니다" class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 active:scale-95 transition">비우기(④·⑤유지)</button>
               </div>
             </div>
 
@@ -468,9 +468,13 @@
         </div>
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
-          <div class="flex items-center justify-between nowrap">
-            <h2 class="text-sm font-black text-slate-900">🌴 연차 · 기본 설정값 · 입사일 관리</h2>
-            <span class="text-[10px] font-bold text-emerald-700">연도별 자동 분리</span>
+          <div class="flex items-center justify-between gap-1 nowrap">
+            <h2 class="text-sm font-black text-slate-900 truncate">🌴 연차 · 기본 설정값 · 입사일 관리</h2>
+            <div class="inline-flex items-center gap-1 bg-emerald-100/90 border border-emerald-300 rounded-lg px-1.5 py-0.5 shrink-0">
+              <button type="button" onclick="App.changeSettingsVacYear(-1)" class="text-[10px] font-black text-emerald-800 px-1 active:scale-90">◀</button>
+              <span id="set_vac_year_badge" class="text-[10px] font-black text-emerald-950 tnum">2026년 연차</span>
+              <button type="button" onclick="App.changeSettingsVacYear(1)" class="text-[10px] font-black text-emerald-800 px-1 active:scale-90">▶</button>
+            </div>
           </div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 space-y-2 nowrap tnum">
             <div class="flex justify-between items-center">
@@ -492,8 +496,8 @@
           </details>
 
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="15" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
-            <div><label class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+            <div><label id="label_total_vac" class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="15" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
+            <div><label id="label_prior_vac" class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
           </div>
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
             <div>
@@ -752,8 +756,10 @@
       memoYear: 2026, memoMonth: 10, memoPayOffset: 0,
       payViewYear: 2026, payViewMonth: 11,
       reportYear: 2026, sevYear: 2026, sevMonth: 10, sevUseExactMonths: true,
+      settingsVacYear: 2026,
 
       basePay: 0, retroOldBase: 0, fixedInsurance: 0, totalVacation: 15, priorUsedVacation: 0,
+      vacationByYear: {},
       hireDate: '2020-01-01', shiftOffset: 0,
       records: {}, monthExtras: {},
 
@@ -1096,7 +1102,7 @@
           }
         }, { passive: false });
         z.addEventListener('touchend', e => {
-          if (ignoreSwipe || !e.changedTouches || !e.changedTouches.length === 1) return;
+          if (ignoreSwipe || !e.changedTouches || e.changedTouches.length !== 1) return;
           const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
           if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) {
             this.changeMonth(dx < 0 ? 1 : -1);
@@ -1110,6 +1116,7 @@
         let py = t.y, pm = (t.d >= 21) ? (t.m + 1) : t.m;
         if (pm > 12) { pm = 1; py += 1; }
         this.payViewYear = py; this.payViewMonth = pm; this.reportYear = t.y; this.sevYear = t.y; this.sevMonth = t.m;
+        this.settingsVacYear = t.y;
       },
 
       saveGithubToken() {
@@ -1211,12 +1218,41 @@
         return Number.isInteger(h) ? `${h}h` : `${Number(h.toFixed(2))}h`;
       },
 
+      getYearVacationConfig(targetYear = this.getActiveVacationYear()) {
+        const yKey = String(targetYear);
+        if (this.vacationByYear && this.vacationByYear[yKey]) {
+          return {
+            total: Number(this.vacationByYear[yKey].total ?? this.totalVacation ?? 15),
+            prior: Math.max(0, Number(this.vacationByYear[yKey].prior ?? 0))
+          };
+        }
+        return {
+          total: Number(this.totalVacation ?? 15),
+          prior: (Number(targetYear) === 2026) ? Math.max(0, Number(this.priorUsedVacation ?? 0)) : 0
+        };
+      },
+
+      changeSettingsVacYear(delta) {
+        this.settingsVacYear = (this.settingsVacYear || this.getActiveVacationYear()) + delta;
+        this.syncSettingsInputs();
+        this.render();
+      },
+
       loadStateObject(p, mergeExistingMemos = false) {
         if (p.basePay !== undefined) this.basePay = Number(p.basePay);
         if (p.retroOldBase !== undefined) this.retroOldBase = Number(p.retroOldBase) || 0;
         if (p.fixedInsurance !== undefined) this.fixedInsurance = Number(p.fixedInsurance) || 0;
         if (p.totalVacation !== undefined) this.totalVacation = Number(p.totalVacation);
         if (p.priorUsedVacation !== undefined) this.priorUsedVacation = Math.max(0, Number(p.priorUsedVacation) || 0);
+        if (p.vacationByYear && typeof p.vacationByYear === 'object') {
+          this.vacationByYear = { ...(mergeExistingMemos ? this.vacationByYear : {}), ...p.vacationByYear };
+        }
+        if (!this.vacationByYear['2026'] && (p.totalVacation !== undefined || p.priorUsedVacation !== undefined)) {
+          this.vacationByYear['2026'] = {
+            total: Number(this.totalVacation ?? 15),
+            prior: Math.max(0, Number(this.priorUsedVacation ?? 0))
+          };
+        }
         if (p.hireDate !== undefined) this.hireDate = p.hireDate || '2020-01-01';
         if (p.shiftOffset !== undefined) this.shiftOffset = Number(p.shiftOffset) || 0;
         if (p.records && typeof p.records === 'object') {
@@ -1259,9 +1295,10 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '9.2', exportedAt: new Date().toISOString(),
+          version: '9.3', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
+          vacationByYear: this.vacationByYear,
           hireDate: this.hireDate, shiftOffset: this.shiftOffset,
           records: this.records, monthExtras: this.monthExtras,
           ghGistId: this.ghGistId, ghAutoSync: this.ghAutoSync, ghLastSync: this.ghLastSync
@@ -1328,6 +1365,7 @@
 
       getActiveVacationYear() {
         if (this.activeTab === 'report') return this.reportYear;
+        if (this.activeTab === 'settings') return this.settingsVacYear || (this.calendarView === 'MEMO' ? this.memoYear : this.payViewYear);
         return this.calendarView === 'MEMO' ? this.memoYear : this.payViewYear;
       },
 
@@ -1464,18 +1502,27 @@
           this.scrollToTopClean();
           return;
         }
+        if (tab === 'settings') {
+          this.settingsVacYear = this.calendarView === 'MEMO' ? this.memoYear : this.payViewYear;
+        }
         this.activeTab = tab;
         ['home', 'report', 'severance', 'rates', 'settings'].forEach(t => {
           $(`tab_${t}`).classList.toggle('hidden', t !== tab);
           $(`nav_${t}`).classList.toggle('bottom-nav-active', t === tab);
         });
+        if (tab === 'settings') this.syncSettingsInputs();
         this.render();
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       },
 
       syncSettingsInputs() {
-        $('input_total_vac').value = this.totalVacation;
-        $('input_prior_used_vac').value = this.priorUsedVacation;
+        const targetY = this.settingsVacYear || this.getActiveVacationYear();
+        const vacCfg = this.getYearVacationConfig(targetY);
+        setText('set_vac_year_badge', `${targetY}년 연차`);
+        setText('label_total_vac', `${targetY}년 총 연차 (일)`);
+        setText('label_prior_vac', `${targetY}년 달력 외 기사용 (일)`);
+        $('input_total_vac').value = vacCfg.total;
+        $('input_prior_used_vac').value = vacCfg.prior;
         $('input_base_pay').value = this.basePay || '';
         if ($('input_fixed_ins')) $('input_fixed_ins').value = this.fixedInsurance || '';
         if ($('input_hire_date')) $('input_hire_date').value = this.hireDate || '2020-01-01';
@@ -1485,8 +1532,15 @@
         if ($('chk_gh_auto_sync')) $('chk_gh_auto_sync').checked = this.ghAutoSync;
       },
       saveSettings() {
-        this.totalVacation = Number($('input_total_vac').value) || 0;
-        this.priorUsedVacation = Number($('input_prior_used_vac').value) || 0;
+        const targetY = this.settingsVacYear || this.getActiveVacationYear();
+        const yKey = String(targetY);
+        const totalV = Number($('input_total_vac').value) || 0;
+        const priorV = Math.max(0, Number($('input_prior_used_vac').value) || 0);
+        if (!this.vacationByYear) this.vacationByYear = {};
+        this.vacationByYear[yKey] = { total: totalV, prior: priorV };
+        this.totalVacation = totalV;
+        this.priorUsedVacation = priorV;
+
         this.basePay = Number($('input_base_pay').value) || 0;
         if ($('input_fixed_ins')) this.fixedInsurance = Number($('input_fixed_ins').value) || 0;
         if ($('input_hire_date')) this.hireDate = $('input_hire_date').value || '2020-01-01';
@@ -1589,8 +1643,6 @@
         delete ex.exactGross;
         delete ex.exactNet;
         delete ex.exactDed;
-        delete ex.customBasePay;
-        delete ex.exactIns;
         delete ex.retroGross;
         delete ex.retroDed;
         this.save();
@@ -1990,9 +2042,16 @@
       jumpToMonthFromReport(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
       resetCurrentMonth() {
         const pm = this.getActivePayYM();
-        if (!confirm(`${pm.m}월 급여 근무 내역 및 현황표 입력값을 모두 초기화하시겠습니까? (개인 메모는 유지됩니다)`)) return;
+        if (!confirm(`${pm.m}월 급여 근무 내역 및 현황표(①~③·소급) 입력값을 초기화하시겠습니까? (개인 메모 및 ④기본급·⑤4대보험 설정은 유지됩니다)`)) return;
         this.getCutoffDates(pm.y, pm.m).forEach(dt => this.setWorkRecord(this.formatKey(dt.y, dt.m, dt.d), null));
-        delete this.monthExtras[this.getMonthKey(pm.y, pm.m)];
+        const k = this.getMonthKey(pm.y, pm.m), ex = this.monthExtras[k];
+        if (ex) {
+          const kept = { manualHolBonus: null };
+          if (ex.customBasePay !== undefined && ex.customBasePay > 0) kept.customBasePay = ex.customBasePay;
+          if (ex.exactIns !== undefined && ex.exactIns >= 0) kept.exactIns = ex.exactIns;
+          if (kept.customBasePay !== undefined || kept.exactIns !== undefined) this.monthExtras[k] = kept;
+          else delete this.monthExtras[k];
+        }
         this.save(); this.render();
       },
       escapeHtml(s) { return s.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); },
@@ -2044,10 +2103,11 @@
 
         const ap = this.getActivePayYM(), calc = this.calculateMonthSummary(ap.y, ap.m), rate = calc.rate;
         const vacYear = this.getActiveVacationYear();
+        const vacCfg = this.getYearVacationConfig(vacYear);
         const vacRefBase = this.resolveEffectiveBaseInfo(vacYear, 12).val || calc.appliedBase || this.basePay;
         const calUsedVac = this.getCalendarUsedVacationDays(vacYear);
-        const totalUsedVac = Math.max(0, this.priorUsedVacation + calUsedVac);
-        const remainVac = Math.max(0, this.totalVacation - totalUsedVac);
+        const totalUsedVac = Math.max(0, vacCfg.prior + calUsedVac);
+        const remainVac = Math.max(0, vacCfg.total - totalUsedVac);
         const remainVacHours = Math.round(remainVac * 8 * 10) / 10;
         const oneDayVacPay = Math.round(8 * this.getHourlyRate(vacRefBase));
         const unusedVacPay = Math.round(remainVac * oneDayVacPay);
@@ -2070,10 +2130,13 @@
           return;
         }
         if (this.activeTab === 'settings') {
+          setText('set_vac_year_badge', `${vacYear}년 연차`);
+          setText('label_total_vac', `${vacYear}년 총 연차 (일)`);
+          setText('label_prior_vac', `${vacYear}년 달력 외 기사용 (일)`);
           setText('set_remain_vac_title', `${vacYear}년 남은 연차 (시간차 반영)`);
           setText('set_remain_vac', `${this.fmtVacNum(remainVac)}일 (${remainVacHours}시간)`);
-          setText('set_total_vac_label', `${this.totalVacation}일 (${this.totalVacation * 8}h)`);
-          setText('set_calendar_used_vac', `${this.fmtVacNum(calUsedVac)}일 (기사용 ${this.fmtVacNum(this.priorUsedVacation)}일)`);
+          setText('set_total_vac_label', `${vacCfg.total}일 (${vacCfg.total * 8}h)`);
+          setText('set_calendar_used_vac', `${this.fmtVacNum(calUsedVac)}일 (기사용 ${this.fmtVacNum(vacCfg.prior)}일)`);
           setText('set_unused_vac_pay', `+${unusedVacPay.toLocaleString()}원`);
           setText('set_oneday_vac_pay', `(1일 ${oneDayVacPay.toLocaleString()}원 / 1h ${Math.round(this.getHourlyRate(vacRefBase)).toLocaleString()}원)`);
 
@@ -2332,7 +2395,8 @@
       renderAnnualReport() {
         const y = this.reportYear;
         setText('report_year_title', `${y}년 누적 연봉·특근 리포트`);
-        const calUsed = this.getCalendarUsedVacationDays(y), totalUsed = Math.max(0, this.priorUsedVacation + calUsed), rem = Math.max(0, this.totalVacation - totalUsed);
+        const vacCfg = this.getYearVacationConfig(y);
+        const calUsed = this.getCalendarUsedVacationDays(y), totalUsed = Math.max(0, vacCfg.prior + calUsed), rem = Math.max(0, vacCfg.total - totalUsed);
         const latestDecBase = this.resolveEffectiveBaseInfo(y, 12).val || this.basePay;
         const unusedPay = Math.round(rem * 8 * this.getHourlyRate(latestDecBase));
         let tg = 0, tn = 0, tw = 0, tb = 0, td = 0, to = 0, thc = 0, thh = 0, tni = 0;
