@@ -13,7 +13,11 @@
   <link rel="manifest" href="./manifest.json">
   <title>스마트 월급·퇴직금 계산기 v9.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
   <style>
     html, body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; background: #cbd5e1; color: #0f172a; -webkit-tap-highlight-color: transparent; user-select: none; width: 100%; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
     button, input, select, textarea { touch-action: manipulation; }
@@ -895,8 +899,14 @@
       applyStampOnCell(ev) {
         const preset = STAMP_PRESETS.find(s => s.id === this.activeStampId) || STAMP_PRESETS[0];
         const k = ev.key, curRec = this.records[k] || {};
+        // 수동으로 고정한 근무조가 있는 경우 customShift 플래그까지 함께 보존
+        const keptShift = (curRec.customShift && curRec.shift && curRec.shift !== ev.defaultShift) ? curRec.shift : undefined;
+        const clearOrRestoreShift = () => {
+          this.setWorkRecord(k, keptShift ? { type: 'NORMAL', hours: 0, shift: keptShift, customShift: true } : null);
+        };
+
         if (preset.type === 'DEFAULT') {
-          this.setWorkRecord(k, null);
+          clearOrRestoreShift();
         } else {
           if (ev.isRedOffDay && preset.type !== 'HOLIDAY') {
             if (preset.type === 'OT' || preset.type === 'NIGHT_OT') {
@@ -911,24 +921,15 @@
             (preset.type !== 'HOLIDAY' || (Number(curRec.hours) === preset.hours && curRec.holKind === preset.holKind)) &&
             (preset.type !== 'LEAVE' || Number(curRec.vacDays) === preset.vacDays);
 
-          // 수동으로 고정한 근무조가 있는 경우에만 유지하고, 기본 근무조일 때는 shift 고정 생략
-          const keptShift = (curRec.shift && curRec.shift !== ev.defaultShift) ? curRec.shift : undefined;
-
           if (isSame) {
-            this.setWorkRecord(k, null);
+            clearOrRestoreShift();
           } else if (preset.type === 'HOLIDAY') {
             this.setWorkRecord(k, { type: 'HOLIDAY', hours: preset.hours, holKind: preset.holKind });
-          } else if (preset.type === 'LEAVE') {
-            const nextRec = { type: 'LEAVE', hours: 0, vacDays: preset.vacDays };
-            if (keptShift) nextRec.shift = keptShift;
-            this.setWorkRecord(k, nextRec);
-          } else if (preset.type === 'GONGGA' || preset.type === 'REQ_EDU') {
-            const nextRec = { type: preset.type, hours: 0, vacDays: 0 };
-            if (keptShift) nextRec.shift = keptShift;
-            this.setWorkRecord(k, nextRec);
           } else {
-            const nextRec = { type: preset.type, hours: preset.hours };
-            if (keptShift) nextRec.shift = keptShift;
+            const nextRec = { type: preset.type, hours: preset.hours || 0 };
+            if (preset.type === 'LEAVE') nextRec.vacDays = preset.vacDays;
+            if (preset.type === 'GONGGA' || preset.type === 'REQ_EDU') nextRec.vacDays = 0;
+            if (keptShift) { nextRec.shift = keptShift; nextRec.customShift = true; }
             this.setWorkRecord(k, nextRec);
           }
         }
@@ -1096,7 +1097,7 @@
       },
 
       initSwipeGesture() {
-        const z = $('tab_home');
+        const z = $('calendar_swipe_zone');
         if (!z) return;
         let sx = 0, sy = 0, ignoreSwipe = false, isHorizSwipe = false;
         z.addEventListener('touchstart', e => {
@@ -1206,9 +1207,15 @@
       },
 
       jumpToCalendarMonth(m) {
+        this.flushPendingSave();
         const ty = this.calendarView === 'PAY' ? this.payViewYear : this.memoYear;
-        this.memoYear = ty; this.memoMonth = m; this.memoPayOffset = 0; this.payViewYear = ty; this.payViewMonth = m;
-        this.switchTab('home'); this.setCalendarView('MEMO');
+        this.memoYear = ty; this.memoMonth = m; this.memoPayOffset = 0;
+        this.payViewYear = ty; this.payViewMonth = m;
+        if (this.activeTab !== 'home') {
+          this.switchTab('home');
+        } else {
+          this.render(false);
+        }
       },
       jumpToPayMonth(y, m) { this.payViewYear = y; this.payViewMonth = m; this.switchTab('home'); this.setCalendarView('PAY'); },
 
@@ -1330,6 +1337,7 @@
         if (p.ghAutoSync !== undefined) this.ghAutoSync = Boolean(p.ghAutoSync);
         if (p.ghLastSync !== undefined) this.ghLastSync = p.ghLastSync;
         this.initRetroSelectors();
+        this.syncFallbackBaseAndIns();
         this.invalidateSummaryCache();
       },
 
@@ -1425,7 +1433,6 @@
       setThisWeekShift(ts) {
         const t = this.getTodayInfo(), w = this.getBaseWeekDiff(t.y, t.m, t.d);
         this.shiftOffset = (((this.SHIFT_ORDER.indexOf(ts) - (w % 3)) % 3) + 3) % 3;
-        // 근무조 패턴 변경 시 기존 잔업·휴가 등에 자동 묶여 있던 근무조 고정값을 해제하여 새 패턴이 즉시 반영되게 처리
         Object.entries(this.records).forEach(([k, r]) => {
           if (r && r.shift && !r.customShift) {
             delete r.shift;
@@ -1874,14 +1881,15 @@
         const hasExactGross = ex.exactGross !== undefined && ex.exactGross > 0;
 
         const finalWage = hasExactWage ? ex.exactWage : autoWage;
-        // ③ 차감지급액 타이핑 중(절반 미만 금액)에는 오작동하지 않고, 상여 없을 때의 실수령액 범위일 때만 상여 0원 자동 판정
         const minValidNetForZeroBonus = Math.max(100000, Math.round(finalWage * 0.5));
         const maxNetForZeroBonus = Math.min(finalWage, Math.round(finalWage - fixedInsurances - unionFee + (appliedBase * 0.25)));
         const impliedZeroBonus = !hasExactBonus && autoBonus > 0 && hasExactWage && hasExactNet &&
           (ex.exactNet >= minValidNetForZeroBonus) && (ex.exactNet <= maxNetForZeroBonus);
 
         const finalBonus = hasExactBonus ? ex.exactBonus : (impliedZeroBonus ? 0 : autoBonus);
-        const autoHolName = (impliedZeroBonus || (hasExactBonus && ex.exactBonus === 0)) ? null : rawAutoHolName;
+        // 짝수달 정기상여만 입력한 경우에도 명절상여 배지가 자동으로 꺼지도록 판정 보완
+        const noHolInExactBonus = hasExactBonus && (ex.exactBonus < regBonusPay + (appliedBase * 0.5));
+        const autoHolName = (impliedZeroBonus || noHolInExactBonus) ? null : rawAutoHolName;
         const baseGross = (hasExactWage || hasExactBonus || impliedZeroBonus) ? (finalWage + finalBonus) : (hasExactGross ? ex.exactGross : autoGross);
 
         let baseNet = autoNet;
@@ -1894,7 +1902,7 @@
           baseDed = ex.exactDed;
           baseNet = baseGross - baseDed;
         } else if (hasExactWage || hasExactBonus) {
-          const estTaxForFinal = this.estimateMonthlyIncomeTax(finalWage, isEven ? appliedBase : 0, prevHadHolBonus, appliedBase);
+          const estTaxForFinal = this.estimateMonthlyIncomeTax(finalWage, finalBonus, prevHadHolBonus, appliedBase);
           baseDed = estTaxForFinal + fixedInsurances + unionFee;
           baseNet = baseGross - baseDed;
         }
@@ -2557,7 +2565,9 @@
         const vacCfg = this.getYearVacationConfig(y);
         const calUsed = this.getCalendarUsedVacationDays(y), totalUsed = Math.max(0, vacCfg.prior + calUsed), rem = Math.max(0, vacCfg.total - totalUsed);
         const latestDecBase = this.resolveEffectiveBaseInfo(y, 12).val || this.basePay;
-        const unusedPay = Math.round(rem * 8 * this.getHourlyRate(latestDecBase));
+        // 상단 헤더 및 설정 탭과 동일하게 1일 연차수당 단가를 먼저 반올림 후 계산하여 오차 제거
+        const oneDayVacPay = Math.round(8 * this.getHourlyRate(latestDecBase));
+        const unusedPay = Math.round(rem * oneDayVacPay);
         let tg = 0, tn = 0, tw = 0, tb = 0, td = 0, to = 0, thc = 0, thh = 0, tni = 0;
         const rows = [];
         for (let m = 1; m <= 12; m++) {
