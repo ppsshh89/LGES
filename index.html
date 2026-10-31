@@ -11,7 +11,7 @@
   <link id="dynamic_favicon" rel="icon" type="image/png" href="./icon-192.png">
   <link id="dynamic_apple_icon" rel="apple-touch-icon" href="./icon-192.png">
   <link rel="manifest" href="./manifest.json">
-  <title>스마트 월급·퇴직금 계산기 v9.3</title>
+  <title>스마트 월급·퇴직금 계산기 v9.4</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }</script>
   <style>
@@ -206,14 +206,14 @@
                   <label class="text-[9.5px] font-extrabold text-blue-950">④ 당월 기본급</label>
                   <span id="badge_month_base_state" class="text-[8px] font-bold text-blue-600">이전달 유지</span>
                 </div>
-                <input type="number" id="input_month_base_pay" step="1000" placeholder="변동 시에만 입력" oninput="App.onExtraInput()" class="w-full p-1 border border-blue-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
+                <input type="number" id="input_month_base_pay" step="1000" placeholder="기본급 입력(이후 자동이월)" oninput="App.onExtraInput()" class="w-full p-1 border border-blue-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
               </div>
               <div class="bg-rose-50/50 px-2 py-1.5 rounded-xl border border-rose-200/90">
                 <div class="flex items-center justify-between mb-0.5 nowrap">
                   <label class="text-[9.5px] font-extrabold text-rose-950">⑤ 당월 4대보험 합계</label>
                   <span id="badge_month_ins_state" class="text-[8px] font-bold text-rose-600">이전달 유지</span>
                 </div>
-                <input type="number" id="input_month_fixed_ins" step="100" placeholder="변동 시에만 입력" oninput="App.onExtraInput()" class="w-full p-1 border border-rose-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
+                <input type="number" id="input_month_fixed_ins" step="100" placeholder="4대보험 입력(이후 자동이월)" oninput="App.onExtraInput()" class="w-full p-1 border border-rose-300 rounded-lg font-black text-right bg-white text-slate-900 text-[11px] tnum">
               </div>
             </div>
 
@@ -469,7 +469,7 @@
 
         <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
           <div class="flex items-center justify-between gap-1 nowrap">
-            <h2 class="text-sm font-black text-slate-900 truncate">🌴 연차 · 기본 설정값 · 입사일 관리</h2>
+            <h2 class="text-sm font-black text-slate-900 truncate">🌴 연차 · 입사일 관리</h2>
             <div class="inline-flex items-center gap-1 bg-emerald-100/90 border border-emerald-300 rounded-lg px-1.5 py-0.5 shrink-0">
               <button type="button" onclick="App.changeSettingsVacYear(-1)" class="text-[10px] font-black text-emerald-800 px-1 active:scale-90">◀</button>
               <span id="set_vac_year_badge" class="text-[10px] font-black text-emerald-950 tnum">2026년 연차</span>
@@ -498,18 +498,6 @@
           <div class="grid grid-cols-2 gap-2 text-xs">
             <div><label id="label_total_vac" class="block font-bold text-slate-700 mb-1 nowrap">올해 총 연차 (일)</label><input type="number" id="input_total_vac" value="15" step="0.5" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
             <div><label id="label_prior_vac" class="block font-bold text-slate-700 mb-1 nowrap">달력 외 기사용 연차 (일)</label><input type="number" id="input_prior_used_vac" value="0" step="0.125" onchange="App.saveSettings()" class="w-full p-2 border border-slate-300 rounded-xl font-black text-center"></div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
-            <div>
-              <label class="block font-bold text-blue-800 mb-1 nowrap">✎ 기본 월 기본급 (원)</label>
-              <input type="number" id="input_base_pay" value="0" step="1000" placeholder="0" onchange="App.saveSettings()" class="w-full p-2 border-2 border-blue-500 rounded-xl font-black text-right text-slate-900 tnum">
-              <span class="text-[9px] text-slate-400 block mt-0.5">연중 인상 시 홈 화면 ④번에 입력</span>
-            </div>
-            <div>
-              <label class="block font-bold text-rose-800 mb-1 nowrap">🛡️ 기본 4대보험 합계</label>
-              <input type="number" id="input_fixed_ins" value="0" step="100" placeholder="0" onchange="App.saveSettings()" class="w-full p-2 border-2 border-rose-400 rounded-xl font-black text-right text-slate-900 tnum">
-              <span class="text-[9px] text-slate-400 block mt-0.5">연중 변동 시 홈 화면 ⑤번에 입력</span>
-            </div>
           </div>
           <div class="pt-2 border-t border-slate-100 text-xs">
             <label class="block font-bold text-indigo-900 mb-1 nowrap">📅 입사일 (퇴직금 기산일)</label>
@@ -939,8 +927,9 @@
         sm.innerHTML = hS; em.innerHTML = hE;
       },
       renderRetroSimulator() {
+        const latestBase = this.resolveEffectiveBaseInfo(this.reportYear, 12).val || this.basePay;
         const oldB = Number($('retro_old_base')?.value) || 0;
-        const newB = Number($('retro_new_base')?.value) || this.basePay;
+        const newB = Number($('retro_new_base')?.value) || latestBase;
         this.retroOldBase = oldB;
         let sm = Number($('retro_start_m')?.value) || 3;
         let em = Number($('retro_end_m')?.value) || 7;
@@ -1295,7 +1284,7 @@
 
       getExportPayload(inc = true) {
         const p = {
-          version: '9.3', exportedAt: new Date().toISOString(),
+          version: '9.4', exportedAt: new Date().toISOString(),
           basePay: this.basePay, retroOldBase: this.retroOldBase, fixedInsurance: this.fixedInsurance,
           totalVacation: this.totalVacation, priorUsedVacation: this.priorUsedVacation,
           vacationByYear: this.vacationByYear,
@@ -1433,18 +1422,30 @@
         if (ex && ex.customBasePay !== undefined && ex.customBasePay > 0) {
           return { val: ex.customBasePay, source: 'THIS_MONTH', fromKey: targetKey };
         }
-        let bestKey = '';
-        let bestVal = 0;
+        let prevKey = '', prevVal = 0;
+        let earliestKey = '', earliestVal = 0;
         for (const [k, v] of Object.entries(this.monthExtras)) {
-          if (k < targetKey && v && v.customBasePay !== undefined && v.customBasePay > 0 && k > bestKey) {
-            bestKey = k;
-            bestVal = v.customBasePay;
+          if (v && v.customBasePay !== undefined && v.customBasePay > 0) {
+            if (k < targetKey && k > prevKey) {
+              prevKey = k;
+              prevVal = v.customBasePay;
+            }
+            if (!earliestKey || k < earliestKey) {
+              earliestKey = k;
+              earliestVal = v.customBasePay;
+            }
           }
         }
-        if (bestVal > 0) {
-          return { val: bestVal, source: 'CARRIED', fromKey: bestKey };
+        if (prevVal > 0) {
+          return { val: prevVal, source: 'CARRIED', fromKey: prevKey };
         }
-        return { val: this.basePay || 0, source: 'DEFAULT', fromKey: null };
+        if (this.basePay > 0) {
+          return { val: this.basePay, source: 'DEFAULT', fromKey: null };
+        }
+        if (earliestVal > 0) {
+          return { val: earliestVal, source: 'EARLIEST', fromKey: earliestKey };
+        }
+        return { val: 0, source: 'DEFAULT', fromKey: null };
       },
 
       resolveEffectiveInsInfo(payY, payM) {
@@ -1453,18 +1454,30 @@
         if (ex && ex.exactIns !== undefined && ex.exactIns >= 0) {
           return { val: ex.exactIns, source: 'THIS_MONTH', fromKey: targetKey };
         }
-        let bestKey = '';
-        let bestVal = null;
+        let prevKey = '', prevVal = null;
+        let earliestKey = '', earliestVal = null;
         for (const [k, v] of Object.entries(this.monthExtras)) {
-          if (k < targetKey && v && v.exactIns !== undefined && v.exactIns >= 0 && k > bestKey) {
-            bestKey = k;
-            bestVal = v.exactIns;
+          if (v && v.exactIns !== undefined && v.exactIns >= 0) {
+            if (k < targetKey && k > prevKey) {
+              prevKey = k;
+              prevVal = v.exactIns;
+            }
+            if (!earliestKey || k < earliestKey) {
+              earliestKey = k;
+              earliestVal = v.exactIns;
+            }
           }
         }
-        if (bestVal !== null) {
-          return { val: bestVal, source: 'CARRIED', fromKey: bestKey };
+        if (prevVal !== null) {
+          return { val: prevVal, source: 'CARRIED', fromKey: prevKey };
         }
-        return { val: this.fixedInsurance || 0, source: 'DEFAULT', fromKey: null };
+        if (this.fixedInsurance > 0) {
+          return { val: this.fixedInsurance, source: 'DEFAULT', fromKey: null };
+        }
+        if (earliestVal !== null) {
+          return { val: earliestVal, source: 'EARLIEST', fromKey: earliestKey };
+        }
+        return { val: 0, source: 'DEFAULT', fromKey: null };
       },
 
       getLmsAllowance(b = this.basePay) { return (!b || b <= 0) ? 0 : Math.round(b / 44); },
@@ -1510,7 +1523,7 @@
           $(`tab_${t}`).classList.toggle('hidden', t !== tab);
           $(`nav_${t}`).classList.toggle('bottom-nav-active', t === tab);
         });
-        if (tab === 'settings') this.syncSettingsInputs();
+        if (tab === 'settings' || tab === 'report') this.syncSettingsInputs();
         this.render();
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       },
@@ -1521,30 +1534,28 @@
         setText('set_vac_year_badge', `${targetY}년 연차`);
         setText('label_total_vac', `${targetY}년 총 연차 (일)`);
         setText('label_prior_vac', `${targetY}년 달력 외 기사용 (일)`);
-        $('input_total_vac').value = vacCfg.total;
-        $('input_prior_used_vac').value = vacCfg.prior;
-        $('input_base_pay').value = this.basePay || '';
-        if ($('input_fixed_ins')) $('input_fixed_ins').value = this.fixedInsurance || '';
+        if ($('input_total_vac')) $('input_total_vac').value = vacCfg.total;
+        if ($('input_prior_used_vac')) $('input_prior_used_vac').value = vacCfg.prior;
         if ($('input_hire_date')) $('input_hire_date').value = this.hireDate || '2020-01-01';
         if ($('retro_old_base')) $('retro_old_base').value = this.retroOldBase || '';
-        if ($('retro_new_base')) $('retro_new_base').value = this.basePay || '';
+        const latestBase = this.resolveEffectiveBaseInfo(this.reportYear, 12).val || this.basePay;
+        if ($('retro_new_base') && !Number($('retro_new_base').value)) {
+          $('retro_new_base').value = latestBase || '';
+        }
         if ($('input_gh_token')) $('input_gh_token').value = this.ghToken || '';
         if ($('chk_gh_auto_sync')) $('chk_gh_auto_sync').checked = this.ghAutoSync;
       },
       saveSettings() {
         const targetY = this.settingsVacYear || this.getActiveVacationYear();
         const yKey = String(targetY);
-        const totalV = Number($('input_total_vac').value) || 0;
-        const priorV = Math.max(0, Number($('input_prior_used_vac').value) || 0);
+        const totalV = Number($('input_total_vac')?.value) || 0;
+        const priorV = Math.max(0, Number($('input_prior_used_vac')?.value) || 0);
         if (!this.vacationByYear) this.vacationByYear = {};
         this.vacationByYear[yKey] = { total: totalV, prior: priorV };
         this.totalVacation = totalV;
         this.priorUsedVacation = priorV;
 
-        this.basePay = Number($('input_base_pay').value) || 0;
-        if ($('input_fixed_ins')) this.fixedInsurance = Number($('input_fixed_ins').value) || 0;
         if ($('input_hire_date')) this.hireDate = $('input_hire_date').value || '2020-01-01';
-        if ($('retro_new_base')) $('retro_new_base').value = this.basePay || '';
         this.save(); this.render();
       },
 
@@ -1622,7 +1633,10 @@
         else ex.exactNet = Number(nRaw);
 
         if (baseRaw === '' || Number(baseRaw) <= 0) delete ex.customBasePay;
-        else ex.customBasePay = Number(baseRaw);
+        else {
+          ex.customBasePay = Number(baseRaw);
+          if ($('retro_new_base')) $('retro_new_base').value = ex.customBasePay;
+        }
 
         if (insRaw === '' || Number(insRaw) < 0) delete ex.exactIns;
         else ex.exactIns = Number(insRaw);
@@ -2205,8 +2219,12 @@
             const fm = Number(calc.baseInfo.fromKey.split('-')[1]);
             baseStateEl.innerText = `↪ ${fm}월분 자동이월`;
             baseStateEl.className = 'text-[8px] font-bold text-indigo-600';
+          } else if (calc.baseInfo.source === 'EARLIEST') {
+            const fm = Number(calc.baseInfo.fromKey.split('-')[1]);
+            baseStateEl.innerText = `↩ ${fm}월분 역참조`;
+            baseStateEl.className = 'text-[8px] font-bold text-sky-600';
           } else {
-            baseStateEl.innerText = '기본설정 유지';
+            baseStateEl.innerText = calc.appliedBase > 0 ? '기존 기본값 유지' : '미입력';
             baseStateEl.className = 'text-[8px] font-bold text-slate-400';
           }
         }
@@ -2220,8 +2238,12 @@
             const fm = Number(calc.insInfo.fromKey.split('-')[1]);
             insStateEl.innerText = `↪ ${fm}월분 자동이월`;
             insStateEl.className = 'text-[8px] font-bold text-rose-600';
+          } else if (calc.insInfo.source === 'EARLIEST') {
+            const fm = Number(calc.insInfo.fromKey.split('-')[1]);
+            insStateEl.innerText = `↩ ${fm}월분 역참조`;
+            insStateEl.className = 'text-[8px] font-bold text-pink-600';
           } else {
-            insStateEl.innerText = '기본설정 유지';
+            insStateEl.innerText = calc.fixedInsurances > 0 ? '기존 기본값 유지' : '미입력';
             insStateEl.className = 'text-[8px] font-bold text-slate-400';
           }
         }
@@ -2243,11 +2265,11 @@
             nIn.value = calc.ex.exactNet !== undefined ? calc.ex.exactNet : '';
           }
           if (mBaseIn) {
-            mBaseIn.placeholder = calc.appliedBase > 0 ? `적용중 ${calc.appliedBase.toLocaleString()}` : '기본급 입력';
+            mBaseIn.placeholder = calc.appliedBase > 0 ? `적용중 ${calc.appliedBase.toLocaleString()}` : '기본급 입력(이후 자동이월)';
             mBaseIn.value = calc.ex.customBasePay !== undefined ? calc.ex.customBasePay : '';
           }
           if (mInsIn) {
-            mInsIn.placeholder = calc.fixedInsurances > 0 ? `적용중 ${calc.fixedInsurances.toLocaleString()}` : '4대보험 합계';
+            mInsIn.placeholder = calc.fixedInsurances > 0 ? `적용중 ${calc.fixedInsurances.toLocaleString()}` : '4대보험 입력(이후 자동이월)';
             mInsIn.value = calc.ex.exactIns !== undefined ? calc.ex.exactIns : '';
           }
           if (rgIn) rgIn.value = calc.ex.retroGross !== undefined ? calc.ex.retroGross : '';
@@ -2262,7 +2284,7 @@
         const diffNotice = $('slip_diff_notice');
         if (diffNotice) {
           if (calc.appliedBase <= 0 && !calc.isVerifiedSlip) {
-            diffNotice.innerHTML = `🔒 <strong>개인정보 보호 모드:</strong> 위 <strong>④ 당월 기본급</strong>에 기본급을 입력하거나, <strong class="text-blue-700 cursor-pointer underline" onclick="App.switchTab('settings')">[⚙️설정·백업]</strong> 탭에서 백업코드를 복원해 주세요.`;
+            diffNotice.innerHTML = `🔒 <strong>개인정보 보호 모드:</strong> 위 <strong>④ 당월 기본급</strong>에 기본급을 한 번만 입력하면 이후 달과 과거 달에 모두 자동 반영됩니다.`;
           } else if (calc.isVerifiedSlip) {
             const wDiff = calc.finalWage - calc.autoWage;
             const nDiff = calc.baseNet - calc.autoNet;
